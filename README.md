@@ -56,6 +56,15 @@ Choose a self-explaining name for your project.
 
 ## Description
 Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+Ingenzura-kirundi is a tool to analyse rundi texts by lemma.
+That way NLP statistic tasks are more efficient, because it reduces tokens not only to types but to lemmata. This is important because in bantu languages the verbform contains in itself also subject, up to three objects, time, negation, perfektiv and other features ... combined with 16 classes of nouns there is a huge number of forms possible.
+Ingenzura-kirundi takes a text and returns it's tokens tagged with lemma and POS (Part of Speech). 
+With this it's also possible:
+- search N-grams by combinations of token, lemma or POS.
+- frequency distribution of types
+- frequency distribution of lemma
+- the text with tokens replaced by lemma
+
 
 ## Badges
 On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
