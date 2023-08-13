@@ -1,4 +1,4 @@
-# find_lemmata_in_corpus
+# ingenzura kirundi
 
 
 
@@ -88,7 +88,8 @@ If you have ideas for releases in the future, it is a good idea to list them in 
 ## Contributing
 There are different ways to contribute:  
 1.  
-You can check your tagged text for "UNK" and propose to identify these words as Named-entity or as a new entry for the dictionary. Please provide in this case also grammar features (Singular and Plural of nouns, respectively Infinitiv and Perfektiv of verbs, in best case also pronounciation, for Named-entites the special tag). Mail your proposals to deki.kazinduzi(at)gmail.com  
+You can check your tagged text for "UNK" and propose to identify these words as Named-entity or as a new entry for the dictionary. Please provide in this case also grammar features (Singular and Plural of nouns, respectively Infinitiv and Perfektiv of verbs, in best case also pronounciation, for Named-entites the special tag).  
+Mail your proposals to deki.kazinduzi(at)gmail.com  
 2.  
 You can check your tagged text for wrong tags and report them.  
 3.  
