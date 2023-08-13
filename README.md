@@ -59,9 +59,9 @@ Ingenzura-kirundi is a tool to analyse rundi texts by lemmatizing.
 That way NLP statistic tasks are more efficient, because it reduces tokens not only to types but to lemmata. This is important because in bantu languages the verbform contains in itself also subject, up to three objects, time, negation, perfektiv and other features ... combined with 16 classes of nouns there is a huge number of forms possible.  
 Ingenzura-kirundi takes a text and returns it's tokens tagged with lemma and PoS. 
 With this it's also possible:
-- search N-grams by combinations of token, lemma or POS
+- search N-grams by combinations of token, lemma or Part-of-Speech
 - frequency distribution of types
-- frequency distribution of lemma
+- frequency distribution of lemmata
 - the text with tokens replaced by lemma
 The tag will be "UNK" if it doesn't find an appropriate lemma or Named-entity in the underlying database.
 
@@ -79,20 +79,20 @@ Within a particular ecosystem, there may be a common way of installing things, s
 Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
 
 ## Support
-deki.kazinduzi(a)gmail.com
+deki.kazinduzi(a)gmail.com  
 Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
 
 ## Roadmap
 If you have ideas for releases in the future, it is a good idea to list them in the README.
 
 ## Contributing
-There are different ways to contribute:
-1.
-You can check your tagged text for "UNK" and propose to identify these words as Named-entity or as a new entry for the dictionary. Please provide in this case also grammar features (Singular and Plural of nouns, respectively Infinitiv and Perfektiv of verbs, in best case also pronounciation, for Named-entites the special tag). Mail your proposals to deki.kazinduzi(at)gmail.com
-2.
-You can check your tagged text for wrong tags and report them.
-3.
-You can write tests and documentation ;-)
+There are different ways to contribute:  
+1.  
+You can check your tagged text for "UNK" and propose to identify these words as Named-entity or as a new entry for the dictionary. Please provide in this case also grammar features (Singular and Plural of nouns, respectively Infinitiv and Perfektiv of verbs, in best case also pronounciation, for Named-entites the special tag). Mail your proposals to deki.kazinduzi(at)gmail.com  
+2.  
+You can check your tagged text for wrong tags and report them.  
+3.  
+You can write tests and documentation ;-)  
 
 State if you are open to contributions and what your requirements are for accepting them.
 
@@ -101,7 +101,7 @@ For people who want to make changes to your project, it's helpful to have some d
 You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
 
 ## Authors and acknowledgment
-Doreen Nixdorf
+Doreen Nixdorf  
 Show your appreciation to those who have contributed to the project.
 
 ## License
