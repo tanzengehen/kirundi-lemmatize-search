@@ -3,7 +3,7 @@
 """
 Created on Sun Aug  6 23:43:14 2023
 
-@author: doreen
+@author: doreen nixdorf
 """
 
 import csv

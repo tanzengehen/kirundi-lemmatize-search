@@ -3,7 +3,7 @@
 """
 Created on Sat Jul 29 10:13:10 2023
 
-@author: doreen
+@author: doreen nixdorf
 """
 
 from unidecode import unidecode

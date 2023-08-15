@@ -17,7 +17,6 @@ import kir_db_classes as dbc
 import kir_string_depot as sd
 
 
-
 def reduce_simplefreq_to_lemma_collections(simple_freq_list):
     """ mappt auf Namen und alle Wortarten im kirundi_db
      liest simple_freq als Liste ein von: (Wort, Anzahl)
