@@ -3,7 +3,7 @@
 """
 Created on Sat Jul 29 10:13:10 2023
 
-@author: doreen nixdorf
+@author: doreen
 """
 
 from unidecode import unidecode
@@ -444,6 +444,7 @@ class Verb(Lemma):
         self.comb = None
         self.unclear = []
         self.proverb = False
+        self.passiv = False
         self.perfective = unidecode(row[5].strip().lower())
         self.set_qu()
 
@@ -479,7 +480,9 @@ class Verb(Lemma):
             print(self.lemma+": perfective?", self.perfective, ".")
             self.unclear.append([self.lemma, "perfective unclear:", self.perfective])
             self.perfective = None
-
+    def mark_passiv(self):
+        if self.lemma[-2] =="w":
+            self.passiv = True
     def _set_end_of_ends(self):
         """sets regex-strings for three possible endforms of the verb including passiv, subjunctiv,
         perfective, perfective passive and each with direction-suffixes
@@ -752,6 +755,29 @@ def filter_proverbs_out(verb_list):
             pur_stems.append(verb.stem)
         except Exception:
             print("filter proverbs klappt nicht:", verb)
+    return new_list
+
+def filter_passiv_out(verb_list):
+    # sort by length of lemma to have proverbs later than pur verbs
+    verbs = sorted(verb_list, key=lambda x: len(x.lemma))
+    pur_stems = []
+    new_list = []
+    for verb in verbs:
+        verb.mark_passiv()
+        try:
+            if verb.passiv is False:
+                new_list.append(verb)
+                pur_stems.append(verb.stem)
+                continue
+            # verb without passiv maybe already as pure infinitiv in the list?
+            if verb.stem in pur_stems :
+                # we can skip it
+                continue
+            # there is no pure version in the list, we take it
+            new_list.append(verb)
+            pur_stems.append(verb.stem)
+        except Exception:
+            print("filter passiv klappt nicht:", verb)
     return new_list
 
 def sammle_verben(db_verben, freq_d):
