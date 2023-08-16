@@ -3,7 +3,7 @@
 """
 Created on Tue Aug  1 07:39:44 2023
 
-@author: doreen nixdorf
+@author: doreen
 """
 
 import re

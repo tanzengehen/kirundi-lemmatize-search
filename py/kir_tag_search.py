@@ -17,6 +17,7 @@ import kir_db_classes as dbc
 import kir_string_depot as sd
 
 
+
 def reduce_simplefreq_to_lemma_collections(simple_freq_list):
     """ mappt auf Namen und alle Wortarten im kirundi_db
      liest simple_freq als Liste ein von: (Wort, Anzahl)
@@ -386,7 +387,7 @@ def tag_or_load_tags(whattodo):
                                  whattodo.fn_tag)
         if good_old:
             print("Hari ifishi n'indanzi: (rikorwa", good_old,
-                  ")\n            /"+"/".join(whattodo.fn_tag.split("/")[-4:]),         
+                  ")\n"+"\t"*6+"/".join(whattodo.fn_tag.split("/")[-4:]),         
                   "\nniryo ndakoresha ku kibanza ca gusubira gukora indanzi")
             text_tagged = load_json(whattodo.fn_tag)
             return text_tagged

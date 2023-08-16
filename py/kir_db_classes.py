@@ -3,7 +3,7 @@
 """
 Created on Sun Aug  6 23:43:14 2023
 
-@author: doreen nixdorf
+@author: doreen
 """
 
 import csv
@@ -49,10 +49,14 @@ class Noun(kv.Lemma):
         """
         columns = [3,  # entry0-prefix_sg
                    7,  # entry1-prefix_pl
-                   14] # entry2-alternative prefix
+                   14, # entry2-alternative prefix
+                   21] # entry3-plural irregular 
         entry = [unidecode(row[x]).strip().lower() for x in columns]
+        # plural is not regular (amaso)
+        if entry[3]:
+            coll = [self.lemma, entry[3]]
         # there is plural and it's different from singular
-        if entry[1] not in ("" , entry[0]) :
+        elif entry[1] not in ("" , entry[0]) :
             coll = [self.lemma, sd.breakdown_consonants(entry[1]+self.stem)]
         # there is no plural
         else :
@@ -261,6 +265,8 @@ def load_dbkirundi():
     print(f'{line_count} entries of the dictionary prepared.')
     csv_file.close()
     verbs = kv.filter_proverbs_out(verbs)
+    verbs =  kv.filter_passiv_out(verbs)
+    
     stems = list(stems)
     return (verbs, nouns, adjectivs, pronouns, unchanging_words, rests, stems)
 

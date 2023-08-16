@@ -3,7 +3,7 @@
 """
 Created on Sun Aug  6 15:10:18 2023
 
-@author: doreen nixdorf
+@author: doreen
 """
 
 import os
@@ -136,7 +136,7 @@ class PossibleTags:
         self.pt1 = [
             "ADJ", "ADV", "CONJ", "EMAIL","F","INTJ", "NI", "NOUN", "NOUN_PER",
              "NUM", "NUM_ROM","PRON","PROPN_CUR","PPROPN_LOC","PPROPN_NAM",
-             "PROPN_ORG","PPROPN_REL","PPROPN_SCI","PROPN_THG","PPROPN_VEG",
+             "PROPN_ORG","PROPN_REL","PPROPN_SCI","PROPN_THG","PPROPN_VEG",
              "PREP" ,"SYMBOL", "UNK", "VERB", "WWW"]
         self.pt2 = ",.:!?(){}[]'\""
 

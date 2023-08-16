@@ -179,6 +179,8 @@ def freq_to_dict(lemmafreq, filename):
     """bring lemma frequency distribution in format to save as json
     """
     liste = []
+    lemma_count=0
+    points = int(len(lemmafreq)/50)+1
     for i in lemmafreq:
         freqs = {}
         for num in range(5,len(i)):
@@ -188,6 +190,10 @@ def freq_to_dict(lemmafreq, filename):
         with open(filename,'w', encoding = "utf-8") as file:
             # consider: without indent it's only half as big
             json.dump({"lemma_freqency_distribution":liste}, file, indent=4)
+        # progress bar
+        lemma_count +=1
+        if lemma_count%points == 0 :
+            print('.',end = "")
     #return liste
 
 # will be exchanged with hash value question

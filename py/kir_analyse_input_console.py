@@ -77,7 +77,7 @@ def specify_search(interest0):
                 if take in possible.pt1 or take in possible.pt2 :
                     search.append(take)
                 else:
-                    print("indanzi:",take,"ntiriho") # gibt's nicht
+                    print("indanzi",take,"ntiriho") # gibt's nicht
                     sysexit()
             # word, lemma
             elif take != "" :
