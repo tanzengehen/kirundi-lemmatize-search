@@ -48,7 +48,7 @@ def reduce_simplefreq_to_lemma_collections(simple_freq_list):
     nfound += len(found_here)
     collection.append(found_here)
     print('nouns               :', len(no_subs)-len(no_adj))
-    print('sorting verbs'+38*".")
+    print('sorting verbs'+37*".")
     #??? problem:not enough values to unpack (expected 2, got 1)
     (found_here, no_verbs) = kv.sammle_verben(dict_verbs, no_adj)
     nfound += len(found_here)

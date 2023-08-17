@@ -3,7 +3,7 @@
 """
 Created on Sat Jul 29 10:13:10 2023
 
-@author: doreen
+@author: doreen nixdorf
 """
 
 from unidecode import unidecode
@@ -33,11 +33,13 @@ class Lemma:
         else:
             print(f"lemma has no stem in database: ID{self.dbid}")
             self.stem = "xxx"
+        self.questions = [self.lemma,]
         if entry[4]:
             self.alternatives = entry[4].split(";")
+            for i in self.alternatives:
+                self.questions.append(i.strip())
         else:
             self.alternatives =""
-        self.questions = [self.lemma,]
     def __str__(self):
         return f"lemma= {self.lemma}, ID={ self.dbid}, POS= {self.pos}, stem= {self.stem}, "\
                +f"alternatives= {self.alternatives} "\

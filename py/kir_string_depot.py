@@ -3,7 +3,7 @@
 """
 Created on Sun Aug  6 15:10:18 2023
 
-@author: doreen
+@author: doreen nixdorf
 """
 
 import os

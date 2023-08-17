@@ -174,13 +174,14 @@ def show_twenty(mylist):
         elif isinstance(i, (tuple,list)) :
             print(i[0],";",i[1])
 
-
+#TODO very slow!!
 def freq_to_dict(lemmafreq, filename):
     """bring lemma frequency distribution in format to save as json
     """
     liste = []
     lemma_count=0
     points = int(len(lemmafreq)/50)+1
+    print("format lemma freq")
     for i in lemmafreq:
         freqs = {}
         for num in range(5,len(i)):
