@@ -35,7 +35,7 @@ def reduce_simplefreq_to_lemma_collections(simple_freq_list):
     nfound += len(found_here)
     collection.append(found_here)
     print("\nnamed entities      :", len(no_names)-len(no_adv))
-    (found_here, no_prns) = dbc.sammle_pronouns(dict_prns, no_adv)
+    (found_here, no_prns) = dbc.collect_pronouns(dict_prns, no_adv)
     nfound += len(found_here)
     collection.append(found_here)
     print('adverbs etc         :', len(no_adv)-len(no_prns))

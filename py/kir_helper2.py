@@ -181,7 +181,7 @@ def freq_to_dict(lemmafreq, filename):
     liste = []
     lemma_count=0
     points = int(len(lemmafreq)/50)+1
-    print("format lemma freq")
+    print("\nformat lemma freq")
     for i in lemmafreq:
         freqs = {}
         for num in range(5,len(i)):

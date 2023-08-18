@@ -300,7 +300,7 @@ def regex_prfx_subj_times_verbs():
     #time2 with u-ta-: ((wa)), ((wara)), ((wo)), ((ura)),        ((=asked above))
     #       uta, utara!, uto, utazo!, uraca, uraka!, utaki, uki!, uka
     #       bita, bitara, bito, bitazo, biraca, biraka, bitaki, biki
-    #kugira:
+    # kugira
     #       ((wagira, wagize))/ ((waragira, waragize))
     #       ((wogira, wogize)) / ((uragira, uragize))
     #       utagira, utagize / utaragira, ()
