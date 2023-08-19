@@ -41,11 +41,11 @@ class Lemma:
         else:
             self.alternatives =""
     def __str__(self):
-        return f"lemma= {self.lemma}, ID={ self.dbid}, POS= {self.pos}, stem= {self.stem}, "\
+        return f"lemma= {self.lemma}, ID={ self.dbid}, PoS= {self.pos}, stem= {self.stem}, "\
                +f"alternatives= {self.alternatives} "\
                +f"questions: {self.questions}"
     def __repr__(self):
-        return f"lemma={self.lemma}, dbid={self.dbid}, POS= {self.pos}, stem= {self.stem}, "\
+        return f"lemma={self.lemma}, dbid={self.dbid}, PoS= {self.pos}, stem= {self.stem}, "\
                    +f"alternatives={self.alternatives}, "\
                    +f"len(questions)={len(self.questions)}"
 

@@ -31,7 +31,7 @@ def reduce_simplefreq_to_lemma_collections(simple_freq_list):
     (found_here, no_names) = dbc.filter_names_out(fremd, simple_freq_list)
     nfound = len(found_here)
     collection.append(found_here)
-    (found_here, no_adv) = dbc.sammle_kleine_woerter(dict_adv, no_names)
+    (found_here, no_adv) = dbc.collect_adv_plus(dict_adv, no_names)
     nfound += len(found_here)
     collection.append(found_here)
     print("\nnamed entities      :", len(no_names)-len(no_adv))

@@ -238,11 +238,12 @@ def load_dbkirundi():
                     adjectivs.append(Adjectiv(row))
                 elif row[8] == "5" :
                     pronouns.append(Pronoun(row))
-                #prepositions, adverbs, conjunctions, interjections (incl POS-tag)
-                elif row[8] == "3" or row[8] == "6" or row[8] == "7" \
-                or row[8] == "8":
+                    pronouns.append(Pronoun(row))
+                #prepositions, adverbs, conjunctions, interjections
+                elif row[8] == "3" or row[8] == "6" or row[8] == "7" or\
+                    row[8] == "8":
                     unchanging_words.append(kv.Lemma(row))
-                #exclamation, emphasis, prefixes, phrases and all without "!?..." (inkl POS-tag)
+                # prefixes, phrases
                 else :
                     rests.append(kv.Lemma(row))
                 #stems as set
@@ -278,21 +279,21 @@ def filter_names_out(names_and_foreign_words, freq_list):
     collection.insert(0,"lemma;;names;count",)
     return(collection,freq_names)
 
-#TODO
-class Exclamations:
-    def __init__(self, row):
-        super().__init__(row)
-        if self.alternatives:
-            for i in self.alternatives:
-                self.questions.append(i.strip())
-    def __str__(self):
-        return f"lemma={self.lemma}, ID={self.dbid}, "\
-               +f"alternatives={self.alternatives}, "\
-               #+f"all alternatives {self.coll}: {self.questions}"
-    def __repr__(self):
-        return f"lemma={self.lemma}, dbid={self.dbid}, "\
-                   +f"alternatives={self.alternatives}, "\
-                   #+f"coll={self.coll}, len(questions)={len(self.questions)}"
+# #TODO
+# class Exclamations:
+#     def __init__(self, row):
+#         super().__init__(row)
+#         if self.alternatives:
+#             for i in self.alternatives:
+#                 self.questions.append(i.strip())
+#     def __str__(self):
+#         return f"lemma={self.lemma}, ID={self.dbid}, "\
+#                +f"alternatives={self.alternatives}, "\
+#                #+f"all alternatives {self.coll}: {self.questions}"
+#     def __repr__(self):
+#         return f"lemma={self.lemma}, dbid={self.dbid}, "\
+#                    +f"alternatives={self.alternatives}, "\
+#                    #+f"coll={self.coll}, len(questions)={len(self.questions)}"
 
 
 def collect_exclamations(db_rest,freq_d) :
@@ -399,20 +400,16 @@ def string_search(word, freq_dict):
         found = [word.lemma, word.dbid, word.pos, freqsum, len(found)]+ found
     return found
 
-#TODO add alternatives
-def sammle_kleine_woerter(db_advplus, freq_d):
-    """liest fdist als dict ein und gibt auch dict zurück"""
+
+def collect_adv_plus(db_advplus, freq_d):
+    """prepositions, adverbs, conjunctions, interjections
+    """
     collection = []
     freq_unchangable = {x:y for x,y in freq_d.items() if y != 0}
-
     for lemma in db_advplus :
-        for freqs,num in freq_unchangable.items():
-            if lemma.lemma == freqs:
-                # Eintrag, id, Anzahl
-                collection.append([freqs,lemma.dbid,lemma.pos,num,1,[freqs,num]])
-                freq_unchangable.update({freqs:0})
-                #??? Varianten einbauen: nk, mur
-
+        found = string_search(lemma,freq_unchangable)
+        if found:
+            collection.append(found)
     collection.sort(key=lambda x: x[3], reverse = True)
     collection.insert(0,"lemma;id;div;count",)
     # # Wörter, die zum Wörterbuch gemappt wurden, sind jetzt auf 0
