@@ -20,26 +20,29 @@ class Lemma:
         columns = [0,  # entry0-id
                    1,  # entry1-lemma
                    4,  # entry2-stem
-                   8,  # entry3-POS
+                   8,  # entry3-PoS
                    13] # entry4-list with alternatives
         entry = [unidecode(row[x].strip().lower()) for x in columns]
         pos_dict = {"0":"VERB", "1":"NOUN", "2":"ADJ", "3":"PREP", "5":"PRON",
                     "6":"ADV", "7":"CONJ", "8":"INTJ", "9":"PHRASE", "10":"PREFIX"}
-        self.dbid = entry[0]
-        self.lemma = entry[1]
-        self.pos = pos_dict.get(entry[3])
+        self.dbid = entry[0].strip()
+        self.lemma = entry[1].strip()
+        self.pos = pos_dict.get(entry[3]).strip()
         if entry[2]:
-            self.stem = entry[2]
+            self.stem = entry[2].strip()
         else:
             print(f"lemma has no stem in database: ID{self.dbid}")
             self.stem = "xxx"
-        self.questions = [self.lemma,]
+        #self.questions = [self.lemma,]
         if entry[4]:
-            self.alternatives = entry[4].split(";")
-            for i in self.alternatives:
-                self.questions.append(i.strip())
+            self.alternatives = [i.strip() for i in entry[4].split(";")]
+            self.questions = [i.strip() for i in entry[4].split(";")]
         else:
             self.alternatives =""
+            self.questions=[]
+        self.questions.insert(0,self.lemma)
+        
+            
     def __str__(self):
         return f"lemma= {self.lemma}, ID={ self.dbid}, PoS= {self.pos}, stem= {self.stem}, "\
                +f"alternatives= {self.alternatives} "\
@@ -507,10 +510,12 @@ class Verb(Lemma):
                     perfp = self.perfective[:-2]+r"(ye|((ri)?we))"
                 elif self.perfective [-3] == "v" :
                     perfp = self.perfective[:-3]+r"(vye|bwe)"
+                elif self.perfective [-3] == "f" :
+                    perfp = self.perfective[:-3]+"puwe"    
                 else :
                     self.unclear.append(["perfective: unexpected letter before [y] ",\
                                          self.lemma, self.perfective])
-                    print("unk vor y", self.lemma, self.perfective)
+                    print("add passiv to perfective: unk vor y", self.lemma, self.perfective)
                     perfp = self.perfective
             elif len(self.perfective) > 3 and self.perfective[-2] in ["j","z","s","h","w"] :
                 perfp = self.perfective[:-1]+r"((w)?e)"
@@ -709,7 +714,7 @@ def prepare_verb_alternativ(row):
     lemma = row[1]
     perfective_a = ""
     if perf_a != "" :
-        if len(stem_a) > len(perf_a)+1:
+        if len(stem_a) > len(perf_a)+1 :
         # only short version of perfective is given
             # find the last vowel before the ending a:
             for count_back in range(len(stem_a)-2,0,-1):
@@ -953,7 +958,6 @@ def sammle_verben(db_verben, freq_d):
     #      nach Variantenreichtum sortiert (Form,Anzahl - hier alphabetisch)
     collection.sort(key=lambda x: x[3], reverse = True)
     collection.sort(key=lambda x: x[4], reverse = True)
-    collection.insert(0,"lemma;id;verb;count;counted forms;forms",)
     #else : sammlung1 = []
 
     #kh.save_list(collection, "found6_verbs.csv", ";")

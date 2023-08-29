@@ -52,13 +52,9 @@ class TextMeta:
                 file.write(i+"\n")
         return paths_list
     def replace_strangeletters(self,raw_text):
-        """replaces odd characters and depending on
-        interest: 
-        s   returns new text with all kind of whitespaces
-        m   returns strange characters found
-        tm  returns new text with whitespace reduced to blank and the number of strange characters
-        t   returns new text with whitespace reduced to blank 
-        l   returns text as list of words
+        """replaces odd characters from bad OCR
+        takes string
+        returns list [corrected string, mistakes]
         """
         strangethings = str(raw_text.encode(encoding="utf-8",errors="backslashreplace"))[2:-1]
         mistakes = re.findall(r"(\\x[a-f0-8]{2}){2}",strangethings)
@@ -253,12 +249,13 @@ class FreqSimple:
     """
     def __init__(self, blanktext):
         self.ntypes = None
-        self.ntokens = None
+        self.n_unk = None
+        self.n_one = None
         self.pathname = None
         self.fileid = None
-        self.blanktext = blanktext
-        self.ntokens = len(self.blanktext.split())
         self.freq = None
+        self.blanktext = blanktext
+        self.ntokens = None
         self.__make_simplefreq_fromtext__(self.blanktext)
     def __str__(self):
         return f"origin='{self.pathname}', fileid={self.fileid}, Anzahl Types={self.ntypes}"
@@ -284,10 +281,60 @@ class FreqSimple:
             cleaned1 = cleaned2
         # reduce the new whitespaces
         blanktext = re.sub(r"\s+"," ",cleaned2)
+        self.ntokens = len(blanktext.split())
         # frequency distribution
         self.freq = self.__f_dist__(blanktext)
         self.ntypes = len(self.freq)
         print("\nvocabulary:", self.ntokens, "tokens\n",10*" ", self.ntypes, "types\n")
+
+class Collection:
+    """collects types in PoS lists
+    """
+    def __init__(self,simple_freq_list):
+        self.names = []
+        self.advs = []
+        self.pronouns = []
+        self.nouns = []
+        self.adjs = []
+        self.verbs = []
+        self.exclams = []
+        self.unk = []
+    # TODO maybe take first line out in all collectxy and put it only in ready lemmafreq
+    def known(self):
+        """ sets the lists of found lemmata together to one
+        """
+        known = self.names \
+            +self.advs \
+            +self.pronouns \
+            +self.nouns \
+            +self.adjs \
+            +self.verbs \
+            +self.exclams
+        for i in known:
+            if type(i[3]) is not int:
+                print(i, "type [3]:",type(i[3]))
+        known.sort(key=lambda x: x[3], reverse = True)
+        return known
+
+
+class FreqMeta:
+    """some statistics of the frequency distributions
+    """
+    def __init__(self, lemmafreq):
+        self.freq = lemmafreq
+        self.length = len(lemmafreq)
+        self.n_lemma = 0
+        self.n_unk = 0
+        self.n_one = 0
+        for i in lemmafreq:
+            if i[3] == 1 :
+                self.n_one += 1
+            if i[2] == "UNK" :
+                self.n_unk += 1
+            elif i[2] in [
+                "ADJ", "ADV", "CONJ", "INTJ", "NI", "NOUN", "NOUN_PER",
+                 "PRON","PREP", "VERB"] :
+                self.n_lemma += 1
 
 
 class Token:
@@ -317,14 +364,14 @@ class Token:
         self.id_tokin_sen = iword_in_sentence
         self.id_token = itoken
         self.id_char = ichar
-    def get(self, tag_str):
+    # TODO what for? I can call them directly
+    def get(self, tag_str="lemma"):
         """call the tags"""
         if tag_str == "token" :
             return self.token
         if tag_str == "pos" :
             return self.pos
-        if tag_str == "lemma" :
-            return self.lemma
+        return self.lemma
 
 
 class TokenList:

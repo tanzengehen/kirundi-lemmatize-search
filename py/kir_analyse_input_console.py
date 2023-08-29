@@ -102,11 +102,12 @@ print(r"""
 Ushaka kurondera iki mu gisomwa? 
         - for Bigrams or Trigrams use a combination of two respectively three letters
         - Possible POS-tags: 
-           ADJ, ADV, CONJ, EMAIL, F(foreign words), INTJ, K (church), NI, NOUN, 
-           NOUN_GEO (people from geographical area), NUM, NUM_ROM (roman numbers), 
-           PHRASE, PRON (pronouns), PROPN_GEO (geographical places), 
-           PROPN_NAM (personal names), PROPN_ORG , PRP (prepositions), SEM (semikolon),
-           SYMBOL, UNK (unkwon to dictionary), VERB, W (science), WWW (webaddresses)
+           ADJ, ADV, CONJ, EMAIL, F(foreign words), INTJ, NI, NOUN, 
+           NUM, NUM_ROM (roman numbers), 
+           PHRASE, PRON (pronouns), PROPN, PROPN_CUR", PROPN_LOC (geographical places), 
+           PROPN_NAM (personal names), PROPN_ORG , PROPN_PER, PROPN_REL, PROPN_SCI
+           PROPN_THG, PROPN_VEG, PRP (prepositions),
+           SYMBOL, UNK (unkwon to dictionary), VERB, WWW (webaddresses)
            and this: ,.:!?(){}[]'"
     
 Tora indome""")

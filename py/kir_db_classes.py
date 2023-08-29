@@ -13,9 +13,263 @@ import kir_prepare_verbs as kv
 import kir_string_depot as sd
 
 
+def load_dbkirundi():
+    """returns lists sorted more or less by part of speech:
+    verbs, nouns, adjectives, pronouns, 
+    (prepositions, adverbs, conjunctions and interjections) together,
+    (prefixes and phrases) together, all stems
+    """
+    verbs = []
+    nouns = []
+    adjectivs = []
+    pronouns =[]
+    unchanging_words = []
+    rests = []
+    stems = []
+    stems = set(stems)
+    with open(sd.RessourceNames().fn_db, encoding="utf-8") as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter = ";")
+        line_count = 0
+        for row in csv_reader:
+            # attention: column numbers still valid?
+            if line_count > 0 :
+                if row[8] == "0" :
+                    if row[13] and row[15]:
+                        # there is also an alternative spelling
+                        row_a = kv.prepare_verb_alternativ(row)
+                        verb = kv.Verb(row_a)
+                        verbs.append(verb)
+                        row[0] =  str(row[0])+"_0"  # 0 id
+                        row[13] = ""                # alternatives
+                    verb = kv.Verb(row)
+                    verbs.append(verb)
+                elif row[8] == "1" :
+                    nouns.append(Noun(row))
+                elif row[8] == "2" :
+                    adjectivs.append(Adjectiv(row))
+                elif row[8] == "5" :
+                    pronouns.append(Pronoun(row))
+                #prepositions, adverbs, conjunctions, interjections
+                elif row[8] == "3" or row[8] == "6" or row[8] == "7" or\
+                    row[8] == "8":
+                    unchanging_words.append(kv.Lemma(row))
+                # prefixes, phrases
+                else :
+                    rests.append(kv.Lemma(row))
+                #stems as set
+                stems.add(unidecode(row[4]).lower())
+            line_count += 1
+    print(f'{line_count} entries of the dictionary prepared.')
+    csv_file.close()
+    verbs = kv.filter_proverbs_out(verbs)
+    verbs =  kv.filter_passiv_out(verbs)
+    stems = list(stems)
+    return (verbs, nouns, adjectivs, pronouns, unchanging_words, rests, stems)
+
+
+def load_ne():
+    """reads file Named Entites and foreign words
+    returns list of objects"""
+    namedentities = []
+    loc = []
+    per = []
+    lng = []
+    foreign =[]
+    with open(sd.RessourceNames().fn_namedentities, encoding="utf-8") as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter = ";")
+        for row in csv_reader:
+            #print(row[1])
+            if row[2] == "F":
+                foreign.append(Foreign(row))
+            elif row[2] == "PROPN_LOC":
+                loc.append(NamedEntities(row))
+            elif row[2] == "PROPN_PER":
+                per.append(NamedEntities(row))
+            elif row[2] == "PROPN_LNG":
+                lng.append(NamedEntities(row))
+            else:
+                enti = NamedEntities(row)
+                enti.questions= enti.alternatives
+                namedentities.append(enti)
+    csv_file.close()
+    # build and sort more locations, languages, persons
+    for i in loc:
+        if i.alternatives[0][:3] == "ubu":
+            i.alternatives.pop(0)
+    check_entries_location_person_language(lng, per)
+    check_entries_location_person_language(loc, lng, "lang")
+    check_entries_location_person_language(loc, per)
+    
+    #set questions for existing language entries
+    for i in lng:
+        i.set_languages()
+        i.questions = i.lang
+        del i.row
+    #set questions for existing person entries
+    for i in per :
+        i.set_persons()
+        i.questions = i.persons
+        del i.row
+    #set questions for location entries and make language and person entries if doesn't exist yet
+    set_person_language_out_of_location(loc,per,lng)
+    for i in loc:
+        del i.row
+    #TODO check if first line is head or entry
+    return namedentities+foreign+lng+loc+per
+
+class Foreign:
+    """sets PoS and question for string-search
+    """
+    def __init__(self, row):
+        columns = [0,  # entry0-lemma
+                   2]  # entry1-PoS
+        entry = [unidecode(row[x].strip().lower()) for x in columns]
+        self.lemma = entry[0].strip()
+        self.dbid =""
+        self.pos = entry[1].strip().upper()
+        self.questions = [self.lemma,]
+    def __str__(self):
+        return f"lemma= {self.lemma}, PoS={self.pos}"
+    def __repr__(self):
+        return f"lemma= {self.lemma}, PoS={self.pos}"
+
+
+class NamedEntities:
+    """sets PoS, alternative spellings and
+    questions for string-search
+    """
+    def __init__(self, row):
+        columns = [0,  # entry0-lemma
+                   2,  # entry1-PoS
+                   4]  # entry2-alternatives
+        entry = [unidecode(row[x].strip().lower()) for x in columns]
+        #print("in NE init", entry)
+        self.row = row
+        self.dbid = ""
+        self.lemma = entry[0].strip()
+        self.pos = entry[1].strip().upper()
+        if entry[2]:
+            self.alternatives = [i.strip() for i in entry[2].split(";")]
+        else:
+            self.alternatives = []
+        self.alternatives.insert(0,self.lemma)
+        self.persons = []
+        self.lang = []
+        self.questions = []
+    def __str__(self):
+        return f"lemma= {self.lemma},  "\
+                +f"alternatives= {self.alternatives}, PoS={self.pos}, "\
+                +f"lang={self.lang}, persons={self.persons}, questions={self.questions}"
+    def __repr__(self):
+        return f"lemma={self.lemma},  "\
+                        +f"alternatives={self.alternatives}, PoS= {self.pos} "\
+                        +f"lang='{self.lang}', persons={self.persons}, questions={self.questions}"
+    def set_persons(self):
+        """set regex for persons
+        """
+        if self.lemma[:5] == "umuny" :
+            for alt in self.alternatives:
+                self.persons += [r"umuny[ae]"+alt,r"abany[ae]"+alt]
+        elif self.lemma[:3] =="umu" :
+            for alt in self.alternatives:
+                self.persons += ["umu"+alt,"aba"+alt]
+        elif self.lemma[:3] =="umw" :
+            for alt in self.alternatives:
+                self.persons += ["umw"+alt,"ab"+alt]
+        for i in self.persons:
+            self.questions += [r"^"+sd.NounPrepositions().qu_nta+"?"+i[1:]+"(kazi)?$",
+                               r"^"+sd.NounPrepositions().qu_ca_vowel+"?"+i+"(kazi)?$"]
+    def set_languages(self):
+        """set regex for languages
+        """
+        if self.lemma[:5] == "ikiny":
+            for i in self.alternatives:
+                self.lang.append("ikiny"+i)
+        elif self.lemma[:3] == "iki":
+            for i in self.alternatives:
+                self.lang.append("iki"+i)
+        elif self.lemma[:3] == "igi":
+            for i in self.alternatives:
+                self.lang.append("igi"+i)        
+        if self.lemma[:2] == "ic":
+            for i in self.alternatives:
+                self.lang.append("ic"+i)
+        for i in self.lang:
+            self.questions.append(r"^"+i+"$")
+
+def check_entries_location_person_language(propn_list1, propn_list2,lang_or_per="per"):
+    """check if there are extra entries for location, person, language, 
+    if so, we put together all alternativ spellings
+    """
+    for propn1 in propn_list1 :
+        done = False
+        set1 = set(propn1.alternatives)
+        for propn2 in propn_list2:
+            set2 = set(propn2.alternatives)
+            if set1.intersection(set2):
+                propn2.alternatives = set(propn2.alternatives+propn1.alternatives)
+                propn1.alternatives = set(propn2.alternatives+propn1.alternatives)
+                done = True
+                break
+            if propn1.lemma[:3]== "ubu" \
+            and propn1.lemma[3:] == propn2.lemma[3:][-(len(propn1.lemma)-3):] :
+                done = True
+                break
+        if done:
+            if lang_or_per == "lang":
+                propn1.lang = "done"
+            else:
+                propn1.persons = "done"
+
+def set_person_language_out_of_location(loc,per,lng):
+    """appends not yet existing entries to PROPN_PER and PROPN_LANG lists
+    based on PROPN_LOC
+    """
+    for i in loc :
+        # only countries which start with ubu need ubu also in their variants
+        if i.lemma[:3] =="ubu":
+            for location in i.alternatives:
+                i.questions += [r"^"+sd.NounPrepositions().qu_nta+"?bu"+location+"$",
+                                r"^"+sd.NounPrepositions().qu_ca_vowel+"?ubu"+location+"$"]
+                if sd.weak_konsonant(i.lemma[4]) == True:
+                    langname = "iki"+i.lemma[3:]
+                elif sd.weak_konsonant(i.lemma[4]) == False:
+                    langname = "igi"+i.lemma[3:]
+                pername = "umu"+i.lemma[3:]
+        elif i.lemma[:3] in "ubw":
+            for location in i.alternatives:
+                i.questions += [r"^"+sd.NounPrepositions().qu_nta+"?bw"+location+"$",
+                                r"^"+sd.NounPrepositions().qu_ca_vowel+"?ubw"+location+"$"]
+                langname = "ic"+i.lemma[3:]
+                pername = "umw"+i.lemma[3:]
+        else:
+            i.questions = i.alternatives
+            langname = "ikinya_"+i.lemma
+            pername = "umunya_"+i.lemma
+        
+        if i.lang != "done":
+            i.row[0] =langname
+            new = NamedEntities(i.row)
+            new.pos = "PROPN_LNG"
+            new.alternatives = i.alternatives
+            new.set_languages()
+            if new.lang:
+                new.questions = new.lang
+                lng.append(new)
+                
+        if i.persons != "done":
+            i.row[0] =pername
+            new = NamedEntities(i.row)
+            new.pos = "PROPN_PER"
+            new.alternatives = i.alternatives
+            new.set_persons()
+            if new.questions:
+                per.append(new)
+    
+
 class Noun(kv.Lemma):
-    """sets db-ID, lemma, stem, POS, singular, plural, alternative spellings and
-    questions for lemma search
+    """sets db-ID, lemma, stem, PoS, singular, plural, alternative spellings and
+    questions for regex-search
     """
     def __init__(self, row):
         super().__init__(row)
@@ -30,17 +284,22 @@ class Noun(kv.Lemma):
         return f"lemma={self.lemma}, dbid={self.dbid}, POS= {self.pos}, "\
                    +f"coll={self.coll}, "\
                    +f"len(questions)={len(self.questions)}"
+    # TODO is also in string depot
     def _possibilities(self, variant):
         """more variants if nouns are written inclusive prepositions without apostrophe
         """
         # noun starts with vowel
         if variant[0] in ["a","e","i","u"] :
-            qu_0 = r"^([na]ta|[mk]u|i)?"+variant[1:]+"$"
-            qu_1 = r"^([bkmrt]?w|[rv]?y|[nsckzbh])?"+variant+"$"
+            qu_0 = r"^"+sd.NounPrepositions().qu_nta+"?"+variant[1:]+"$"
+            qu_1 = r"^"+sd.NounPrepositions().qu_ca_vowel+"?"+variant+"$"
+             #qu_0 = r"^([na]ta|[mk]u|i)?"+variant[1:]+"$"
+             #qu_1 = r"^([bkmrt]?w|[rv]?y|[nsckzbh])?"+variant+"$"
          # noun starts with consonant
         else :
-            qu_0 = r"^([na]ta|[mk]u|s?i)?"+variant+"$"
-            qu_1 = r"^([nckzbh]|[bkmrt]?w|[rv]?y)[ao]"+variant+"$"
+             qu_0 = r"^"+sd.NounPrepositions().qu_nta+"?"+variant+"$"
+             qu_1 = r"^"+sd.NounPrepositions().qu_ca_konsonant+variant+"$"
+             #qu_0 = r"^([na]ta|[mk]u|s?i)?"+variant+"$"
+             #qu_1 = r"^([nckzbh]|[bkmrt]?w|[rv]?y)[ao]"+variant+"$"
         return [qu_0, qu_1]
     def _set_questions(self, row):
         """takes row from dbkirundi
@@ -75,9 +334,14 @@ class Noun(kv.Lemma):
             self.questions += self._possibilities(i)
         self.coll = coll
 
-def collect_nouns(db_substantive, freq_d, before_verbs =True):
-    """sortiert Substantive auf bekannte Lemmas im kirundi Dictionary
-    liest fdist als dict ein und gibt auch dict zurück"""
+def collect_nouns(db_substantive, freq_d, before_verbs =False):
+    """maps nouns to lemmata in dbkirundi
+    takes frequency-dictionary and list of nouns
+    returns list with columns: 
+                lemma, id, PoS, sum of frequency of all forms, counted forms,
+                all forms found ([form, frequency] per column)
+            and changed frequency-dictionary {'found_noun':0}
+    """
     #freqSubs = {str(n[0]):n[1] for n in freq_d[:29290]}
     freq_subs = {x:y for x,y in freq_d.items() if y != 0}
     collection = []
@@ -99,10 +363,11 @@ def collect_nouns(db_substantive, freq_d, before_verbs =True):
             if lemma_count%points == 0 :
                 print('.',end = "")
 
-    # result: first most wordforms, with high freq first
-    collection.sort(key=lambda x: x[3], reverse = True)
-    collection.sort(key=lambda x: x[4], reverse = True)
-    collection.insert(0,["lemma;id;noun;count;counted forms;forms",])
+    if collection :
+        # result: first most wordforms, with high freq first
+        collection.sort(key=lambda x: x[3], reverse = True)
+        collection.sort(key=lambda x: x[4], reverse = True)
+
 
     # if before_verbs == True :
     #     # Wörter, die zum Wörterbuch gemappt wurden sind 0
@@ -116,11 +381,9 @@ def collect_nouns(db_substantive, freq_d, before_verbs =True):
     return (collection, freq_subs, subs_ukg)
 
 
-
-
 class Adjectiv(kv.Lemma):
-    """sets db-ID, lemma, stem, POS, alternative spellings and
-    questions for lemma search
+    """sets db-ID, lemma, stem, PoS, alternative spellings and
+    questions for regex-search
     """
     def __init__(self, row):
         super().__init__(row)
@@ -140,7 +403,7 @@ class Adjectiv(kv.Lemma):
                    +f"alternatives={self.alternatives}, "\
                    +f"coll={self.coll}, len(questions)={len(self.questions)}"
     def set_qu(self, coll):
-        """sets regex-questions for fishing nouns out of frequency distribution
+        """sets regex-questions for fishing adjectivs out of frequency distribution
         """
         #prefixes1 = ["ba","ka","ma","ha","aya","bi","ki","mi","ri","yi","zi",\
         #        "bu","ku","mu","ru","tu","uyu","uwu","n"]
@@ -185,7 +448,12 @@ class Adjectiv(kv.Lemma):
 
 
 def collect_adjs(db_adjektive, freq_d):
-    """takes fdist as dict and returns dict
+    """maps adjectivs to lemmata in dbkirundi
+    takes frequency-dictionary and list of adjectives
+    returns list with columns: 
+                lemma, id, PoS, sum of frequency of all forms, counted forms,
+                all forms found ([form, frequency] per column)
+            and changed frequency-dictionary {'found_adjectiv':0}
     """
     collection = []
     # kommt freq als liste oder dict? (vorher sammle_subst?)
@@ -197,7 +465,7 @@ def collect_adjs(db_adjektive, freq_d):
             collection.append(found)
     collection.sort(key=lambda x: x[3], reverse = True)
     collection.sort(key=lambda x: x[4], reverse = True)
-    collection.insert(0,["lemma;id;adj;count;counted forms;forms",])
+
     # mapped types now have 0 in simplefreq
     #save_dict(freq_adj,"keine5_adj.csv")
     # all adjectives
@@ -205,224 +473,9 @@ def collect_adjs(db_adjektive, freq_d):
     return (collection, freq_adj)
 
 
-def load_dbkirundi():
-    """returns lists sorted more or less by part of speech
-    """
-    verbs = []
-    nouns = []
-    adjectivs = []
-    pronouns =[]
-    unchanging_words = []
-    rests = []
-    stems = []
-    stems = set(stems)
-    with open(sd.RessourceNames().fn_db, encoding="utf-8") as csv_file:
-        csv_reader = csv.reader(csv_file, delimiter = ";")
-        line_count = 0
-        for row in csv_reader:
-            # attention: column numbers still valid?
-            if line_count > 0 :
-                if row[8] == "0" :
-                    if row[13] and row[15]:
-                        # there is also an alternative spelling
-                        row_a = kv.prepare_verb_alternativ(row)
-                        verb = kv.Verb(row_a)
-                        verbs.append(verb)
-                        row[0] =  str(row[0])+"_0"  # 0 id
-                        row[13] = ""                # alternatives
-                    verb = kv.Verb(row)
-                    verbs.append(verb)
-                elif row[8] == "1" :
-                    nouns.append(Noun(row))
-                elif row[8] == "2" :
-                    adjectivs.append(Adjectiv(row))
-                elif row[8] == "5" :
-                    pronouns.append(Pronoun(row))
-                    pronouns.append(Pronoun(row))
-                #prepositions, adverbs, conjunctions, interjections
-                elif row[8] == "3" or row[8] == "6" or row[8] == "7" or\
-                    row[8] == "8":
-                    unchanging_words.append(kv.Lemma(row))
-                # prefixes, phrases
-                else :
-                    rests.append(kv.Lemma(row))
-                #stems as set
-                stems.add(unidecode(row[4]).lower())
-            line_count += 1
-    print(f'{line_count} entries of the dictionary prepared.')
-    csv_file.close()
-    verbs = kv.filter_proverbs_out(verbs)
-    verbs =  kv.filter_passiv_out(verbs)
-
-    stems = list(stems)
-    return (verbs, nouns, adjectivs, pronouns, unchanging_words, rests, stems)
-
-
-def filter_names_out(names_and_foreign_words, freq_list):
-    """takes simplefreq as list (not as dict), but returns dict
-    returns list of names and simplefreq with zeros, where names are taken out"""
-    collection = []
-    freq_names = dict(freq_list)
-    points = int(len(names_and_foreign_words)/50)
-    lemma_count = 0
-    for names in names_and_foreign_words :
-        for word,num in freq_names.items():
-            if names[0] == word:
-                # Eintrag, Anzahl
-                collection.append([word,"",names[1],num,1,[word,num]])
-                freq_names.update({word:0})
-        lemma_count +=1
-        # progress bar
-        if lemma_count%points == 0 :
-            print('.',end = "")
-    collection.sort(key=lambda x: x[3], reverse = True)
-    collection.insert(0,"lemma;;names;count",)
-    return(collection,freq_names)
-
-# #TODO
-# class Exclamations:
-#     def __init__(self, row):
-#         super().__init__(row)
-#         if self.alternatives:
-#             for i in self.alternatives:
-#                 self.questions.append(i.strip())
-#     def __str__(self):
-#         return f"lemma={self.lemma}, ID={self.dbid}, "\
-#                +f"alternatives={self.alternatives}, "\
-#                #+f"all alternatives {self.coll}: {self.questions}"
-#     def __repr__(self):
-#         return f"lemma={self.lemma}, dbid={self.dbid}, "\
-#                    +f"alternatives={self.alternatives}, "\
-#                    #+f"coll={self.coll}, len(questions)={len(self.questions)}"
-
-
-def collect_exclamations(db_rest,freq_d) :
-    """collects exclamations and their variants"""
-    collection = []
-    freq_exc = {x:y for x,y in freq_d.items() if y != 0}
-    regex_exc_ego = r"^(y?e+go+|e+h?|y?ee+)$"
-    regex_exc_oya = r"^(oya+)$"
-    regex_exc_ha = r"^(ha)+$"
-    regex_exc_la = r"^(la)+$"
-    regex_exc_ah = r"^([au]+h|aa+|y?uu+|ah[ao]+|hu+)$"
-    regex_exc_yo = r"^(y?o+h?|o+ho+|oh+)$"
-    regex_exc_mh = r"^(m+h+|hu+m+|hm+|mm+|uu+m)$"
-    regex_exc_he = r"^(e?he+)$"
-    regex_exc_kye = r"^(kye+)+$"
-    regex_exc_luya = r"^(h?al+e+l+u+[iy]a+)$"
-    # exclamations not in the original db get IDs from 30000
-    ecxl_made_here = [["ego",regex_exc_ego,818], #db_id
-            ["oya",regex_exc_oya,3556],
-            ["ha",regex_exc_ha,30000],
-            ["la",regex_exc_la,30001],
-            ["aah",regex_exc_ah,30002],
-            ["ooh",regex_exc_yo,30003],
-            ["mh",regex_exc_mh,30004],
-            ["hee",regex_exc_he,30005],
-            ["kyee",regex_exc_kye,30006],
-            ["alleluia",regex_exc_luya,30007],
-        ]
-    for excl in ecxl_made_here :
-        freqsum = 0
-        found = []
-        db_id = excl[2]
-
-        for freqs, num in freq_exc.items() :
-            if num !=0 and re.search(excl[1],freqs) is not None :
-                freqsum += num
-                found.append( [freqs,num] )
-                freq_exc.update({freqs:0})
-                continue # next qu1
-        if freqsum > 0 :
-            found.sort()
-            found = [excl[0], db_id, "INTJ", freqsum, len(found)] + found
-            collection.append(found)
-
-    # for all exclamation we didn't made here and the rest of db_dict
-    for lemma in db_rest :
-        freqsum = 0
-        found = []
-        for variant in lemma.alternatives:
-            variant = variant.strip("-")
-            for freqs, num in freq_exc.items() :
-                if num !=0 and variant == freqs:
-                    freqsum += num
-                    found.append( [freqs,num] )
-                    freq_exc.update({freqs:0})
-        # entry, id, PoS, frequency lemma, number of variants, list(variante, frequency)
-        if freqsum > 0 :
-            found.sort()
-            found = [lemma.lemma, lemma.dbid, "INTJ", freqsum, len(found)]+ found
-            collection.append(found)
-            freq_exc.update({freqs:0})
-
-
-    collection.sort(key=lambda x: x[3], reverse = True)
-    collection.sort(key=lambda x: x[4], reverse = True)
-    collection.insert(0,"keyword;id;exclamation;count;counted forms;forms",)
-    # # Wörter, die zum Wörterbuch gemappt wurden, sind jetzt auf 0
-    # save_dict(freq_exc,"keine8_excl_div2.csv")
-    # # Wörter, die im Korpus vorkommen
-    # kh.save_list(collection,"found8_excl_div2.csv",";")
-    return (collection, freq_exc)
-
-def regex_search(word, freq_dict):
-    """compares type to regex of lemma
-    """
-    freqsum = 0
-    found = []
-    for quest in word.questions:
-        for freqtype, num in freq_dict.items() :
-            if num != 0  and re.search(quest,freqtype) is not None:
-                freqsum += num
-                found.append( [freqtype,num] )
-                freq_dict.update({freqtype:0})
-    if freqsum > 0 :
-        found.sort()
-        #             lemma,     id,   PoS,Summe, different forms, all[form alphabetical,frequency]
-        found = [word.lemma, word.dbid, word.pos, freqsum, len(found)]+ found
-    return found
-
-def string_search(word, freq_dict):
-    """compares type to string of lemma
-    """
-    freqsum = 0
-    found = []
-    for quest in word.questions:
-        for freqtype, num in freq_dict.items() :
-            if num != 0  and quest == freqtype :
-                freqsum += num
-                found.append( [freqtype,num] )
-                freq_dict.update({freqtype:0})
-    if freqsum > 0 :
-        found.sort()
-        #             lemma,     id,   PoS,Summe, different forms, all[form alphabetical,frequency]
-        found = [word.lemma, word.dbid, word.pos, freqsum, len(found)]+ found
-    return found
-
-
-def collect_adv_plus(db_advplus, freq_d):
-    """prepositions, adverbs, conjunctions, interjections
-    """
-    collection = []
-    freq_unchangable = {x:y for x,y in freq_d.items() if y != 0}
-    for lemma in db_advplus :
-        found = string_search(lemma,freq_unchangable)
-        if found:
-            collection.append(found)
-    collection.sort(key=lambda x: x[3], reverse = True)
-    collection.insert(0,"lemma;id;div;count",)
-    # # Wörter, die zum Wörterbuch gemappt wurden, sind jetzt auf 0
-    # save_dict(freq_unchangable,"keine2_div.csv")
-    # # Wörter, die im Korpus vorkommen
-    # kh.save_list(collection,"found2_div.csv",";")
-
-    return(collection, freq_unchangable)
-
-
 class Pronoun(kv.Lemma):
     """sets db-ID, lemma, stem, PoS, alternative spellings and
-    questions for lemma search
+    questions for string-search
     """
     def __init__(self, row):
         super().__init__(row)
@@ -439,10 +492,16 @@ class Pronoun(kv.Lemma):
                         +f"questions={self.questions}"
 
 def collect_pronouns(db_pronouns,freq_d):
-    """collects pronouns from db and builds combinations
-    takes filtered dict, returns collection and dict newly filtered"""
+    """maps pronouns to lemmata of db and also builds other combinations
+    takes frequency-dictionary and list of pronouns
+    returns list with columns: 
+                lemma, id, PoS, sum of frequency of all forms, counted forms,
+                all forms found ([form, frequency] per column)
+            and changed frequency-dictionary {'found_pronouns':0}
+    """
     collection = []
     freq_prn = {x:y for x,y in freq_d.items() if y != 0}
+
     regex_prn_c_a = r"(([bkrt]w|[rv]?y|[bchkwz]))"
     regex_prn_c_o = r"([bkrt]?w|[rv]?y|[bchkz])"
     regex_prn_ic_o = r"(a[bhky]|i([cz]|([rv]?)y)|u(([bkrt]?w?)|y))"
@@ -543,9 +602,185 @@ def collect_pronouns(db_pronouns,freq_d):
             run_next = True
     coll.sort(key=lambda x: x[3], reverse = True)
     coll.sort(key=lambda x: x[4], reverse = True)
-    coll.insert(0,"lemma;id;pron;count;counted forms;forms",)
     # # Wörter, die zum Wörterbuch gemappt wurden, sind jetzt auf 0
     # save_dict(freq_prn,"keine3_pron.csv")
     # # Wörter, die im Korpus vorkommen
     # kh.save_list(collection,"found3_pron.csv",";")
     return (coll, freq_prn)
+
+
+def filter_names_out(names_and_foreign_words, freq_list):
+    """maps named entities and foreign words
+    takes frequency-list and NE-object list
+    returns list with columns: 
+                lemma, id, frequency, counted form =1,
+                [form, frequency]
+            and a frequency-dictionary {'found_word':0}
+    """
+    collection = []
+    freq_names = dict(freq_list)
+    points = int(len(names_and_foreign_words)/50)
+    lemma_count = 0
+    for name in names_and_foreign_words :
+        if name.pos in ["PROPN_PER","PROPN_LOC"]:
+            found = regex_search(name, freq_names)
+        else:
+            found = string_search(name, freq_names)
+        if found:
+            collection.append(found)
+        lemma_count +=1
+        # progress bar
+        if lemma_count%points == 0 :
+            print('.',end = "")
+    collection.sort(key=lambda x: x[3], reverse = True)
+    return(collection,freq_names)
+
+def collect_adv_plus(db_advplus, freq_d):
+    """maps prepositions, adverbs, conjunctions and interjections to lemma in db
+    takes frequency-dictionary and list of lemmata
+    returns list with columns: 
+                lemma, id, sum of frequency of all forms, counted forms,
+                all forms found ([form, frequency] per column)
+            and a frequency-dictionary {'found_word':0}
+    """
+    collection = []
+    freq_unchangable = {x:y for x,y in freq_d.items() if y != 0}
+    for lemma in db_advplus :
+        found = string_search(lemma,freq_unchangable)
+        if found:
+            collection.append(found)
+    collection.sort(key=lambda x: x[3], reverse = True)
+    # # Wörter, die zum Wörterbuch gemappt wurden, sind jetzt auf 0
+    # save_dict(freq_unchangable,"keine2_div.csv")
+    # # Wörter, die im Korpus vorkommen
+    # kh.save_list(collection,"found2_div.csv",";")
+
+    return(collection, freq_unchangable)
+
+
+# #TODO
+# class Exclamations:
+#     def __init__(self, row):
+#         super().__init__(row)
+#         if self.alternatives:
+#             for i in self.alternatives:
+#                 self.questions.append(i.strip())
+#     def __str__(self):
+#         return f"lemma={self.lemma}, ID={self.dbid}, "\
+#                +f"alternatives={self.alternatives}, "\
+#                #+f"all alternatives {self.coll}: {self.questions}"
+#     def __repr__(self):
+#         return f"lemma={self.lemma}, dbid={self.dbid}, "\
+#                    +f"alternatives={self.alternatives}, "\
+#                    #+f"coll={self.coll}, len(questions)={len(self.questions)}"
+
+
+def collect_exclamations(db_rest,freq_d) :
+    """maps exclamations to a list of regex made here and all the rest 
+    of entries in the db
+    takes frequency-dictionary and list of lemmata
+    returns list with columns: 
+                lemma, id, sum of frequency of all forms, counted forms,
+                all forms found ([form, frequency] per column)
+            and a frequency-dictionary {'found_word':0}
+    """
+    collection = []
+    freq_exc = {x:y for x,y in freq_d.items() if y != 0}
+    regex_exc_ego = r"^(y?e+go+|e+h?|y?ee+)$"
+    regex_exc_oya = r"^(oya+)$"
+    regex_exc_ha = r"^(ha)+$"
+    regex_exc_la = r"^(la)+$"
+    regex_exc_ah = r"^([au]+h|aa+|y?uu+|ah[ao]+|hu+)$"
+    regex_exc_yo = r"^(y?o+h?|o+ho+|oh+)$"
+    regex_exc_mh = r"^(m+h+|hu+m+|hm+|mm+|uu+m)$"
+    regex_exc_he = r"^(e?he+)$"
+    regex_exc_kye = r"^(kye+)+$"
+    regex_exc_luya = r"^(h?al+e+l+u+[iy]a+)$"
+    # exclamations not in the original db get IDs from 30000
+    ecxl_made_here = [["ego",regex_exc_ego,818], #db_id
+            ["oya",regex_exc_oya,3556],
+            ["ha",regex_exc_ha,30000],
+            ["la",regex_exc_la,30001],
+            ["aah",regex_exc_ah,30002],
+            ["ooh",regex_exc_yo,30003],
+            ["mh",regex_exc_mh,30004],
+            ["hee",regex_exc_he,30005],
+            ["kyee",regex_exc_kye,30006],
+            ["alleluia",regex_exc_luya,30007],
+        ]
+    for excl in ecxl_made_here :
+        freqsum = 0
+        found = []
+        db_id = excl[2]
+
+        for freqs, num in freq_exc.items() :
+            if num !=0 and re.search(excl[1],freqs) is not None :
+                freqsum += num
+                found.append( [freqs,num] )
+                freq_exc.update({freqs:0})
+                continue # next qu1
+        if freqsum > 0 :
+            found.sort()
+            found = [excl[0], db_id, "INTJ", freqsum, len(found)] + found
+            collection.append(found)
+
+    # for all exclamation we didn't made here and the rest of db_dict
+    for lemma in db_rest :
+        freqsum = 0
+        found = []
+        for variant in lemma.alternatives:
+            variant = variant.strip("-")
+            for freqs, num in freq_exc.items() :
+                if num !=0 and variant == freqs:
+                    freqsum += num
+                    found.append( [freqs,num] )
+                    freq_exc.update({freqs:0})
+        # entry, id, PoS, frequency lemma, number of variants, list(variante, frequency)
+        if freqsum > 0 :
+            found.sort()
+            found = [lemma.lemma, lemma.dbid, "INTJ", freqsum, len(found)]+ found
+            collection.append(found)
+            freq_exc.update({freqs:0})
+
+
+    collection.sort(key=lambda x: x[3], reverse = True)
+    collection.sort(key=lambda x: x[4], reverse = True)
+    # # Wörter, die zum Wörterbuch gemappt wurden, sind jetzt auf 0
+    # save_dict(freq_exc,"keine8_excl_div2.csv")
+    # # Wörter, die im Korpus vorkommen
+    # kh.save_list(collection,"found8_excl_div2.csv",";")
+    return (collection, freq_exc)
+
+def regex_search(word, freq_dict):
+    """compares type to regex of lemma
+    """
+    freqsum = 0
+    found = []
+    for quest in word.questions:
+        for freqtype, num in freq_dict.items() :
+            if num != 0  and re.search(quest,freqtype) is not None:
+                freqsum += num
+                found.append( [freqtype,num] )
+                freq_dict.update({freqtype:0})
+    if freqsum > 0 :
+        found.sort()
+        #             lemma,     id,   PoS,Summe, different forms, all[form alphabetical,frequency]
+        found = [word.lemma, word.dbid, word.pos, freqsum, len(found)]+ found
+    return found
+
+def string_search(word, freq_dict):
+    """compares type to string of lemma
+    """
+    freqsum = 0
+    found = []
+    for quest in word.questions:
+        for freqtype, num in freq_dict.items() :
+            if num != 0  and quest == freqtype :
+                freqsum += num
+                found.append( [freqtype,num] )
+                freq_dict.update({freqtype:0})
+    if freqsum > 0 :
+        found.sort()
+        #             lemma,     id,   PoS,Summe, different forms, all[form alphabetical,frequency]
+        found = [word.lemma, word.dbid, word.pos, freqsum, len(found)]+ found
+    return found

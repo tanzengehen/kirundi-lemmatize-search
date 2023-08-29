@@ -17,108 +17,61 @@ import kir_db_classes as dbc
 import kir_string_depot as sd
 
 
-
-def reduce_simplefreq_to_lemma_collections(simple_freq_list):
-    """ mappt auf Namen und alle Wortarten im kirundi_db
-     liest simple_freq als Liste ein von: (Wort, Anzahl)
-     lässt Dateien schreiben"""
-    fremd = kh.load_columns_fromfile(sd.RessourceNames().fn_namedentities,2, separator=";")
+def reduce_simplefreq_to_lemma_collection(simple_freq_list):
+    """ mapps types to foreign words, named-entities and all PoS in kirundi_db
+     reads simple_freq as list of [type,frequency]
+     returns object of class Collection"""
+    #names = kh.load_columns_fromfile(sd.RessourceNames().fn_namedentities,2, separator=";")
+    names = dbc.load_ne()
     #fremd = load_text8_aslist(CORPUS_ROOT+, "\n")
     (dict_verbs, dict_subs, dict_adj, dict_prns,
      dict_adv, dict_rests, dict_stems) =dbc.load_dbkirundi()
-    print("sorting named entities"+28*'.')
-    collection = []
-    (found_here, no_names) = dbc.filter_names_out(fremd, simple_freq_list)
-    nfound = len(found_here)
-    collection.append(found_here)
-    (found_here, no_adv) = dbc.collect_adv_plus(dict_adv, no_names)
-    nfound += len(found_here)
-    collection.append(found_here)
-    print("\nnamed entities      :", len(no_names)-len(no_adv))
-    (found_here, no_prns) = dbc.collect_pronouns(dict_prns, no_adv)
-    nfound += len(found_here)
-    collection.append(found_here)
-    print('adverbs etc         :', len(no_adv)-len(no_prns))
-    print('sorting nouns'+37*'.')
-    (found_here,no_subs,subs_later) = dbc.collect_nouns(dict_subs, no_prns,True)
-    nfound += len(found_here)
-    collection.append(found_here)
-    print('\npronouns            :', len(no_prns)-len(no_subs))
-    (found_here, no_adj) = dbc.collect_adjs(dict_adj, no_subs)
-    nfound += len(found_here)
-    collection.append(found_here)
-    print('nouns               :', len(no_subs)-len(no_adj))
-    print('sorting verbs'+37*".")
-    #??? problem:not enough values to unpack (expected 2, got 1)
-    (found_here, no_verbs) = kv.sammle_verben(dict_verbs, no_adj)
-    nfound += len(found_here)
-    collection.append(found_here)
-    print('\nadjektives          :', len(no_adj)-len(no_verbs))
+    print("sorting Named Entities"+28*'.')
+    collection = tc.Collection
+    (collection.names, still_unk) = dbc.filter_names_out(names, simple_freq_list)
+    len_before = len(still_unk)
+    (collection.advs, still_unk) = dbc.collect_adv_plus(dict_adv, still_unk)
+    print("\nNamed Entities      :", len_before-len(still_unk),"/",len(still_unk))
+    len_before = len(still_unk)
+    (collection.pronouns, still_unk) = dbc.collect_pronouns(dict_prns, still_unk)
+    print('adverbs etc         :', len_before-len(still_unk), ">>",
+          len(collection.advs)-1,"/",len(still_unk))
+    print('sorting nouns '+36*'.')
+    len_before = len(still_unk)
+    (collection.nouns,still_unk,subs_later) = dbc.collect_nouns(dict_subs, still_unk, True)
+    print('\npronouns            :', len_before-len(still_unk),">>",
+          len(collection.pronouns)-1,"/",len(still_unk))
+    len_before = len(still_unk)
+    (collection.adjs, still_unk) = dbc.collect_adjs(dict_adj, still_unk)
+    print('nouns               :', len_before-len(still_unk),">>",
+          len(collection.nouns)-1,"/",len(still_unk))
+    print('sorting verbs '+36*".")
+    len_before = len(still_unk)
+    (collection.verbs, still_unk) = kv.sammle_verben(dict_verbs, still_unk)
+    print('\nadjektives          :', len_before-len(still_unk),">>",
+          len(collection.adjs)-1,"/",len(still_unk))
     # now we search for the substantives we skipped before verbs (uku...)
+    len_before = len(still_unk)
+    (found_here, still_unk, doesntmatteranymore) = dbc.collect_nouns(subs_later, still_unk, False)
+    collection.nouns += found_here
+    print('verbs               :', len_before-len(still_unk),">>",
+          len(collection.verbs)-1,"/",len(still_unk))
 
-    (found_here, no_subs2, jetztegal) = dbc.collect_nouns(subs_later, no_verbs, False)
-    nfound += len(found_here)
-    collection.append(found_here)
-    print('verbs               :', len(no_verbs)-len(no_subs2))
-
-    (found_here, no_excl) = dbc.collect_exclamations(dict_rests, no_subs2)
-    nfound += len(found_here)
-    collection.append(found_here)
-    freq_rest = []
-    for key,value in no_excl.items() :
+    (collection.exclams, still_unk) = dbc.collect_exclamations(dict_rests, still_unk)
+    collection.unk=[]
+    for key,value in still_unk.items() :
         if value != 0 :
-            freq_rest.append((key, "", "UNK", value,1,[key,value]))
-    freq_rest.insert(0,"lemma;id;unk;count",)
-    collection.append(freq_rest)
-    # if len(freq_l) > 29290 :
-    #     len_freq = 29290
-    # else : len_freq =len(freq_l)
-    len_simfreq =len(simple_freq_list)
-    #print('Substantivierte Verben und Ausrufe :',len(no_subs2)-len(freq_rest)+1)
-    # print(50*"-"+'\nvocabulary'+21*" "+':'+4*" ",len_simfreq,
-    #       '\nLemmata'+25*" "+":"+4*" ", nfound,
-    #       '\n\nauf lemmata sortierte Wörter    :'+4*" ", len_simfreq-len(freq_rest),
-    #       '\nder Datenbank unbekannte Wörter :'+4*" ",len(freq_rest)," ("+
-    #       str(int(len(freq_rest)/len_simfreq*100)), "%)",
-    #       '\n(inkl. Tippfehler und evtl. grottig entzifferter Fotokopien)')
+            collection.unk.append((key, "", "UNK", value,1,[key,value]))
     return collection
 
 
 def make_lemmafreq_fromtext(mytext) :
     """takes utf-text, maps to lemmata in db_kirundi,
     returns lemma_freq"""
-    lemmacollections = reduce_simplefreq_to_lemma_collections(tc.FreqSimple(mytext).freq)
-    all_in =[]
-    for wordgroup in lemmacollections :
-        for lemma in wordgroup[1:] :
-            all_in.append(lemma)
-    all_in.sort(key=lambda x: x[3], reverse = True)
-    return all_in
-
-def makeandsave_lemmafreq_fromfile(fname_in,fname_out):
-    """liest eine .txt ein, schreibt lemmata_freq in csv
-    Achtung:  path oder filename ?
-    legt zwischendurch einzelne/keine Wortartdateien an -- zurzeit nicht!!!
-    """
-    print("lade Datei ...")
-    meta=""
-    try :
-        meta = kh.load_text_fromfile(fname_in,'utf-8',line_separator=" ")
-    except UnicodeDecodeError:
-        meta = kh.load_text_fromfile(fname_in,'utf-16',line_separator=" ")
-    finally:
-        if meta:
-            print("erstelle Wortliste ...")
-            lemma_freq = make_lemmafreq_fromtext(meta.text)
-            lemma_freq.insert(0,"lemma;id;POS;count;counted forms;forms")
-            output = fname_out[:-4]+"_marmelade.csv"
-            # ??? TODO list or json?:
-            kh.save_list(lemma_freq, output)
-            return lemma_freq, meta
-        print("makeandsave_lemmafreq_fromfile: couldn't read file",fname_in)
-        return
-
-
+    simfreq = tc.FreqSimple(mytext)
+    lemma_collection = reduce_simplefreq_to_lemma_collection(simfreq.freq)
+    known = tc.Collection.known(lemma_collection)
+    return known, lemma_collection.unk
 
 def split_in_sentences(mytext):
     """splits texts where [?.!;:] + space_character
@@ -135,7 +88,7 @@ def split_in_sentences(mytext):
         storage = []
         for part in all_sents:
             newportion = part.split(seperator+" ")
-            if len(newportion)>1:
+            if len(newportion)>1 :
                 for new in newportion[:-1] :
                     new = new+seperator
                     storage.append(new)
@@ -175,11 +128,7 @@ def tag_punctmarks_etc(myword):
     """finds symbols and marks
     returns Token.token .pos .lemma
     """
-    # semikolon is extra, else it would be read as separator later
-    if myword == ";":
-        tag = tc.Token("semicolon","SEM","semicolon")
-        return tag
-    if myword in ",.:!?(){}[]'\"" :
+    if myword in ",.;:!?(){}[]'\"" :
         tag = tc.Token(myword,myword,myword)
         return tag
     if myword in '´`#$%&*+-/<=>@\\^_|~':
@@ -188,31 +137,35 @@ def tag_punctmarks_etc(myword):
     return []
 
 
-def tag_lemma(myword,lemmafreq):
+def tag_lemma(myword,knownlemmafreq):
     """finds words in lemmafreq
     returns Token.token .pos .lemma
     """
     word = unidecode(myword).lower()
     word = re.sub(r"\s+","",word)
-    for entry in lemmafreq:
+    for entry in knownlemmafreq:
         # entry: [lemma, db-id, PoS, freq, nr of variants, [variants]]
         #lemmata with more than one word get an underline instead of spaces
         qu_entry = entry[0].replace(" ","_")
-        for variant in entry[5:] :
-            if word == variant[0]:
-                tag = tc.Token(myword,entry[2],qu_entry)
-                return tag
+        try:
+            for variant in entry[5:] :
+                if word == variant[0]:
+                    tag = tc.Token(myword,entry[2],qu_entry)
+                    return tag
+        except :
+            print(entry, word, variant)
     tag = tc.Token(myword,"UNK",word)
     return tag
 
 
+
 def tag_text_with_db(mytext):#, lemmafreq_all) :
-    """uses kirundi_db, makes lemma_freq_list of the text,but tags with big_lemma_freq
-    returns list of tagged tokens
+    """uses kirundi_db, makes lemma_freq_list of the text, (but tags with big_lemma_freq)
+    returns lemma_freq, list of tagged tokens
     """
-    # ??? TODO: oder make_and_save?
-    lemmafreq_file = make_lemmafreq_fromtext(mytext)
-    print ("lemmata of text:", len(lemmafreq_file))
+    known, unknown = make_lemmafreq_fromtext(mytext)
+    # TODO where to put the metadata
+    print ("lemmata of text:", len(known), "\nunknown types  :", len(unknown))
     # split into sentences -- roughly
     sentences_list = split_in_sentences(mytext)
     punctuation = r'´`\'.!"#$%&()*+,-/:<=>?[\\]^_{|}~;@'
@@ -222,8 +175,10 @@ def tag_text_with_db(mytext):#, lemmafreq_all) :
     nr_sen = -1
     nr_token = -1
     nr_char = 0
-    #TODO division /0
-    points = int(len(sentences_list)/50)+1
+    if len(sentences_list) > 50 :
+        points = int(len(sentences_list)/50)
+    else:
+        points = 1
     sent_count = 0
     print("\ntagging text, this may take some moments ..........")
     for sentence in sentences_list:
@@ -238,7 +193,7 @@ def tag_text_with_db(mytext):#, lemmafreq_all) :
             #check for emails, webaddress, number, roman number
             # returns for email and webaddress alias
             tag1 = tag_word_nrmailweb(word)
-            if tag1:
+            if tag1 :
                 tag1.set_nrs(nr_sen, nr_word_in_sen, nr_token, nr_char)
                 tagged.append(tag1)
                 nr_char += len(tag1.token)+1
@@ -256,12 +211,12 @@ def tag_text_with_db(mytext):#, lemmafreq_all) :
                 if tag2:
                     tag2.set_nrs(nr_sen, nr_word_in_sen, nr_token, nr_char)
                     tagged.append(tag2)
-                    # ??? nr_char is not correct because we don't know if with whitespace or not
+                    # TO DO nr_char is not correct because we don't know if with whitespace or not
                     nr_char += len(tag2.token)
                 else :
                     # check for lemma
                     #tag3 = tag_lemma(w_or_c,lemmafreq_all)
-                    tag3 = tag_lemma(w_or_c,lemmafreq_file)
+                    tag3 = tag_lemma(w_or_c,known)
                     tag3.set_nrs(nr_sen, nr_word_in_sen, nr_token, nr_char)
                     tagged.append(tag3)
                     nr_char += len(tag3.token)+1
@@ -269,7 +224,9 @@ def tag_text_with_db(mytext):#, lemmafreq_all) :
         if sent_count%points == 0 :
             print('.',end = "")
         sent_count +=1
-    return (lemmafreq_file,
+    lemmafreq = known+unknown
+    lemmafreq.sort(key=lambda x: x[3], reverse = True)
+    return (lemmafreq,
             tagged)
 
 
@@ -319,7 +276,7 @@ def find_thing(wordlist_tagged, wtl, questions):
         if not tagword.pos :
             missings.append(("missing tag by word number:", index, tagword.token))
             continue
-        if searchword == tagword.get(wtl).lower() :
+        if searchword == tagword.get(wtl):#.lower() :
             with_neighbors= collect_words_around_searchterm(index, tagword.token, wordlist_tagged)
             found.append((index, with_neighbors))
     return found, missings
@@ -361,7 +318,7 @@ def find_ngrams(wordlist_tagged, wtl, questions):
 def go_search(tagged_list, whattodo):
     """search in single text
     """
-    if  len(whattodo.wtl) == 1:
+    if  len(whattodo.wtl) == 1 :
         found = find_thing(tagged_list,whattodo.wtl[0],whattodo.questions)
     else:
         found = find_ngrams(tagged_list,whattodo.wtl,whattodo.questions)
@@ -402,21 +359,24 @@ def tag_or_load_tags(whattodo):
     # 3. read raw txt utf8 or utf16
     try:
         meta =kh.load_text_fromfile(whattodo.fn_in,'utf-8')
-        raw =meta.raw
+        #raw =meta.raw
     except:
         try:
             meta =kh.load_text_fromfile(whattodo.fn_in,'utf-16')
-            raw =meta.raw
+            #raw =meta.raw
         except:
             print("Sorry, can't use the file ", whattodo.fn_in)
     # start whole NLP task: read,clean,tag...
     print("\nRindira akanya, ndiko ndategura amajambo ya kazinduzi ...")
     #freq_lemma_all = kh.load_freqfett()
     print("ndiko ndategura ifishi ...\n")
-    # TODO : change to class and get also lemmafreq to save it
-    lemmafreq, text_tagged = tag_text_with_db(raw)#,freq_lemma_all)
-    kh.freq_to_dict(lemmafreq, whattodo.fn_freqlemmaj)
+    lemmafreq, text_tagged = tag_text_with_db(meta.text)#,freq_lemma_all)
+    # insert first line as head for csv file
+    lemmafreq.insert(0,sd.first_line_in_pos_collection(),)
     kh.save_list(lemmafreq, whattodo.fn_freqlemmac)
+    # remove first line again
+    lemmafreq.pop(0)
+   # #kh.freq_to_dict(lemmafreq, whattodo.fn_freqlemmaj)
     # save tagged file for reuse
     kh.save_json(text_tagged, whattodo.fn_tag)
     print("\n\nNashinguye iki gisomwa n'indanzi mu fishi: \n"
@@ -449,7 +409,7 @@ def search_or_load_search(f_in, how, what, multiple):
                     count_results += len(result1)
                     result.append("***** "+tagged[0]+"||"+tagged[1]+"||"+
                                   tagged[3]+"||"+str(len(result1))+"|| *****")
-                    for res in result1:
+                    for res in result1 :
                         result.append(res)
             #headline
             if result :

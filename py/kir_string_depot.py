@@ -134,12 +134,40 @@ class PossibleTags:
     """
     def __init__(self):
         self.pt1 = [
-            "ADJ", "ADV", "CONJ", "EMAIL","F","INTJ", "NI", "NOUN", "NOUN_PER",
-             "NUM", "NUM_ROM","PRON","PROPN_CUR","PPROPN_LOC","PPROPN_NAM",
-             "PROPN_ORG","PROPN_REL","PPROPN_SCI","PROPN_THG","PPROPN_VEG",
-             "PREP" ,"SYMBOL", "UNK", "VERB", "WWW"]
+             "ADJ", "ADV", "CONJ", "EMAIL","F","INTJ", "NI", "NOUN",
+             "NUM", "NUM_ROM","PRON","PROPN","PROPN_CUR","PROPN_LOC","PROPN_NAM",
+             "PROPN_ORG","PROPN_PER", "PROPN_REL","PROPN_SCI","PROPN_THG",
+             "PROPN_VEG","PREP" ,"SYMBOL", "UNK", "VERB", "WWW"]
         self.pt2 = ",.:!?(){}[]'\""
 
+def first_line_in_pos_collection():
+    """headline for lemmafreq.csv
+    """
+    first_line = "lemma;id;PoS;count;counted forms;forms"
+    return first_line
+
+class NounPrepositions:
+    """more variants if nouns are written inclusive prepositions without apostrophe
+    """
+    def __init__(self):
+        self.qu_nta = r"([na]ta|[mk]u|s?i)"
+        self.qu_ca_vowel = r"([bkmrt]?w|[rv]?y|[nsckzbh])"
+        self.qu_ca_konsonant = r"([nckzbh]|[bkmrt]?w|[rv]?y)[ao]"
+
+def weak_konsonant(letter):
+    """returns True, False, vowel or 'not in use'
+    """
+    #iki
+    if letter in "bdgjmnrvyz":
+        return True
+    #igi
+    if letter in "cfhkpst":
+        return False
+    #ic
+    if letter in "aeiou":
+        return "vowel"
+    #foreign
+    return "not in use"
 
 def breakdown_consonants(mystring) :
     """returns changed consonants in case of some combinations of letters
@@ -167,6 +195,12 @@ class Search:
         self.fn_freqlemmaj = ""
         self.fn_search = ""
         self.set_fntag()
+    def __str__(self):
+        return f"wtl={self.wtl}, questions={self.questions}, \
+            short={self.short}, fn_tag={self.fn_tag}"
+    def __repr__(self):
+        return f"wtl={self.wtl}, questions={self.questions}, \
+            short={self.short}, fn_tag={self.fn_tag}"
 
     #f_out = input("Gushingura ifishi rishasha hehe?\n : ")
     def set_fntag(self):
@@ -175,7 +209,7 @@ class Search:
         """
         root_tagg = RessourceNames().dir_tagged
         myname = self.fn_in.split("/")[-1]
-        # TODO check if f_in is json or txt
+        # TO DO check if f_in is json or txt
         short = myname.find(".")
         self.short = myname[:short]
         self.fn_tag= root_tagg+"tag__"+self.short+".json"
@@ -206,7 +240,7 @@ def collect_corpuscategories() :
         for element in elements[:-1]:
             if element.strip() not in categories :
                 categories.append(element)
-    for uninteresting in ["Constantin","Ernest","Ferdinand",\
+    for uninteresting in ["Constantin","Ernest","Ferdinand","Doreen"\
                           "Manoah","Yvette","G-MdS"]:
         categories.remove(uninteresting)
     return categories

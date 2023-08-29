@@ -174,7 +174,7 @@ def show_twenty(mylist):
         elif isinstance(i, (tuple,list)) :
             print(i[0],";",i[1])
 
-#TODO very slow!!
+#TODO very slow!! and who wants to read it in this format??
 def freq_to_dict(lemmafreq, filename):
     """bring lemma frequency distribution in format to save as json
     """
