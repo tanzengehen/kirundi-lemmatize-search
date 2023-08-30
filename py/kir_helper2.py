@@ -68,7 +68,7 @@ def load_freqfett():
     """reads lemma_freq from file
     returns list with str, int and tuples (str,int) per lemma
     """
-    toomuch = load_lines(sd.RessourceNames().fn_freqfett)
+    toomuch = load_lines(sd.ResourceNames().fn_freqfett)
     #toomuch = load_lines("/depot_analyse/freq_fett.csv")
     freq_fett =[]
     # from line[14275] frequence < 6
