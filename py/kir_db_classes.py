@@ -27,7 +27,7 @@ def load_dbkirundi():
     rests = []
     stems = []
     stems = set(stems)
-    with open(sd.RessourceNames().fn_db, encoding="utf-8") as csv_file:
+    with open(sd.ResourceNames().fn_db, encoding="utf-8") as csv_file:
         csv_reader = csv.reader(csv_file, delimiter = ";")
         line_count = 0
         for row in csv_reader:
@@ -75,7 +75,7 @@ def load_ne():
     per = []
     lng = []
     foreign =[]
-    with open(sd.RessourceNames().fn_namedentities, encoding="utf-8") as csv_file:
+    with open(sd.ResourceNames().fn_namedentities, encoding="utf-8") as csv_file:
         csv_reader = csv.reader(csv_file, delimiter = ";")
         for row in csv_reader:
             #print(row[1])

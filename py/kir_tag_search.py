@@ -21,7 +21,7 @@ def reduce_simplefreq_to_lemma_collection(simple_freq_list):
     """ mapps types to foreign words, named-entities and all PoS in kirundi_db
      reads simple_freq as list of [type,frequency]
      returns object of class Collection"""
-    #names = kh.load_columns_fromfile(sd.RessourceNames().fn_namedentities,2, separator=";")
+    #names = kh.load_columns_fromfile(sd.ResourceNames().fn_namedentities,2, separator=";")
     names = dbc.load_ne()
     #fremd = load_text8_aslist(CORPUS_ROOT+, "\n")
     (dict_verbs, dict_subs, dict_adj, dict_prns,
@@ -338,9 +338,9 @@ def tag_or_load_tags(whattodo):
     # 1. is there already a tagged json variant?
     # TODO check hash values
     if kh.check_file_exits(whattodo.fn_tag.split("/")[-1],
-                           sd.RessourceNames().dir_tagged):
+                           sd.ResourceNames().dir_tagged):
         # check if tagged version is younger than big lemma collection
-        good_old = kh.check_time(sd.RessourceNames().root+"/ressources/freq_fett.csv",
+        good_old = kh.check_time(sd.ResourceNames().root+"/resources/freq_fett.csv",
                                  whattodo.fn_tag)
         if good_old:
             print("Hari ifishi n'indanzi: (rikorwa", good_old,
@@ -392,7 +392,7 @@ def search_or_load_search(f_in, how, what, multiple):
     whattodo.set_search(how, what)
     # check if search was already done before
     already_done = kh.check_file_exits(whattodo.fn_search.split("/")[-1],
-                                       sd.RessourceNames().dir_searched)
+                                       sd.ResourceNames().dir_searched)
     if already_done:
         result = kh.load_lines(whattodo.fn_search)
         count_results = len(result)
@@ -401,7 +401,7 @@ def search_or_load_search(f_in, how, what, multiple):
         if multiple is True :
             # already tagged files of the corpus
             tagged_meta = kh.load_meta_file(\
-                sd.RessourceNames().root+"/depot_analyse/meta_tags_for_training.txt")
+                sd.ResourceNames().root+"/depot_analyse/meta_tags_for_training.txt")
             result = []
             for tagged in tagged_meta :
                 result1 = go_search(tagged,whattodo)

@@ -9,14 +9,14 @@ Created on Sun Aug  6 15:10:18 2023
 import os
 
 
-class RessourceNames:
-    """pathames for ressource files"""
+class ResourceNames:
+    """pathames for resource files"""
     def __init__(self):
         self.root = "/".join(os.getcwd().split("/")[:-1])
-        self.fn_corpuslist = self.root+"/ressources/verzeichnis.txt"
-        self.fn_namedentities = self.root+"/ressources/extern.csv"
-        self.fn_freqfett = self.root+"/ressources/freq_fett.csv"
-        self.fn_db = self.root+"/ressources/db_kirundi.csv"
+        self.fn_corpuslist = self.root+"/resources/verzeichnis.txt"
+        self.fn_namedentities = self.root+"/resources/extern.csv"
+        self.fn_freqfett = self.root+"/resources/freq_fett.csv"
+        self.fn_db = self.root+"/resources/db_kirundi.csv"
         self.dir_tagged = self.root+"/results/tagged/"
         self.dir_searched = self.root+"/results/searched/"
 
@@ -207,7 +207,7 @@ class Search:
         """set filenames to store tagged file and lemma frequency distribution
         for lemmafreq still undecided if csv or json
         """
-        root_tagg = RessourceNames().dir_tagged
+        root_tagg = ResourceNames().dir_tagged
         myname = self.fn_in.split("/")[-1]
         # TO DO check if f_in is json or txt
         short = myname.find(".")
@@ -224,7 +224,7 @@ class Search:
         search = ""
         for i in self.questions :
             search += i+"_"
-        self.fn_search = RessourceNames().dir_searched+self.short+"__"+search+".txt"
+        self.fn_search = ResourceNames().dir_searched+self.short+"__"+search+".txt"
 
 
 # TODO check with TextMeta.set_corpuscategories
@@ -233,7 +233,7 @@ class Search:
 def collect_corpuscategories() :
     """collects different parts of pathnames of kirundi corpus as a list
     """
-    paths_list = RessourceNames().fn_corpuslist
+    paths_list = ResourceNames().fn_corpuslist
     categories = []
     for i in paths_list :
         elements = i.split("/")
