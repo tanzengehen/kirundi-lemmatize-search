@@ -14,6 +14,27 @@ import json
 import kir_tag_classes as tc
 import kir_string_depot as sd
 
+class Dates:
+    """returns last changes of db_kirundi, named_entities, 
+    freqfett
+    """
+    # call with Dates().en() etc.
+    def __init__(self):
+        dates=load_lines(sd.ResourceNames().fn_dates)
+        self.dates = {i.split(";")[0]:i.split(";")[1] for i in dates}
+    def date_db(self):
+        """returns version/date of dbkirundi
+        """
+        return self.dates.get("db")
+    def date_en(self):
+        """returns version/date of Named-Entity list
+        """
+        return self.dates.get("en")
+    def date_ff(self):
+        """returns version/date of the big lemma frequecy dstribution
+        """
+        return self.dates.get("ff")
+
 def check_file_exits(fn_file, fn_dir):
     """save energy, don't search twice
     """
@@ -173,29 +194,6 @@ def show_twenty(mylist):
             print(i)
         elif isinstance(i, (tuple,list)) :
             print(i[0],";",i[1])
-
-#TODO very slow!! and who wants to read it in this format??
-def freq_to_dict(lemmafreq, filename):
-    """bring lemma frequency distribution in format to save as json
-    """
-    liste = []
-    lemma_count=0
-    points = int(len(lemmafreq)/50)+1
-    print("\nformat lemma freq")
-    for i in lemmafreq:
-        freqs = {}
-        for num in range(5,len(i)):
-            freqs.update({i[num][0]:i[num][1]})
-        tok = {i[0]:{"dbid":i[1],"POS":i[2],"sum":i[3],"forms":i[4],"freqs":freqs}}
-        liste.append(tok)
-        with open(filename,'w', encoding = "utf-8") as file:
-            # consider: without indent it's only half as big
-            json.dump({"lemma_freqency_distribution":liste}, file, indent=4)
-        # progress bar
-        lemma_count +=1
-        if lemma_count%points == 0 :
-            print('.',end = "")
-    #return liste
 
 # will be exchanged with hash value question
 def check_time(older, younger):

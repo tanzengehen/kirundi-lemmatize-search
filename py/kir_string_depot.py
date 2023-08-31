@@ -10,15 +10,18 @@ import os
 
 
 class ResourceNames:
-    """pathames for resource files"""
+    """pathames for resource files
+    """
     def __init__(self):
         self.root = "/".join(os.getcwd().split("/")[:-1])
         self.fn_corpuslist = self.root+"/resources/verzeichnis.txt"
         self.fn_namedentities = self.root+"/resources/extern.csv"
         self.fn_freqfett = self.root+"/resources/freq_fett.csv"
         self.fn_db = self.root+"/resources/db_kirundi.csv"
+        self.fn_dates = self.root+"/resources/dates.txt"
         self.dir_tagged = self.root+"/results/tagged/"
         self.dir_searched = self.root+"/results/searched/"
+
 
 
 # welche charSets funktionieren evtl
@@ -117,6 +120,7 @@ encodings = [
     #"utf_8_sig",
 ]
 
+
 class CorpusCategories:
     """categories of corpus from University
     """
@@ -154,20 +158,27 @@ class NounPrepositions:
         self.qu_ca_vowel = r"([bkmrt]?w|[rv]?y|[nsckzbh])"
         self.qu_ca_konsonant = r"([nckzbh]|[bkmrt]?w|[rv]?y)[ao]"
 
-def weak_konsonant(letter):
+
+def punctuation():
+    """returns string of punctuationmarks etc.
+    does not include currency signs
+    """
+    return ',.;:!?(){}[]\'"´`#%&+-*/<=>@\\^°_|~'
+
+def sortletter(letter):
     """returns True, False, vowel or 'not in use'
     """
     #iki
-    if letter in "bdgjmnrvyz":
-        return True
+    if letter in "bdgjlmnrvwyz":
+        return "weak_consonant"
     #igi
     if letter in "cfhkpst":
-        return False
+        return "hard_consonant"
     #ic
     if letter in "aeiou":
         return "vowel"
-    #foreign
-    return "not in use"
+    #foreign qx
+    return "not_in_use"
 
 def breakdown_consonants(mystring) :
     """returns changed consonants in case of some combinations of letters
@@ -188,11 +199,11 @@ class Search:
         self.fn_in = fn_in
         self.multiple = multiple
         self.wtl = ""
+        self.nots = ""
         self.questions = ""
         self.short =""
         self.fn_tag = ""
         self.fn_freqlemmac = ""
-        self.fn_freqlemmaj = ""
         self.fn_search = ""
         self.set_fntag()
     def __str__(self):
@@ -209,21 +220,24 @@ class Search:
         """
         root_tagg = ResourceNames().dir_tagged
         myname = self.fn_in.split("/")[-1]
-        # TO DO check if f_in is json or txt
+        # TODO check if f_in is json or txt
         short = myname.find(".")
         self.short = myname[:short]
         self.fn_tag= root_tagg+"tag__"+self.short+".json"
         self.fn_freqlemmac = root_tagg+"fl__"+self.short+".csv"
-        self.fn_freqlemmaj = root_tagg+"fl__"+self.short+".json"
-    def set_search(self, wtl,questions) :
+    def set_search(self, wtl,nots,questions) :
         """combine filename of analysed file and search-questions for making 
         a filename to store the search results
         """
         self.wtl = wtl
+        self.nots = nots
         self.questions = questions
         search = ""
-        for i in self.questions :
-            search += i+"_"
+        for i, quest in enumerate(self.questions) :
+            if nots[i] =="!":
+                search += "!"+quest+"_"
+            else:
+                search += quest+"_"
         self.fn_search = ResourceNames().dir_searched+self.short+"__"+search+".txt"
 
 

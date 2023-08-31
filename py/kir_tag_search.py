@@ -27,7 +27,7 @@ def reduce_simplefreq_to_lemma_collection(simple_freq_list):
     (dict_verbs, dict_subs, dict_adj, dict_prns,
      dict_adv, dict_rests, dict_stems) =dbc.load_dbkirundi()
     print("sorting Named Entities"+28*'.')
-    collection = tc.Collection
+    collection = tc.Collection(simple_freq_list)
     (collection.names, still_unk) = dbc.filter_names_out(names, simple_freq_list)
     len_before = len(still_unk)
     (collection.advs, still_unk) = dbc.collect_adv_plus(dict_adv, still_unk)
@@ -58,7 +58,7 @@ def reduce_simplefreq_to_lemma_collection(simple_freq_list):
           len(collection.verbs)-1,"/",len(still_unk))
 
     (collection.exclams, still_unk) = dbc.collect_exclamations(dict_rests, still_unk)
-    collection.unk=[]
+    #collection.unk=[]
     for key,value in still_unk.items() :
         if value != 0 :
             collection.unk.append((key, "", "UNK", value,1,[key,value]))
@@ -70,8 +70,9 @@ def make_lemmafreq_fromtext(mytext) :
     returns lemma_freq"""
     simfreq = tc.FreqSimple(mytext)
     lemma_collection = reduce_simplefreq_to_lemma_collection(simfreq.freq)
-    known = tc.Collection.known(lemma_collection)
-    return known, lemma_collection.unk
+    # known = tc.Collection.known(lemma_collection)
+    # return known, lemma_collection.unk
+    return lemma_collection
 
 def split_in_sentences(mytext):
     """splits texts where [?.!;:] + space_character
@@ -128,10 +129,10 @@ def tag_punctmarks_etc(myword):
     """finds symbols and marks
     returns Token.token .pos .lemma
     """
-    if myword in ",.;:!?(){}[]'\"" :
-        tag = tc.Token(myword,myword,myword)
-        return tag
-    if myword in '´`#$%&*+-/<=>@\\^_|~':
+    # if myword in ",.;:!?(){}[]'\"" :
+    #     tag = tc.Token(myword,myword,myword)
+    #     return tag
+    if myword in ',.;:!?(){}[]\'"´`#$%&*+-/<=>@\\^_|~':
         tag = tc.Token(myword,"SYMBOL",myword)
         return tag
     return []
@@ -163,12 +164,15 @@ def tag_text_with_db(mytext):#, lemmafreq_all) :
     """uses kirundi_db, makes lemma_freq_list of the text, (but tags with big_lemma_freq)
     returns lemma_freq, list of tagged tokens
     """
-    known, unknown = make_lemmafreq_fromtext(mytext)
+    collection = make_lemmafreq_fromtext(mytext)
+    known = collection.known()
     # TODO where to put the metadata
-    print ("lemmata of text:", len(known), "\nunknown types  :", len(unknown))
+    print ("lemmata of text:", len(known),
+           "\nunknown types  :",len(collection.unk))
     # split into sentences -- roughly
     sentences_list = split_in_sentences(mytext)
-    punctuation = r'´`\'.!"#$%&()*+,-/:<=>?[\\]^_{|}~;@'
+    punctuation = sd.punctuation()
+    #punctuation = r'´`\'.!"#$%&()*+,-/:<=>?[\\]^_{|}~;@'
 
     # collects whole text
     tagged =[]
@@ -224,43 +228,42 @@ def tag_text_with_db(mytext):#, lemmafreq_all) :
         if sent_count%points == 0 :
             print('.',end = "")
         sent_count +=1
-    lemmafreq = known+unknown
-    lemmafreq.sort(key=lambda x: x[3], reverse = True)
+    lemmafreq = collection.all_in()
     return (lemmafreq,
             tagged)
 
 
-
-def collect_words_around_searchterm(index, found_string, wordlist_tagged):
+# could be a function of a class wordlist_tagged?
+def collect_words_around_searchterm(index_start, found_string, wordlist_tagged):
     """puts searchresult in it's context
     """
     # collect words around searchword
-    index_behind = index+len(found_string.split())
+    index_end = index_start+len(found_string.split())
     text_around = 4*" "+found_string+8*" "
     neighbours= 0
     char_count = 0
     # words behind searchterm
-    while char_count < 50 and index_behind + neighbours < len(wordlist_tagged) :
-        neighbor_text = wordlist_tagged[index_behind + neighbours].token+" "
+    while char_count < 50 and index_end + neighbours < len(wordlist_tagged) :
+        neighbor_text = wordlist_tagged[index_end + neighbours].token+" "
         text_around += neighbor_text
         char_count += len(neighbor_text)
         neighbours += 1
     neighbours= -1
     char_count = 0
     # words before searchterm
-    while char_count < 50  and index+neighbours > 0 :
-        neighbor_text = wordlist_tagged[index+neighbours].token+" "
+    while char_count < 50  and index_start+neighbours > 0 :
+        neighbor_text = wordlist_tagged[index_start+neighbours].token+" "
         text_around = neighbor_text+text_around
         char_count += len(neighbor_text)
         neighbours -= 1
     # cut or fill space before searchterm
     if char_count >= 50:
-        text_around = (5-len(str(index)))*" "+text_around[char_count-50:]
+        text_around = (5-len(str(index_start)))*" "+text_around[char_count-50:]
     else:
-        text_around = (5-len(str(index)))*" "+(50-char_count)*" "+text_around
+        text_around = (5-len(str(index_start)))*" "+(50-char_count)*" "+text_around
     return text_around
 
-
+# could be a function of a class wordlist_tagged?
 def find_thing(wordlist_tagged, wtl, questions):
     """searches a wordform 
     or all wordforms of a lemma 
@@ -276,44 +279,61 @@ def find_thing(wordlist_tagged, wtl, questions):
         if not tagword.pos :
             missings.append(("missing tag by word number:", index, tagword.token))
             continue
-        if searchword == tagword.get(wtl):#.lower() :
+        if searchword.lower() == tagword.get(wtl).lower() :
             with_neighbors= collect_words_around_searchterm(index, tagword.token, wordlist_tagged)
             found.append((index, with_neighbors))
     return found, missings
 
-
-def find_ngrams(wordlist_tagged, wtl, questions):
+def find_ngrams(wordlist_tagged, wtl, nots, questions):
     """finds combinations of n words 
     wordforms(w), tags(t), lexems(l) or jokerword(?)
     returns all matches with text around the search result
     """
     missings = []
     ngram_length = len(questions)
-    found = []
-    for index_list in range(len(wordlist_tagged)-ngram_length):
+    found = []             # collection of found strings
+    part_found = ""        # found string
+    n_count = 0            # index suchbegriff
+    for index in range(len(wordlist_tagged)-ngram_length):
         # tag missing?
-        if not wordlist_tagged[index_list].pos :
-            missings.append(("missing tag by word number:",index_list,
-                             wordlist_tagged[index_list].token))
+        if not wordlist_tagged[index].pos :
+            missings.append(("missing tag by word number:",index,
+                              wordlist_tagged[index].token))
             continue
-        n_count = 0
-        part_found = ""
-        such_index = index_list
-        # collect matches till mismatch of next token or full-match
+        # found start of match
         # (we have to lower both: beginnings of sentences and tags)
-        while n_count < ngram_length and \
-            (wtl[n_count] == "?" \
-             or wordlist_tagged[such_index].get(wtl[n_count]).lower()
-                == questions[n_count].lower()) :
-            part_found += " "+ wordlist_tagged[such_index].token
-            if n_count == ngram_length-1 :
-                with_neighbors= collect_words_around_searchterm(\
-                                    index_list, part_found, wordlist_tagged)
-                found.append([index_list , with_neighbors])
-            n_count +=1
-            such_index += 1
-    return found, missings
+        if wordlist_tagged[index].get(wtl[n_count]).lower() == questions[0].lower():
+            part_found = wordlist_tagged[index].token
+            n_count = 1
+            # collect matches till full-match or mismatch of next token
+            for candidate in wordlist_tagged[index+1:] :
+                # add punctuation to found string but don't count it
+                if candidate.pos == "SYMBOL":
+                    part_found += " "+ candidate.token
+                    continue
+                # next token also matches
+                if (nots[n_count] != "!" and (wtl[n_count] == "?" \
+                      or candidate.get(wtl[n_count]).lower() == questions[n_count].lower())) \
+                    or (nots[n_count] == "!" \
+                        and candidate.get(wtl[n_count]).lower() != questions[n_count].lower()):
 
+                    # add token and count it
+                    part_found += " "+ candidate.token
+                    n_count += 1
+                    # full match
+                    if n_count == ngram_length :
+                        with_neighbors= collect_words_around_searchterm(\
+                                            index, part_found, wordlist_tagged)
+                        found.append([index, with_neighbors])
+                        part_found =""
+                        n_count = 0
+                        break
+                # next token doesn't match
+                else:
+                    part_found =""
+                    n_count = 0
+                    break
+    return found, missings
 
 def go_search(tagged_list, whattodo):
     """search in single text
@@ -321,7 +341,7 @@ def go_search(tagged_list, whattodo):
     if  len(whattodo.wtl) == 1 :
         found = find_thing(tagged_list,whattodo.wtl[0],whattodo.questions)
     else:
-        found = find_ngrams(tagged_list,whattodo.wtl,whattodo.questions)
+        found = find_ngrams(tagged_list,whattodo.wtl,whattodo.nots,whattodo.questions)
     if found :
         # tag missing?
         if found[1] :
@@ -376,7 +396,6 @@ def tag_or_load_tags(whattodo):
     kh.save_list(lemmafreq, whattodo.fn_freqlemmac)
     # remove first line again
     lemmafreq.pop(0)
-   # #kh.freq_to_dict(lemmafreq, whattodo.fn_freqlemmaj)
     # save tagged file for reuse
     kh.save_json(text_tagged, whattodo.fn_tag)
     print("\n\nNashinguye iki gisomwa n'indanzi mu fishi: \n"
@@ -385,11 +404,11 @@ def tag_or_load_tags(whattodo):
     return text_tagged
 
 
-def search_or_load_search(f_in, how, what, multiple):
+def search_or_load_search(f_in, kind_of_tag, nots, what, multiple):
     """main
     """
     whattodo = sd.Search(f_in, multiple)
-    whattodo.set_search(how, what)
+    whattodo.set_search(kind_of_tag,nots,what)
     # check if search was already done before
     already_done = kh.check_file_exits(whattodo.fn_search.split("/")[-1],
                                        sd.ResourceNames().dir_searched)

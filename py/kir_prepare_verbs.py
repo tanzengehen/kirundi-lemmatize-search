@@ -41,8 +41,8 @@ class Lemma:
             self.alternatives =""
             self.questions=[]
         self.questions.insert(0,self.lemma)
-        
-            
+
+
     def __str__(self):
         return f"lemma= {self.lemma}, ID={ self.dbid}, PoS= {self.pos}, stem= {self.stem}, "\
                +f"alternatives= {self.alternatives} "\
@@ -486,6 +486,8 @@ class Verb(Lemma):
             self.unclear.append([self.lemma, "perfective unclear:", self.perfective])
             self.perfective = None
     def mark_passiv(self):
+        """marks passiv form of verb
+        """
         if self.lemma[-2] =="w":
             self.passiv = True
     def _set_end_of_ends(self):
@@ -511,7 +513,7 @@ class Verb(Lemma):
                 elif self.perfective [-3] == "v" :
                     perfp = self.perfective[:-3]+r"(vye|bwe)"
                 elif self.perfective [-3] == "f" :
-                    perfp = self.perfective[:-3]+"puwe"    
+                    perfp = self.perfective[:-3]+"puwe"
                 else :
                     self.unclear.append(["perfective: unexpected letter before [y] ",\
                                          self.lemma, self.perfective])
@@ -765,6 +767,8 @@ def filter_proverbs_out(verb_list):
     return new_list
 
 def filter_passiv_out(verb_list):
+    """because it's not really a lemma and will be asked with its base form
+    """
     # sort by length of lemma to have proverbs later than pur verbs
     verbs = sorted(verb_list, key=lambda x: len(x.lemma))
     pur_stems = []

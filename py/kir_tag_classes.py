@@ -275,8 +275,8 @@ class FreqSimple:
         """
         #replace linebreaks and diacritics and lower
         cleaned1 = unidecode(blanktext.lower()).replace("\n"," ")
-        punctuation = '´`\'!"#$%&()*+,-/:<=>?[\\]^_{|}~;.@0123456789'
-        for p in punctuation:
+        longpunctuation = '´`\'!"#$€%&()*+,-/:<=>?[\\]^_{|}~;.@0123456789'
+        for p in longpunctuation:
             cleaned2 = cleaned1.replace(p," ")
             cleaned1 = cleaned2
         # reduce the new whitespaces
@@ -299,9 +299,9 @@ class Collection:
         self.verbs = []
         self.exclams = []
         self.unk = []
-    # TODO maybe take first line out in all collectxy and put it only in ready lemmafreq
     def known(self):
-        """ sets the lists of found lemmata together to one
+        """ returns a list of all types which found a lemma
+        sorted by lemma
         """
         known = self.names \
             +self.advs \
@@ -315,6 +315,13 @@ class Collection:
                 print(i, "type [3]:",type(i[3]))
         known.sort(key=lambda x: x[3], reverse = True)
         return known
+    def all_in(self):
+        """returns a list of all types sorted by lemma or themselves if they didn't match
+        a lemma
+        """
+        all_in = self.known()+self.unk
+        all_in.sort(key=lambda x: x[3], reverse = True)
+        return all_in
 
 
 class FreqMeta:
@@ -326,15 +333,24 @@ class FreqMeta:
         self.n_lemma = 0
         self.n_unk = 0
         self.n_one = 0
+        self.n_ne = 0
+        self.n_extern = 0
         for i in lemmafreq:
             if i[3] == 1 :
                 self.n_one += 1
             if i[2] == "UNK" :
                 self.n_unk += 1
             elif i[2] in [
-                "ADJ", "ADV", "CONJ", "INTJ", "NI", "NOUN", "NOUN_PER",
+                "ADJ", "ADV", "CONJ", "INTJ", "NI", "NOUN", 
                  "PRON","PREP", "VERB"] :
                 self.n_lemma += 1
+            elif i[2] == "F":
+                self.n_extern += 1
+            elif i[2] in [
+                "PROPN","PROPN_CUR","PROPN_LOC","PROPN_NAM","PROPN_ORG",
+                "PROPN_PER", "PROPN_REL","PROPN_SCI","PROPN_THG",
+                "PROPN_VEG"] :
+                self.n_ne += 1
 
 
 class Token:

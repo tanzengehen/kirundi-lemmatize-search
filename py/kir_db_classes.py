@@ -99,7 +99,7 @@ def load_ne():
     check_entries_location_person_language(lng, per)
     check_entries_location_person_language(loc, lng, "lang")
     check_entries_location_person_language(loc, per)
-    
+
     #set questions for existing language entries
     for i in lng:
         i.set_languages()
@@ -190,7 +190,7 @@ class NamedEntities:
                 self.lang.append("iki"+i)
         elif self.lemma[:3] == "igi":
             for i in self.alternatives:
-                self.lang.append("igi"+i)        
+                self.lang.append("igi"+i)   
         if self.lemma[:2] == "ic":
             for i in self.alternatives:
                 self.lang.append("ic"+i)
@@ -231,9 +231,9 @@ def set_person_language_out_of_location(loc,per,lng):
             for location in i.alternatives:
                 i.questions += [r"^"+sd.NounPrepositions().qu_nta+"?bu"+location+"$",
                                 r"^"+sd.NounPrepositions().qu_ca_vowel+"?ubu"+location+"$"]
-                if sd.weak_konsonant(i.lemma[4]) == True:
+                if sd.sortletter(i.lemma[4]) == "weak_consonant":
                     langname = "iki"+i.lemma[3:]
-                elif sd.weak_konsonant(i.lemma[4]) == False:
+                elif sd.sortletter(i.lemma[4]) == "hard_consonant":
                     langname = "igi"+i.lemma[3:]
                 pername = "umu"+i.lemma[3:]
         elif i.lemma[:3] in "ubw":
@@ -246,7 +246,7 @@ def set_person_language_out_of_location(loc,per,lng):
             i.questions = i.alternatives
             langname = "ikinya_"+i.lemma
             pername = "umunya_"+i.lemma
-        
+
         if i.lang != "done":
             i.row[0] =langname
             new = NamedEntities(i.row)
@@ -256,7 +256,7 @@ def set_person_language_out_of_location(loc,per,lng):
             if new.lang:
                 new.questions = new.lang
                 lng.append(new)
-                
+
         if i.persons != "done":
             i.row[0] =pername
             new = NamedEntities(i.row)
@@ -265,7 +265,7 @@ def set_person_language_out_of_location(loc,per,lng):
             new.set_persons()
             if new.questions:
                 per.append(new)
-    
+
 
 class Noun(kv.Lemma):
     """sets db-ID, lemma, stem, PoS, singular, plural, alternative spellings and
@@ -296,10 +296,10 @@ class Noun(kv.Lemma):
              #qu_1 = r"^([bkmrt]?w|[rv]?y|[nsckzbh])?"+variant+"$"
          # noun starts with consonant
         else :
-             qu_0 = r"^"+sd.NounPrepositions().qu_nta+"?"+variant+"$"
-             qu_1 = r"^"+sd.NounPrepositions().qu_ca_konsonant+variant+"$"
-             #qu_0 = r"^([na]ta|[mk]u|s?i)?"+variant+"$"
-             #qu_1 = r"^([nckzbh]|[bkmrt]?w|[rv]?y)[ao]"+variant+"$"
+            qu_0 = r"^"+sd.NounPrepositions().qu_nta+"?"+variant+"$"
+            qu_1 = r"^"+sd.NounPrepositions().qu_ca_konsonant+variant+"$"
+            #qu_0 = r"^([na]ta|[mk]u|s?i)?"+variant+"$"
+            #qu_1 = r"^([nckzbh]|[bkmrt]?w|[rv]?y)[ao]"+variant+"$"
         return [qu_0, qu_1]
     def _set_questions(self, row):
         """takes row from dbkirundi

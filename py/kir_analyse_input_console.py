@@ -55,12 +55,17 @@ def check_interest(interest0):
 
 def specify_search(interest0):
     """takes exact searchword, searchtag or searchlemma"""
-    kind_of_search = {"token": "Ijambo ririhe? : ",
-                      "pos": "Amajambo yose afise indanzi: ",
-                      "lemma": "Amajambo yose y'itsitso ririhe? : "} #itsitsu -Wurzel
+    kind_of_search = {"token": "Ijambo ririhe? / Which word? : ",
+                      "pos": "Amajambo yose afise indanzi / all words with tag : ",
+                      "lemma": "Amajambo yose y'itsitso ririhe? / all words of lemma : "} 
+                        #itsitsu -Wurzel
     search =[]
+    notss =""
+    give =""
     if len(interest0) > 1 :
-        print("Urashaka gutora "+str(len(interest0))+"-gram")
+        print("Urashaka gutora "+str(len(interest0))+"-gram"\
+              +"\n(You are looking for a "+str(len(interest0))+"-gram)"\
+              +"nspecify each part, put a '!' before it, if you want to exclude this word or tag")
         count = "igice " # for printing confirmation later
     else :
         count = ""
@@ -70,30 +75,39 @@ def specify_search(interest0):
             search.append("?")
         else:
             take =input(count+str(i+1)+": "+kind_of_search.get(interest))
+            if take[0] == "!":
+                notss +="!"
+                give += "alles außer "
+                take = take.strip("!")
+            else:
+                notss +="y"
             possible= sd.PossibleTags()
             if interest == "pos" :
                 # PoS tags always in uppercase
                 take = take.upper()
                 if take in possible.pt1 or take in possible.pt2 :
                     search.append(take)
+                    give += take +" + "
                 else:
                     print("indanzi",take,"ntiriho") # gibt's nicht
                     sysexit()
             # word, lemma
             elif take != "" :
                 search.append(take)
-    for i in search[:-1] :
-        print (i, end = " + ") #??? wofür end?
-    print(search[-1])
+                give += take+" + "
+            else:
+                search.append(take)
+    print (give[:-3])
     if not search:
         print("Kubera ko ataco watoye nahejeje.")
         sysexit()
-    return search
+    return notss, search
 
 
 f_in = input(r"""Tora ifishi ushaka kwihweza
   c                      = tagged korpus yose
   inzira/ku/fishi.txt    = ifishi rimwe (tora variante tagged iyo ufise)
+  (filename)
  : """)
 # corpus or file, if file: ist it txt?
 MULTIPLE = bool(check_fnin(f_in) == "c")
@@ -110,15 +124,15 @@ Ushaka kurondera iki mu gisomwa?
            SYMBOL, UNK (unkwon to dictionary), VERB, WWW (webaddresses)
            and this: ,.:!?(){}[]'"
     
-Tora indome""")
+Tora indome - chose a letter""")
 
 # word/tag/lemma/?
 wtl = input(r"""    W = exact word
-    L = all wordforms of a lemma 
+    L = all wordforms of a lemma
     T = part of speech-tag
     ? = wildcard
  : """)
 wtl = check_interest(wtl)
 # which word/tag/lemma
-questions = specify_search(wtl)
-search_or_load_search(f_in, wtl, questions, MULTIPLE)
+nots, questions = specify_search(wtl)
+search_or_load_search(f_in, wtl, nots, questions, MULTIPLE)
