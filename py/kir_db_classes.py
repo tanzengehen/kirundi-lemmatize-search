@@ -11,6 +11,7 @@ import re
 from unidecode import unidecode
 import kir_prepare_verbs as kv
 import kir_string_depot as sd
+import kir_helper2 as kh
 
 
 def load_dbkirundi():
@@ -27,7 +28,7 @@ def load_dbkirundi():
     rests = []
     stems = []
     stems = set(stems)
-    with open(sd.ResourceNames().fn_db, encoding="utf-8") as csv_file:
+    with open(sd.ResourceNames.fn_db, encoding="utf-8") as csv_file:
         csv_reader = csv.reader(csv_file, delimiter = ";")
         line_count = 0
         for row in csv_reader:
@@ -59,7 +60,7 @@ def load_dbkirundi():
                 #stems as set
                 stems.add(unidecode(row[4]).lower())
             line_count += 1
-    print(f'{line_count} entries of the dictionary prepared.')
+    kh.messages.new(f'{line_count} entries of the dictionary prepared.')
     csv_file.close()
     verbs = kv.filter_proverbs_out(verbs)
     verbs =  kv.filter_passiv_out(verbs)
@@ -75,7 +76,7 @@ def load_ne():
     per = []
     lng = []
     foreign =[]
-    with open(sd.ResourceNames().fn_namedentities, encoding="utf-8") as csv_file:
+    with open(sd.ResourceNames.fn_namedentities, encoding="utf-8") as csv_file:
         csv_reader = csv.reader(csv_file, delimiter = ";")
         for row in csv_reader:
             #print(row[1])
@@ -190,7 +191,7 @@ class NamedEntities:
                 self.lang.append("iki"+i)
         elif self.lemma[:3] == "igi":
             for i in self.alternatives:
-                self.lang.append("igi"+i)   
+                self.lang.append("igi"+i)
         if self.lemma[:2] == "ic":
             for i in self.alternatives:
                 self.lang.append("ic"+i)
@@ -284,7 +285,6 @@ class Noun(kv.Lemma):
         return f"lemma={self.lemma}, dbid={self.dbid}, POS= {self.pos}, "\
                    +f"coll={self.coll}, "\
                    +f"len(questions)={len(self.questions)}"
-    # TODO is also in string depot
     def _possibilities(self, variant):
         """more variants if nouns are written inclusive prepositions without apostrophe
         """
@@ -292,14 +292,10 @@ class Noun(kv.Lemma):
         if variant[0] in ["a","e","i","u"] :
             qu_0 = r"^"+sd.NounPrepositions().qu_nta+"?"+variant[1:]+"$"
             qu_1 = r"^"+sd.NounPrepositions().qu_ca_vowel+"?"+variant+"$"
-             #qu_0 = r"^([na]ta|[mk]u|i)?"+variant[1:]+"$"
-             #qu_1 = r"^([bkmrt]?w|[rv]?y|[nsckzbh])?"+variant+"$"
          # noun starts with consonant
         else :
             qu_0 = r"^"+sd.NounPrepositions().qu_nta+"?"+variant+"$"
             qu_1 = r"^"+sd.NounPrepositions().qu_ca_konsonant+variant+"$"
-            #qu_0 = r"^([na]ta|[mk]u|s?i)?"+variant+"$"
-            #qu_1 = r"^([nckzbh]|[bkmrt]?w|[rv]?y)[ao]"+variant+"$"
         return [qu_0, qu_1]
     def _set_questions(self, row):
         """takes row from dbkirundi

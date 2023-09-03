@@ -6,9 +6,10 @@ Created on Sat Jul 29 10:13:10 2023
 @author: doreen nixdorf
 """
 
-from unidecode import unidecode
 import re
+from unidecode import unidecode
 import kir_string_depot as sd
+import kir_helper2 as kh
 
 
 REGEX_SUFFIX = r"((([hyk]|mw)o)?$)"
@@ -31,7 +32,7 @@ class Lemma:
         if entry[2]:
             self.stem = entry[2].strip()
         else:
-            print(f"lemma has no stem in database: ID{self.dbid}")
+            kh.messages.new(f"lemma has no stem in database: ID{self.dbid}")
             self.stem = "xxx"
         #self.questions = [self.lemma,]
         if entry[4]:
@@ -477,12 +478,12 @@ class Verb(Lemma):
             if self.perfective.find(" ") :
                 self.perfective = self.perfective.split()[0]
         if self.perfective is None :
-            print("perfective is lost: ", self.lemma)
+            kh.messages.new("perfective is lost: "+self.lemma)
         else :
             self.perfective = self.perfective.strip()
         # if perfective is unclear
         if self.perfective.find("?") > -1 :
-            print(self.lemma+": perfective?", self.perfective, ".")
+            kh.messages.new(self.lemma+": perfective? "+self.perfective+".")
             self.unclear.append([self.lemma, "perfective unclear:", self.perfective])
             self.perfective = None
     def mark_passiv(self):
@@ -517,7 +518,8 @@ class Verb(Lemma):
                 else :
                     self.unclear.append(["perfective: unexpected letter before [y] ",\
                                          self.lemma, self.perfective])
-                    print("add passiv to perfective: unk vor y", self.lemma, self.perfective)
+                    kh.messages.new("add passiv to perfective: unk vor y "+
+                                    self.lemma+" "+self.perfective)
                     perfp = self.perfective
             elif len(self.perfective) > 3 and self.perfective[-2] in ["j","z","s","h","w"] :
                 perfp = self.perfective[:-1]+r"((w)?e)"
@@ -710,7 +712,7 @@ def prepare_verb_alternativ(row):
     """takes: id,lemma,alternative_stem,alternativ_perfectif
     returns row for the alternatively spelled verb
     """
-    row_a = [i for i in row]
+    row_a = list(row)
     stem_a = row[15]
     perf_a = row[16]
     lemma = row[1]
@@ -763,7 +765,7 @@ def filter_proverbs_out(verb_list):
             new_list.append(verb)
             pur_stems.append(verb.stem)
         except Exception:
-            print("filter proverbs klappt nicht:", verb)
+            kh.messages.new("filter proverbs out doesn't work': "+verb)
     return new_list
 
 def filter_passiv_out(verb_list):
@@ -788,7 +790,7 @@ def filter_passiv_out(verb_list):
             new_list.append(verb)
             pur_stems.append(verb.stem)
         except Exception:
-            print("filter passiv klappt nicht:", verb)
+            kh.messages.new("filter passiv out doesn't work': "+verb)
     return new_list
 
 def sammle_verben(db_verben, freq_d):

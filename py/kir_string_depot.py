@@ -12,17 +12,24 @@ import os
 class ResourceNames:
     """pathames for resource files
     """
-    def __init__(self):
-        self.root = "/".join(os.getcwd().split("/")[:-1])
-        self.fn_corpuslist = self.root+"/resources/verzeichnis.txt"
-        self.fn_namedentities = self.root+"/resources/extern.csv"
-        self.fn_freqfett = self.root+"/resources/freq_fett.csv"
-        self.fn_db = self.root+"/resources/db_kirundi.csv"
-        self.fn_dates = self.root+"/resources/dates.txt"
-        self.dir_tagged = self.root+"/results/tagged/"
-        self.dir_searched = self.root+"/results/searched/"
-
-
+    root = "/".join(os.getcwd().split("/")[:-1])
+    fn_corpuslist = root+"/resources/verzeichnis.txt"
+    fn_namedentities = root+"/resources/extern.csv"
+    fn_freqfett = root+"/resources/freq_fett.csv"
+    fn_db = root+"/resources/db_kirundi.csv"
+    fn_dates = root+"/resources/dates.txt"
+    dir_tagged = root+"/results/tagged/"
+    dir_searched = root+"/results/searched/"
+    def __str__(self):
+        return f"root={self.root}, fn_namedentities={self.fn_namedentities}, "\
+            +f"n_freqfett={self.fn_freqfett}, fn_db={self.fn_db}, "\
+            +f"fn_dates={self.fn_dates}, dir_tagged={self.dir_tagged}, "\
+            +f"dir_searched={self.dir_searched}"
+    def __repr__(self):
+        return f"root={self.root}, fn_namedentities={self.fn_namedentities}, "\
+            +f"n_freqfett={self.fn_freqfett}, fn_db={self.fn_db}, "\
+            +f"fn_dates={self.fn_dates}, dir_tagged={self.dir_tagged}, "\
+            +f"dir_searched={self.dir_searched}"
 
 # welche charSets funktionieren evtl
 encodings = [
@@ -124,40 +131,47 @@ encodings = [
 class CorpusCategories:
     """categories of corpus from University
     """
-    def __init__(self):
-        self.cc = [
-            '1920s','1940s','1950s','1960s','1970s',\
+    cc = [  '1920s','1940s','1950s','1960s','1970s',\
             '1980s','1990s','2000s','2010s','ORAL','WRITTEN',\
             'Chansons','Poésie','Théâtre','Contes','Romans','Magazines',\
             'Nouvelles','Informations',\
             'Culture_traditionnelle','Éducation','Santé','Société',\
             'Écologie','Paix','Lois','Politique','Histoire','Religion']
+    def __str__(self):
+        return f"categories = {self.cc}"
+    def __repr__(self):
+        return f"cc = {self.cc}"
 
 class PossibleTags:
     """Part-of-Speech tags the program uses
     """
-    def __init__(self):
-        self.pt1 = [
-             "ADJ", "ADV", "CONJ", "EMAIL","F","INTJ", "NI", "NOUN",
+    pt = [   "ADJ", "ADV", "CONJ", "EMAIL","F","INTJ", "NI", "NOUN",
              "NUM", "NUM_ROM","PRON","PROPN","PROPN_CUR","PROPN_LOC","PROPN_NAM",
              "PROPN_ORG","PROPN_PER", "PROPN_REL","PROPN_SCI","PROPN_THG",
              "PROPN_VEG","PREP" ,"SYMBOL", "UNK", "VERB", "WWW"]
-        self.pt2 = ",.:!?(){}[]'\""
+    def __str__(self):
+        return f"tags = {self.pt}"
+    def __repr__(self):
+        return f"pt = {self.pt}"
+
+class NounPrepositions:
+    """more variants if nouns are written inclusive prepositions without apostrophe
+    """
+    qu_nta = r"([na]ta|[mk]u|s?i)"
+    qu_ca_vowel = r"([bkmrt]?w|[rv]?y|[nsckzbh])"
+    qu_ca_konsonant = r"([nckzbh]|[bkmrt]?w|[rv]?y)[ao]"
+    def __str__(self):
+        return f"nta,ata,si,mu etc.: {self.qu_nta}, qu_ca_vowel = {self.qu_ca_vowel}, "\
+            +f"qu_ca_konsonant = {self.qu_ca_konsonant}"
+    def __repr__(self):
+        return f"qu_nta = {self.qu_nta}, qu_ca_vowel = {self.qu_ca_vowel}, "\
+            +f"qu_ca_konsonant = {self.qu_ca_konsonant}"
 
 def first_line_in_pos_collection():
     """headline for lemmafreq.csv
     """
     first_line = "lemma;id;PoS;count;counted forms;forms"
     return first_line
-
-class NounPrepositions:
-    """more variants if nouns are written inclusive prepositions without apostrophe
-    """
-    def __init__(self):
-        self.qu_nta = r"([na]ta|[mk]u|s?i)"
-        self.qu_ca_vowel = r"([bkmrt]?w|[rv]?y|[nsckzbh])"
-        self.qu_ca_konsonant = r"([nckzbh]|[bkmrt]?w|[rv]?y)[ao]"
-
 
 def punctuation():
     """returns string of punctuationmarks etc.
@@ -195,17 +209,17 @@ def breakdown_consonants(mystring) :
 class Search:
     """query and filenames for result, frequency distributions and tagged text
     """
-    def __init__(self, fn_in, multiple = False):
-        self.fn_in = fn_in
+    def __init__(self, f_in, wtl, nots, quterms, multiple = False):
+        self.fn_in = f_in
         self.multiple = multiple
-        self.wtl = ""
-        self.nots = ""
-        self.questions = ""
+        self.wtl = wtl
+        self.nots = nots
+        self.questions = quterms
         self.short =""
         self.fn_tag = ""
         self.fn_freqlemmac = ""
-        self.fn_search = ""
         self.set_fntag()
+        self.fn_search = self.set_fnsearch()
     def __str__(self):
         return f"wtl={self.wtl}, questions={self.questions}, \
             short={self.short}, fn_tag={self.fn_tag}"
@@ -218,27 +232,25 @@ class Search:
         """set filenames to store tagged file and lemma frequency distribution
         for lemmafreq still undecided if csv or json
         """
-        root_tagg = ResourceNames().dir_tagged
+        root_tagg = ResourceNames.dir_tagged
         myname = self.fn_in.split("/")[-1]
         # TODO check if f_in is json or txt
         short = myname.find(".")
         self.short = myname[:short]
         self.fn_tag= root_tagg+"tag__"+self.short+".json"
         self.fn_freqlemmac = root_tagg+"fl__"+self.short+".csv"
-    def set_search(self, wtl,nots,questions) :
-        """combine filename of analysed file and search-questions for making 
+    def set_fnsearch(self) :
+        """combine filename of analysed file and search-terms for making 
         a filename to store the search results
         """
-        self.wtl = wtl
-        self.nots = nots
-        self.questions = questions
         search = ""
         for i, quest in enumerate(self.questions) :
-            if nots[i] =="!":
+            if self.nots[i] =="!":
                 search += "!"+quest+"_"
             else:
                 search += quest+"_"
-        self.fn_search = ResourceNames().dir_searched+self.short+"__"+search+".txt"
+        fn = ResourceNames.dir_searched+self.short+"__"+search+".txt"
+        return fn
 
 
 # TODO check with TextMeta.set_corpuscategories
@@ -247,7 +259,7 @@ class Search:
 def collect_corpuscategories() :
     """collects different parts of pathnames of kirundi corpus as a list
     """
-    paths_list = ResourceNames().fn_corpuslist
+    paths_list = ResourceNames.fn_corpuslist
     categories = []
     for i in paths_list :
         elements = i.split("/")

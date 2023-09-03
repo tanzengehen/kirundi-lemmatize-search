@@ -11,17 +11,18 @@ Sebastian Lisken is working on the website interface'
 
 from sys import exit as sysexit
 import kir_string_depot as sd
+import kir_helper2 as kh
 from kir_tag_search import search_or_load_search
 
 def check_fnin(fn_in):
     """checks filename of txt ending"""
     if fn_in == "":
-        print("Kubera ko ataco watoye nahejeje.")
+        kh.messages.new("Kubera ko ataco watoye nahejeje.")
         sysexit()
     if fn_in in "cC":
         return "c"
     if fn_in[-4:] not in [".txt",".json"] :
-        print("Hariho ikosa n'ifishi: '"+f_in
+        kh.messages.new("Hariho ikosa n'ifishi: '"+f_in
               +"'\nNdashobora gukoresha ifishi ifise impera '.txt' canke '.json' gusa")
         sysexit()
     return "f"
@@ -34,11 +35,11 @@ def check_interest(interest0):
     interest_nojoker = interest0.replace("?","")
     if interest == "":
         # nothing picked
-        print("Kubera ko ataco watoye nahejeje.")
+        kh.messages.new("Kubera ko ataco watoye nahejeje.")
         sysexit()
     elif interest_nojoker == "":
         # '?' on all positions
-        print("nonosora ukurondera kwawe") # specify your search
+        kh.messages.new("nonosora ukurondera kwawe") # specify your search
         sysexit()
     elif len(interest_nojoker) == 1:
         # only one is no '?'
@@ -46,10 +47,10 @@ def check_interest(interest0):
     for i in interest:
         if i not in "wlt?":
             # wrong character picked
-            print("hari ikosa: no valid search criteria: gusa 'w', 't' , 'l' canke '?'")
+            kh.messages.new("hari ikosa: no valid search criteria: gusa 'w', 't' , 'l' canke '?'")
             sysexit()
     kind_of_search = {"w":"token","t":"pos","l":"lemma","?":"?"}
-    print(interest)
+    #print(interest)
     interest1 = [kind_of_search.get(i) for i in interest]
     return interest1
 
@@ -60,36 +61,36 @@ def specify_search(interest0):
                       "lemma": "Amajambo yose y'itsitso ririhe? / all words of lemma : "} 
                         #itsitsu -Wurzel
     search =[]
-    notss =""
+    notss = []
     give =""
     if len(interest0) > 1 :
-        print("Urashaka gutora "+str(len(interest0))+"-gram"\
+        kh.messages.new("Urashaka gutora "+str(len(interest0))+"-gram"\
               +"\n(You are looking for a "+str(len(interest0))+"-gram)"\
-              +"nspecify each part, put a '!' before it, if you want to exclude this word or tag")
+              +"\nspecify each part, put a '!' before it, if you want to exclude this word or tag")
         count = "igice " # for printing confirmation later
     else :
         count = ""
     for i,interest in enumerate(interest0):
         if interest == "?" :
-            print(str(i+1),": kira jambo rirakunda")
+            kh.messages.new(str(i+1)+": kira jambo rirakunda")
             search.append("?")
         else:
             take =input(count+str(i+1)+": "+kind_of_search.get(interest))
             if take[0] == "!":
-                notss +="!"
+                notss.append("!")
                 give += "alles außer "
                 take = take.strip("!")
             else:
-                notss +="y"
-            possible= sd.PossibleTags()
+                notss.append("y")
+            possible= sd.PossibleTags
             if interest == "pos" :
                 # PoS tags always in uppercase
                 take = take.upper()
-                if take in possible.pt1 or take in possible.pt2 :
+                if take in possible.pt :
                     search.append(take)
                     give += take +" + "
                 else:
-                    print("indanzi",take,"ntiriho") # gibt's nicht
+                    kh.messages.new("indanzi "+take+" ntiriho") # gibt's nicht
                     sysexit()
             # word, lemma
             elif take != "" :
@@ -97,42 +98,41 @@ def specify_search(interest0):
                 give += take+" + "
             else:
                 search.append(take)
-    print (give[:-3])
+    kh.messages.new(give[:-3])
     if not search:
-        print("Kubera ko ataco watoye nahejeje.")
+        kh.messages.new("Kubera ko ataco watoye nahejeje.")
         sysexit()
-    return notss, search
+    return notss,search
 
 
-f_in = input(r"""Tora ifishi ushaka kwihweza
-  c                      = tagged korpus yose
-  inzira/ku/fishi.txt    = ifishi rimwe (tora variante tagged iyo ufise)
-  (filename)
- : """)
-# corpus or file, if file: ist it txt?
-MULTIPLE = bool(check_fnin(f_in) == "c")
+if __name__ == "__main__":
+    f_in = input(r"""Tora ifishi ushaka kwihweza
+      c                      = tagged korpus yose
+      inzira/ku/fishi.txt    = ifishi rimwe (tora variante tagged iyo ufise)
+      (filename please)
+     : """)
+    # corpus or file, if file: ist it txt?
+    MULTIPLE = bool(check_fnin(f_in) == "c")
+    kh.messages.new(r"""
+    Ushaka kurondera iki mu gisomwa? 
+            - for Bigrams or Trigrams use a combination of two respectively three letters
+            - Possible POS-tags: 
+               ADJ, ADV, CONJ, EMAIL, F(foreign words), INTJ, NI, NOUN, 
+               NUM, NUM_ROM (roman numbers), 
+               PHRASE, PRON (pronouns), PROPN, PROPN_CUR, PROPN_LOC (geographical places), 
+               PROPN_NAM (personal names), PROPN_ORG , PROPN_PER, PROPN_REL, PROPN_SCI
+               PROPN_THG, PROPN_VEG, PRP (prepositions),
+               SYMBOL, UNK (unkwon to dictionary), VERB, WWW (webaddresses)
+        
+    Tora indome - chose a letter""")
 
-print(r"""
-Ushaka kurondera iki mu gisomwa? 
-        - for Bigrams or Trigrams use a combination of two respectively three letters
-        - Possible POS-tags: 
-           ADJ, ADV, CONJ, EMAIL, F(foreign words), INTJ, NI, NOUN, 
-           NUM, NUM_ROM (roman numbers), 
-           PHRASE, PRON (pronouns), PROPN, PROPN_CUR", PROPN_LOC (geographical places), 
-           PROPN_NAM (personal names), PROPN_ORG , PROPN_PER, PROPN_REL, PROPN_SCI
-           PROPN_THG, PROPN_VEG, PRP (prepositions),
-           SYMBOL, UNK (unkwon to dictionary), VERB, WWW (webaddresses)
-           and this: ,.:!?(){}[]'"
-    
-Tora indome - chose a letter""")
-
-# word/tag/lemma/?
-wtl = input(r"""    W = exact word
-    L = all wordforms of a lemma
-    T = part of speech-tag
-    ? = wildcard
- : """)
-wtl = check_interest(wtl)
-# which word/tag/lemma
-nots, questions = specify_search(wtl)
-search_or_load_search(f_in, wtl, nots, questions, MULTIPLE)
+    # word/tag/lemma/?
+    wtl = input(r"""    W = exact word
+        L = all wordforms of a lemma
+        T = part of speech-tag
+        ? = wildcard
+     : """)
+    wtl = check_interest(wtl)
+    # specify the wtl or exclude a wtl (word/tag/lemma)
+    nots,quterms = specify_search(wtl)
+    search_or_load_search(f_in, wtl, nots, quterms, MULTIPLE)

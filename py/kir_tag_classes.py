@@ -11,6 +11,7 @@ from nltk.text import FreqDist
 from nltk.corpus import PlaintextCorpusReader
 from unidecode import unidecode
 import kir_string_depot as sd
+import kir_helper2 as kh
 
 
 class TextMeta:
@@ -41,7 +42,7 @@ class TextMeta:
         """
         if pathname is not None:
             elements = pathname.split("/")[-5:-1]
-            self.categories = [x for x in elements if x in sd.CorpusCategories().cc]
+            self.categories = [x for x in elements if x in sd.CorpusCategories.cc]
     def update_pathslist(self, corpus_root):
         """updates the filenames we have in this corpus
         """
@@ -285,7 +286,8 @@ class FreqSimple:
         # frequency distribution
         self.freq = self.__f_dist__(blanktext)
         self.ntypes = len(self.freq)
-        print("\nvocabulary:", self.ntokens, "tokens\n",10*" ", self.ntypes, "types\n")
+        kh.messages.new("\nvocabulary: "+str(self.ntokens)+" tokens\n"+11*" "\
+                        +str(self.ntypes)+" types\n")
 
 class Collection:
     """collects types in PoS lists
@@ -312,7 +314,7 @@ class Collection:
             +self.exclams
         for i in known:
             if type(i[3]) is not int:
-                print(i, "type [3]:",type(i[3]))
+                kh.messages.new(i+" type [3]: "+type(i[3]))
         known.sort(key=lambda x: x[3], reverse = True)
         return known
     def all_in(self):
@@ -351,6 +353,14 @@ class FreqMeta:
                 "PROPN_PER", "PROPN_REL","PROPN_SCI","PROPN_THG",
                 "PROPN_VEG"] :
                 self.n_ne += 1
+    def __str__(self):
+        return f"length of lemmafreq={self.length}, found lemmata={self.n_lemma}, "\
+                +f" unknown to db={self.n_unk}, singletons= {self.n_one}, "\
+                +f"NamedEntities={self.n_ne}, foreign words={self.n_extern}"
+    def __repr__(self):
+        return f"length={self.length}, n_lemma={self.n_lemma}, "\
+                +f" n_unk={self.n_unk}, n_one= {self.n_one}, "\
+                +f"n_ne={self.n_ne}, n_extern={self.n_extern}"
 
 
 class Token:
@@ -380,7 +390,7 @@ class Token:
         self.id_tokin_sen = iword_in_sentence
         self.id_token = itoken
         self.id_char = ichar
-    # TODO what for? I can call them directly
+    # to get the right item when we don't know which one we need
     def get(self, tag_str="lemma"):
         """call the tags"""
         if tag_str == "token" :
@@ -388,6 +398,7 @@ class Token:
         if tag_str == "pos" :
             return self.pos
         return self.lemma
+
 
 
 class TokenList:

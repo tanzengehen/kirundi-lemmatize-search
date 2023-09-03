@@ -21,41 +21,42 @@ def reduce_simplefreq_to_lemma_collection(simple_freq_list):
     """ mapps types to foreign words, named-entities and all PoS in kirundi_db
      reads simple_freq as list of [type,frequency]
      returns object of class Collection"""
-    #names = kh.load_columns_fromfile(sd.ResourceNames().fn_namedentities,2, separator=";")
+    #names = kh.load_columns_fromfile(sd.ResourceNames.fn_namedentities,2, separator=";")
     names = dbc.load_ne()
     #fremd = load_text8_aslist(CORPUS_ROOT+, "\n")
     (dict_verbs, dict_subs, dict_adj, dict_prns,
      dict_adv, dict_rests, dict_stems) =dbc.load_dbkirundi()
-    print("sorting Named Entities"+28*'.')
+    kh.messages.new("sorting Named Entities"+28*'.')
     collection = tc.Collection(simple_freq_list)
     (collection.names, still_unk) = dbc.filter_names_out(names, simple_freq_list)
     len_before = len(still_unk)
     (collection.advs, still_unk) = dbc.collect_adv_plus(dict_adv, still_unk)
-    print("\nNamed Entities      :", len_before-len(still_unk),"/",len(still_unk))
+    kh.messages.new("\nNamed Entities      : "+
+                    str(len_before-len(still_unk))+" / "+str(len(still_unk)))
     len_before = len(still_unk)
     (collection.pronouns, still_unk) = dbc.collect_pronouns(dict_prns, still_unk)
-    print('adverbs etc         :', len_before-len(still_unk), ">>",
-          len(collection.advs)-1,"/",len(still_unk))
-    print('sorting nouns '+36*'.')
+    kh.messages.new('adverbs etc         : '+str(len_before-len(still_unk))+" >> "+
+          str(len(collection.advs)-1)+" / "+str(len(still_unk)))
+    kh.messages.new('sorting nouns '+36*'.')
     len_before = len(still_unk)
     (collection.nouns,still_unk,subs_later) = dbc.collect_nouns(dict_subs, still_unk, True)
-    print('\npronouns            :', len_before-len(still_unk),">>",
-          len(collection.pronouns)-1,"/",len(still_unk))
+    kh.messages.new('\npronouns            : '+str(len_before-len(still_unk))+" >> "+
+          str(len(collection.pronouns)-1)+" / "+str(len(still_unk)))
     len_before = len(still_unk)
     (collection.adjs, still_unk) = dbc.collect_adjs(dict_adj, still_unk)
-    print('nouns               :', len_before-len(still_unk),">>",
-          len(collection.nouns)-1,"/",len(still_unk))
-    print('sorting verbs '+36*".")
+    kh.messages.new('nouns               : '+str(len_before-len(still_unk))+" >> "+
+          str(len(collection.nouns)-1)+" / "+str(len(still_unk)))
+    kh.messages.new('sorting verbs '+36*".")
     len_before = len(still_unk)
     (collection.verbs, still_unk) = kv.sammle_verben(dict_verbs, still_unk)
-    print('\nadjektives          :', len_before-len(still_unk),">>",
-          len(collection.adjs)-1,"/",len(still_unk))
+    kh.messages.new('\nadjektives          : '+str(len_before-len(still_unk))+" >> "+
+          str(len(collection.adjs)-1) +" / "+str(len(still_unk)))
     # now we search for the substantives we skipped before verbs (uku...)
     len_before = len(still_unk)
     (found_here, still_unk, doesntmatteranymore) = dbc.collect_nouns(subs_later, still_unk, False)
     collection.nouns += found_here
-    print('verbs               :', len_before-len(still_unk),">>",
-          len(collection.verbs)-1,"/",len(still_unk))
+    kh.messages.new('verbs               : '+str(len_before-len(still_unk))+" >> "+
+          str(len(collection.verbs)-1)+" / "+str(len(still_unk)))
 
     (collection.exclams, still_unk) = dbc.collect_exclamations(dict_rests, still_unk)
     #collection.unk=[]
@@ -154,7 +155,7 @@ def tag_lemma(myword,knownlemmafreq):
                     tag = tc.Token(myword,entry[2],qu_entry)
                     return tag
         except :
-            print(entry, word, variant)
+            kh.messages.new(entry+" "+word+" "+variant)
     tag = tc.Token(myword,"UNK",word)
     return tag
 
@@ -167,8 +168,8 @@ def tag_text_with_db(mytext):#, lemmafreq_all) :
     collection = make_lemmafreq_fromtext(mytext)
     known = collection.known()
     # TODO where to put the metadata
-    print ("lemmata of text:", len(known),
-           "\nunknown types  :",len(collection.unk))
+    kh.messages.new("lemmata of text: "+str(len(known))+
+           "\nunknown types  : "+str(len(collection.unk)))
     # split into sentences -- roughly
     sentences_list = split_in_sentences(mytext)
     punctuation = sd.punctuation()
@@ -184,7 +185,7 @@ def tag_text_with_db(mytext):#, lemmafreq_all) :
     else:
         points = 1
     sent_count = 0
-    print("\ntagging text, this may take some moments ..........")
+    kh.messages.new("\ntagging text, this may take some moments ..........")
     for sentence in sentences_list:
         nr_sen +=1
         #len_sen = len(sentence)
@@ -345,9 +346,9 @@ def go_search(tagged_list, whattodo):
     if found :
         # tag missing?
         if found[1] :
-            print("hari ikosa: indanzi irabuze")
+            kh.messages.new("hari ikosa: indanzi irabuze")
             for i in found[1]:
-                print (i)
+                kh.messages.new(i)
         return found[0]
     return found
 
@@ -358,13 +359,13 @@ def tag_or_load_tags(whattodo):
     # 1. is there already a tagged json variant?
     # TODO check hash values
     if kh.check_file_exits(whattodo.fn_tag.split("/")[-1],
-                           sd.ResourceNames().dir_tagged):
+                           sd.ResourceNames.dir_tagged):
         # check if tagged version is younger than big lemma collection
-        good_old = kh.check_time(sd.ResourceNames().root+"/resources/freq_fett.csv",
+        good_old = kh.check_time(sd.ResourceNames.root+"/resources/freq_fett.csv",
                                  whattodo.fn_tag)
         if good_old:
-            print("Hari ifishi n'indanzi: (rikorwa", good_old,
-                  ")\n"+"\t"*6+"/".join(whattodo.fn_tag.split("/")[-4:]),         
+            kh.messages.new("Hari ifishi n'indanzi: (rikorwa "+good_old+
+                  ")\n"+"\t"*6+"/".join(whattodo.fn_tag.split("/")[-4:])+         
                   "\nniryo ndakoresha ku kibanza ca gusubira gukora indanzi")
             text_tagged = load_json(whattodo.fn_tag)
             return text_tagged
@@ -374,7 +375,7 @@ def tag_or_load_tags(whattodo):
             text_tagged = load_json(whattodo.fn_in)
             return text_tagged
         except:
-            print("Are you sure, that this is a tagged file?")
+            kh.messages.new("Are you sure, that this is a tagged file?")
             # TODO get new data
     # 3. read raw txt utf8 or utf16
     try:
@@ -385,11 +386,11 @@ def tag_or_load_tags(whattodo):
             meta =kh.load_text_fromfile(whattodo.fn_in,'utf-16')
             #raw =meta.raw
         except:
-            print("Sorry, can't use the file ", whattodo.fn_in)
+            kh.messages.new("Sorry, can't use the file: "+whattodo.fn_in)
     # start whole NLP task: read,clean,tag...
-    print("\nRindira akanya, ndiko ndategura amajambo ya kazinduzi ...")
+    kh.messages.new("\nRindira akanya, ndiko ndategura amajambo ya kazinduzi ...")
     #freq_lemma_all = kh.load_freqfett()
-    print("ndiko ndategura ifishi ...\n")
+    kh.messages.new("ndiko ndategura ifishi ...\n")
     lemmafreq, text_tagged = tag_text_with_db(meta.text)#,freq_lemma_all)
     # insert first line as head for csv file
     lemmafreq.insert(0,sd.first_line_in_pos_collection(),)
@@ -398,20 +399,19 @@ def tag_or_load_tags(whattodo):
     lemmafreq.pop(0)
     # save tagged file for reuse
     kh.save_json(text_tagged, whattodo.fn_tag)
-    print("\n\nNashinguye iki gisomwa n'indanzi mu fishi: \n"
-          +"\t"*6+"/"+"/".join(whattodo.fn_tag.split("/")[-4:]),
+    kh.messages.new("\n\nNashinguye iki gisomwa n'indanzi mu fishi: \n"
+          +"\t"*6+"/"+"/".join(whattodo.fn_tag.split("/")[-4:])+
           "\nTurashobora gusubira kurikoresha ikindi gihe.")
     return text_tagged
 
 
-def search_or_load_search(f_in, kind_of_tag, nots, what, multiple):
+def search_or_load_search(f_in, wtl, nots, quterms, multiple):
     """main
     """
-    whattodo = sd.Search(f_in, multiple)
-    whattodo.set_search(kind_of_tag,nots,what)
+    whattodo = sd.Search(f_in, wtl, nots, quterms, multiple)
     # check if search was already done before
     already_done = kh.check_file_exits(whattodo.fn_search.split("/")[-1],
-                                       sd.ResourceNames().dir_searched)
+                                       sd.ResourceNames.dir_searched)
     if already_done:
         result = kh.load_lines(whattodo.fn_search)
         count_results = len(result)
@@ -420,7 +420,7 @@ def search_or_load_search(f_in, kind_of_tag, nots, what, multiple):
         if multiple is True :
             # already tagged files of the corpus
             tagged_meta = kh.load_meta_file(\
-                sd.ResourceNames().root+"/depot_analyse/meta_tags_for_training.txt")
+                sd.ResourceNames.root+"/depot_analyse/meta_tags_for_training.txt")
             result = []
             for tagged in tagged_meta :
                 result1 = go_search(tagged,whattodo)
@@ -440,14 +440,18 @@ def search_or_load_search(f_in, kind_of_tag, nots, what, multiple):
             result = go_search(text_with_tags, whattodo)
             count_results = len(result)
     if result :
-        print(f"\nInyishu 1-20 (hari {len(result)}). Uraronka zose mu fishi: "+
+        kh.messages.new(f"\nInyishu 1-20 (hari {len(result)}). Uraronka zose mu fishi: "+
               "\n"+"\t"*6+f'/{"/".join(whattodo.fn_search.split("/")[-3:])}\n')
         kh.show_twenty(result)
         # save results as txt
         if not already_done:
             kh.save_list(result,whattodo.fn_search)
     else :
-        print("Nta nyishu.")
+        kh.messages.new("Nta nyishu.")
+    print("\n\nmessages in search:")
+    for i in kh.messages.allmessages:
+        print(i)
+   
 
 
 def load_json(filename):#, klasse="Token"):
@@ -472,6 +476,6 @@ def load_json(filename):#, klasse="Token"):
     #                     i.get('comb'),i.get('proverb'))
     #         objects.append(verb)
     else:
-        print("sorry, unknown format")
+        kh.messages.new("sorry, unknown format")
         return objects
     return objects

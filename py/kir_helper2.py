@@ -8,32 +8,83 @@ Created on Sun May 28 07:37:34 2023
 
 from ast import literal_eval
 import os
-
 import time
 import json
 import kir_tag_classes as tc
 import kir_string_depot as sd
 
-class Dates:
-    """returns last changes of db_kirundi, named_entities, 
-    freqfett
+class ObservedSubject:
+    """is observed subject collecting status messages
     """
-    # call with Dates().en() etc.
     def __init__(self):
-        dates=load_lines(sd.ResourceNames().fn_dates)
-        self.dates = {i.split(";")[0]:i.split(";")[1] for i in dates}
-    def date_db(self):
-        """returns version/date of dbkirundi
+        """create an empty observer list
         """
-        return self.dates.get("db")
-    def date_en(self):
-        """returns version/date of Named-Entity list
+        self._observers = []
+    def notify(self, modifier = None):
+        """Alert the observers
         """
-        return self.dates.get("en")
-    def date_ff(self):
-        """returns version/date of the big lemma frequecy dstribution
+        for observer in self._observers:
+            if modifier != observer:
+                observer.update(self)
+    def attach(self, observer):
+        """If the observer is not in the list,
+        append it into the list"""
+        if observer not in self._observers:
+            self._observers.append(observer)
+    def detach(self, observer):
+        """Remove the observer from the observer list
         """
-        return self.dates.get("ff")
+        try:
+            self._observers.remove(observer)
+        except ValueError:
+            pass
+
+class Messages(ObservedSubject):
+    """monitor the object
+    """
+    def __init__(self, message = ""):
+        ObservedSubject.__init__(self)
+        self.actual = message
+        self.allmessages = [message,]
+    def __str__(self):
+        return f"last message= {self.actual}, all messages = {self.allmessages}"
+    def __repr__(self):
+        return f"actual = {self.actual}, allmessages = {self.allmessages}"
+    def new(self,mystring):
+        """sends new status to observers and collects all status messages
+        """
+        self.actual = mystring
+        self.allmessages.append(mystring)
+        self.notify()
+
+class PrintConsole:
+    """is notified by observed subject
+    to print new messages into console
+    """
+    def update(self, subject):
+        """prints to console
+        """
+        print(str(subject.actual))
+
+messages = Messages()
+message_to_console = PrintConsole()
+messages.attach(message_to_console)
+
+class Dates:
+    """returns last changes of db_kirundi, named_entities, freqfett
+    """
+    def __init__(self):
+        dates=load_lines(sd.ResourceNames.fn_dates)
+        dates = {i.split(";")[0]:i.split(";")[1] for i in dates}
+        self.database = dates.get("db")
+        self.namedentities = dates.get("ne")
+        self.lemmafd = dates.get("lfd")
+    def __str__(self):
+        return f"database={self.database}, namedentities={self.namedentities}, "\
+            +"lemmafd={self.lemmafd}"
+    def __repr__(self):
+        return f"database={self.database}, namedentities={self.namedentities}, "\
+            +f"lemmafd={self.lemmafd}"
 
 def check_file_exits(fn_file, fn_dir):
     """save energy, don't search twice
@@ -89,7 +140,7 @@ def load_freqfett():
     """reads lemma_freq from file
     returns list with str, int and tuples (str,int) per lemma
     """
-    toomuch = load_lines(sd.ResourceNames().fn_freqfett)
+    toomuch = load_lines(sd.ResourceNames.fn_freqfett)
     #toomuch = load_lines("/depot_analyse/freq_fett.csv")
     freq_fett =[]
     # from line[14275] frequence < 6
@@ -160,8 +211,6 @@ def load_meta_file(fname):
             data =[]
     return texts
 
-
-
 def save_list(mylist, fname, sep_columns =";", sep_rows = "\n") :
     """ writes each elements of a list in one line
     sometimes it's better for reading a txt file by 
@@ -183,17 +232,17 @@ def save_list(mylist, fname, sep_columns =";", sep_rows = "\n") :
         with open(fname,'w',encoding="utf-8") as file:
             file.write(lines_in_file)
     else:
-        print("(kh.save_list) Sorry, I didn't save the list that starts with:",
-              mylist[:4],"\nI was expecting str, int, tuple or list as list elements")
+        messages.new("(kh.save_list) Sorry, I didn't save the list that starts with:"+
+              mylist[:4]+"\nI was expecting str, int, tuple or list as list elements")
 
 def show_twenty(mylist):
     """prints first 20 elements of a list
     """
     for i in mylist[:20]:
         if isinstance(i, str) :
-            print(i)
+            messages.new(i)
         elif isinstance(i, (tuple,list)) :
-            print(i[0],";",i[1])
+            messages.new(i[0]+" ; "+i[1])
 
 # will be exchanged with hash value question
 def check_time(older, younger):
@@ -217,3 +266,6 @@ def save_json(dict_list,filename):
     with open(filename,'w', encoding = "utf-8") as file:
         # consider: without indent it's only half as big
         json.dump({class_name: argo}, file, indent=4)
+
+if __name__ == "__main__":
+    pass
