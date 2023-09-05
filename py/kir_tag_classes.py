@@ -286,7 +286,7 @@ class FreqSimple:
         # frequency distribution
         self.freq = self.__f_dist__(blanktext)
         self.ntypes = len(self.freq)
-        kh.messages.new("\nvocabulary: "+str(self.ntokens)+" tokens\n"+11*" "\
+        kh.observer.update("\nvocabulary: "+str(self.ntokens)+" tokens\n"+11*" "\
                         +str(self.ntypes)+" types\n")
 
 class Collection:
@@ -314,7 +314,7 @@ class Collection:
             +self.exclams
         for i in known:
             if type(i[3]) is not int:
-                kh.messages.new(i+" type [3]: "+type(i[3]))
+                kh.observer.update(i+" type [3]: "+type(i[3]))
         known.sort(key=lambda x: x[3], reverse = True)
         return known
     def all_in(self):

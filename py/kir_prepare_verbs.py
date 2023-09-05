@@ -32,7 +32,7 @@ class Lemma:
         if entry[2]:
             self.stem = entry[2].strip()
         else:
-            kh.messages.new(f"lemma has no stem in database: ID{self.dbid}")
+            kh.observer.update(f"lemma has no stem in database: ID{self.dbid}")
             self.stem = "xxx"
         #self.questions = [self.lemma,]
         if entry[4]:
@@ -478,12 +478,12 @@ class Verb(Lemma):
             if self.perfective.find(" ") :
                 self.perfective = self.perfective.split()[0]
         if self.perfective is None :
-            kh.messages.new("perfective is lost: "+self.lemma)
+            kh.observer.update("perfective is lost: "+self.lemma)
         else :
             self.perfective = self.perfective.strip()
         # if perfective is unclear
         if self.perfective.find("?") > -1 :
-            kh.messages.new(self.lemma+": perfective? "+self.perfective+".")
+            kh.observer.update(self.lemma+": perfective? "+self.perfective+".")
             self.unclear.append([self.lemma, "perfective unclear:", self.perfective])
             self.perfective = None
     def mark_passiv(self):
@@ -518,7 +518,7 @@ class Verb(Lemma):
                 else :
                     self.unclear.append(["perfective: unexpected letter before [y] ",\
                                          self.lemma, self.perfective])
-                    kh.messages.new("add passiv to perfective: unk vor y "+
+                    kh.observer.update("add passiv to perfective: unk vor y "+
                                     self.lemma+" "+self.perfective)
                     perfp = self.perfective
             elif len(self.perfective) > 3 and self.perfective[-2] in ["j","z","s","h","w"] :
@@ -765,7 +765,7 @@ def filter_proverbs_out(verb_list):
             new_list.append(verb)
             pur_stems.append(verb.stem)
         except Exception:
-            kh.messages.new("filter proverbs out doesn't work': "+verb)
+            kh.observer.update("filter proverbs out doesn't work': "+verb)
     return new_list
 
 def filter_passiv_out(verb_list):
@@ -790,7 +790,7 @@ def filter_passiv_out(verb_list):
             new_list.append(verb)
             pur_stems.append(verb.stem)
         except Exception:
-            kh.messages.new("filter passiv out doesn't work': "+verb)
+            kh.observer.update("filter passiv out doesn't work': "+verb)
     return new_list
 
 def sammle_verben(db_verben, freq_d):

@@ -12,63 +12,23 @@ import time
 import json
 import kir_tag_classes as tc
 import kir_string_depot as sd
+from abc import abstractmethod
 
-class ObservedSubject:
-    """is observed subject collecting status messages
-    """
-    def __init__(self):
-        """create an empty observer list
-        """
-        self._observers = []
-    def notify(self, modifier = None):
-        """Alert the observers
-        """
-        for observer in self._observers:
-            if modifier != observer:
-                observer.update(self)
-    def attach(self, observer):
-        """If the observer is not in the list,
-        append it into the list"""
-        if observer not in self._observers:
-            self._observers.append(observer)
-    def detach(self, observer):
-        """Remove the observer from the observer list
-        """
-        try:
-            self._observers.remove(observer)
-        except ValueError:
-            pass
+class Observer:
+    @abstractmethod
+    def update(self, message):
+        pass
 
-class Messages(ObservedSubject):
-    """monitor the object
-    """
-    def __init__(self, message = ""):
-        ObservedSubject.__init__(self)
-        self.actual = message
-        self.allmessages = [message,]
-    def __str__(self):
-        return f"last message= {self.actual}, all messages = {self.allmessages}"
-    def __repr__(self):
-        return f"actual = {self.actual}, allmessages = {self.allmessages}"
-    def new(self,mystring):
-        """sends new status to observers and collects all status messages
-        """
-        self.actual = mystring
-        self.allmessages.append(mystring)
-        self.notify()
-
-class PrintConsole:
+class PrintConsole(Observer):
     """is notified by observed subject
     to print new messages into console
     """
-    def update(self, subject):
+    def update(self, message):
         """prints to console
         """
-        print(str(subject.actual))
+        print(str(message))
 
-messages = Messages()
-message_to_console = PrintConsole()
-messages.attach(message_to_console)
+observer = None
 
 class Dates:
     """returns last changes of db_kirundi, named_entities, freqfett
@@ -232,7 +192,7 @@ def save_list(mylist, fname, sep_columns =";", sep_rows = "\n") :
         with open(fname,'w',encoding="utf-8") as file:
             file.write(lines_in_file)
     else:
-        messages.new("(kh.save_list) Sorry, I didn't save the list that starts with:"+
+        observer.update("(kh.save_list) Sorry, I didn't save the list that starts with:"+
               mylist[:4]+"\nI was expecting str, int, tuple or list as list elements")
 
 def show_twenty(mylist):
@@ -240,9 +200,9 @@ def show_twenty(mylist):
     """
     for i in mylist[:20]:
         if isinstance(i, str) :
-            messages.new(i)
+            observer.update(i)
         elif isinstance(i, (tuple,list)) :
-            messages.new(i[0]+" ; "+i[1])
+            observer.update(f"{i[0]} ; {i[1]}")
 
 # will be exchanged with hash value question
 def check_time(older, younger):
@@ -266,6 +226,3 @@ def save_json(dict_list,filename):
     with open(filename,'w', encoding = "utf-8") as file:
         # consider: without indent it's only half as big
         json.dump({class_name: argo}, file, indent=4)
-
-if __name__ == "__main__":
-    pass
