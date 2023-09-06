@@ -60,7 +60,7 @@ def load_dbkirundi():
                 #stems as set
                 stems.add(unidecode(row[4]).lower())
             line_count += 1
-    kh.observer.update(f'{line_count} entries of the dictionary prepared.')
+    kh.observer.notify(f'{line_count} entries of the dictionary prepared.')
     csv_file.close()
     verbs = kv.filter_proverbs_out(verbs)
     verbs =  kv.filter_passiv_out(verbs)

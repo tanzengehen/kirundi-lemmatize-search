@@ -17,12 +17,12 @@ from kir_tag_search import search_or_load_search
 def check_fnin(fn_in):
     """checks filename of txt ending"""
     if fn_in == "":
-        kh.observer.update("Kubera ko ataco watoye nahejeje.")
+        kh.observer.notify("Kubera ko ataco watoye nahejeje.")
         sysexit()
     if fn_in in "cC":
         return "c"
     if fn_in[-4:] not in [".txt",".json"] :
-        kh.observer.update("Hariho ikosa n'ifishi: '"+f_in
+        kh.observer.notify("Hariho ikosa n'ifishi: '"+f_in
               +"'\nNdashobora gukoresha ifishi ifise impera '.txt' canke '.json' gusa")
         sysexit()
     return "f"
@@ -35,11 +35,11 @@ def check_interest(interest0):
     interest_nojoker = interest0.replace("?","")
     if interest == "":
         # nothing picked
-        kh.observer.update("Kubera ko ataco watoye nahejeje.")
+        kh.observer.notify("Kubera ko ataco watoye nahejeje.")
         sysexit()
     elif interest_nojoker == "":
         # '?' on all positions
-        kh.observer.update("nonosora ukurondera kwawe") # specify your search
+        kh.observer.notify("nonosora ukurondera kwawe") # specify your search
         sysexit()
     elif len(interest_nojoker) == 1:
         # only one is no '?'
@@ -47,7 +47,7 @@ def check_interest(interest0):
     for i in interest:
         if i not in "wlt?":
             # wrong character picked
-            kh.observer.update("hari ikosa: no valid search criteria: gusa 'w', 't' , 'l' canke '?'")
+            kh.observer.notify("hari ikosa: no valid search criteria: gusa 'w', 't' , 'l' canke '?'")
             sysexit()
     kind_of_search = {"w":"token","t":"pos","l":"lemma","?":"?"}
     #print(interest)
@@ -64,7 +64,7 @@ def specify_search(interest0):
     notss = []
     give =""
     if len(interest0) > 1 :
-        kh.observer.update("Urashaka gutora "+str(len(interest0))+"-gram"\
+        kh.observer.notify("Urashaka gutora "+str(len(interest0))+"-gram"\
               +"\n(You are looking for a "+str(len(interest0))+"-gram)"\
               +"\nspecify each part, put a '!' before it, if you want to exclude this word or tag")
         count = "igice " # for printing confirmation later
@@ -72,7 +72,7 @@ def specify_search(interest0):
         count = ""
     for i,interest in enumerate(interest0):
         if interest == "?" :
-            kh.observer.update(str(i+1)+": kira jambo rirakunda")
+            kh.observer.notify(str(i+1)+": kira jambo rirakunda")
             search.append("?")
         else:
             take =input(count+str(i+1)+": "+kind_of_search.get(interest))
@@ -90,7 +90,7 @@ def specify_search(interest0):
                     search.append(take)
                     give += take +" + "
                 else:
-                    kh.observer.update("indanzi "+take+" ntiriho") # gibt's nicht
+                    kh.observer.notify("indanzi "+take+" ntiriho") # gibt's nicht
                     sysexit()
             # word, lemma
             elif take != "" :
@@ -98,16 +98,15 @@ def specify_search(interest0):
                 give += take+" + "
             else:
                 search.append(take)
-    kh.observer.update(give[:-3])
+    kh.observer.notify(give[:-3])
     if not search:
-        kh.observer.update("Kubera ko ataco watoye nahejeje.")
+        kh.observer.notify("Kubera ko ataco watoye nahejeje.")
         sysexit()
     return notss,search
 
 
 if __name__ == "__main__":
-    print_console = kh.PrintConsole()
-    kh.observer = print_console
+    kh.observer = kh.PrintConsole()
     f_in = input(r"""Tora ifishi ushaka kwihweza
       c                      = tagged korpus yose
       inzira/ku/fishi.txt    = ifishi rimwe (tora variante tagged iyo ufise)
@@ -115,7 +114,7 @@ if __name__ == "__main__":
      : """)
     # corpus or file, if file: ist it txt?
     MULTIPLE = bool(check_fnin(f_in) == "c")
-    kh.observer.update(r"""
+    kh.observer.notify(r"""
     Ushaka kurondera iki mu gisomwa? 
             - for Bigrams or Trigrams use a combination of two respectively three letters
             - Possible POS-tags: 

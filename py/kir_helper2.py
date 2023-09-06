@@ -16,17 +16,37 @@ from abc import abstractmethod
 
 class Observer:
     @abstractmethod
-    def update(self, message):
+    def notify(self, message):
+        """Receive a status message
+        """
+        pass
+    @abstractmethod
+    def notifyTagging(self, source_file, tag_file, db_version):
+        """Record that an tag file has been made
+        """
+        pass
+    @abstractmethod
+    def notifyFrequencies(self, source_file, frequencies_file, db_version):
+        """Record that a frequency statistic has been made
+        """
         pass
 
 class PrintConsole(Observer):
     """is notified by observed subject
     to print new messages into console
     """
-    def update(self, message):
+    def notify(self, message):
         """prints to console
         """
         print(str(message))
+    def notifyTagging(self, source_file, tag_file, db_version):
+        """ignored in console mode
+        """
+        pass
+    def notifyFrequencies(self, source_file, frequencies_file, db_version):
+        """ignored in console mode
+        """
+        pass
 
 observer = None
 
@@ -192,7 +212,7 @@ def save_list(mylist, fname, sep_columns =";", sep_rows = "\n") :
         with open(fname,'w',encoding="utf-8") as file:
             file.write(lines_in_file)
     else:
-        observer.update("(kh.save_list) Sorry, I didn't save the list that starts with:"+
+        observer.notify("(kh.save_list) Sorry, I didn't save the list that starts with:"+
               mylist[:4]+"\nI was expecting str, int, tuple or list as list elements")
 
 def show_twenty(mylist):
@@ -200,9 +220,9 @@ def show_twenty(mylist):
     """
     for i in mylist[:20]:
         if isinstance(i, str) :
-            observer.update(i)
+            observer.notify(i)
         elif isinstance(i, (tuple,list)) :
-            observer.update(f"{i[0]} ; {i[1]}")
+            observer.notify(f"{i[0]} ; {i[1]}")
 
 # will be exchanged with hash value question
 def check_time(older, younger):
