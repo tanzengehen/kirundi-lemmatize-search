@@ -217,7 +217,7 @@ class Search:
         self.questions = quterms
         self.short =""
         self.fn_tag = ""
-        self.fn_freqlemmac = ""
+        self.fn_freqlemma = ""
         self.set_fntag()
         self.fn_search = self.set_fnsearch()
     def __str__(self):
@@ -238,17 +238,21 @@ class Search:
         short = myname.find(".")
         self.short = myname[:short]
         self.fn_tag= root_tagg+"tag__"+self.short+".json"
-        self.fn_freqlemmac = root_tagg+"fl__"+self.short+".csv"
+        self.fn_freqlemma = root_tagg+"fl__"+self.short+".csv"
     def set_fnsearch(self) :
         """combine filename of analysed file and search-terms for making 
         a filename to store the search results
         """
         search = ""
         for i, quest in enumerate(self.questions) :
-            if self.nots[i] =="!":
-                search += "!"+quest+"_"
+            if self.wtl[i] == "lemma":
+                que = "(l)"+quest
             else:
-                search += quest+"_"
+                que = quest
+            if self.nots[i] =="!":
+                search += "!"+que+"_"
+            else:
+                search += que+"_"
         fn = ResourceNames.dir_searched+self.short+"__"+search+".txt"
         return fn
 

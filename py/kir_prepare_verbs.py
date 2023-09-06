@@ -478,12 +478,12 @@ class Verb(Lemma):
             if self.perfective.find(" ") :
                 self.perfective = self.perfective.split()[0]
         if self.perfective is None :
-            kh.observer.notify("perfective is lost: "+self.lemma)
+            kh.observer.notify(f"perfective is lost: {self.lemma}")
         else :
             self.perfective = self.perfective.strip()
         # if perfective is unclear
         if self.perfective.find("?") > -1 :
-            kh.observer.notify(self.lemma+": perfective? "+self.perfective+".")
+            kh.observer.notify(f"{self.lemma}: perfective? {self.perfective}.")
             self.unclear.append([self.lemma, "perfective unclear:", self.perfective])
             self.perfective = None
     def mark_passiv(self):
@@ -519,7 +519,7 @@ class Verb(Lemma):
                     self.unclear.append(["perfective: unexpected letter before [y] ",\
                                          self.lemma, self.perfective])
                     kh.observer.notify("add passiv to perfective: unk vor y "+
-                                    self.lemma+" "+self.perfective)
+                                    f"{self.lemma} {self.perfective}")
                     perfp = self.perfective
             elif len(self.perfective) > 3 and self.perfective[-2] in ["j","z","s","h","w"] :
                 perfp = self.perfective[:-1]+r"((w)?e)"
@@ -765,7 +765,7 @@ def filter_proverbs_out(verb_list):
             new_list.append(verb)
             pur_stems.append(verb.stem)
         except Exception:
-            kh.observer.notify("filter proverbs out doesn't work': "+verb)
+            kh.observer.notify(f"filter proverbs out doesn't work': {verb}")
     return new_list
 
 def filter_passiv_out(verb_list):
@@ -790,7 +790,7 @@ def filter_passiv_out(verb_list):
             new_list.append(verb)
             pur_stems.append(verb.stem)
         except Exception:
-            kh.observer.notify("filter passiv out doesn't work': "+verb)
+            kh.observer.notify(f"filter passiv out doesn't work': {verb}")
     return new_list
 
 def sammle_verben(db_verben, freq_d):

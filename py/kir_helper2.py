@@ -50,22 +50,6 @@ class PrintConsole(Observer):
 
 observer = None
 
-class Dates:
-    """returns last changes of db_kirundi, named_entities, freqfett
-    """
-    def __init__(self):
-        dates=load_lines(sd.ResourceNames.fn_dates)
-        dates = {i.split(";")[0]:i.split(";")[1] for i in dates}
-        self.database = dates.get("db")
-        self.namedentities = dates.get("ne")
-        self.lemmafd = dates.get("lfd")
-    def __str__(self):
-        return f"database={self.database}, namedentities={self.namedentities}, "\
-            +"lemmafd={self.lemmafd}"
-    def __repr__(self):
-        return f"database={self.database}, namedentities={self.namedentities}, "\
-            +f"lemmafd={self.lemmafd}"
-
 def check_file_exits(fn_file, fn_dir):
     """save energy, don't search twice
     """
@@ -107,6 +91,21 @@ def load_lines(filename):
         if lines_list[-1] == '' :
             lines_list.pop(-1)
         return lines_list
+    
+class Dates:
+    """returns version of db_kirundi, named_entities, freqfett
+    """
+    dates = load_lines(sd.ResourceNames.fn_dates)
+    dates = {i.split(";")[0]:i.split(";")[1] for i in dates}
+    database = dates.get("db")
+    namedentities = dates.get("ne")
+    lemmafd = dates.get("lfd")
+    def __str__(self):
+        return f"database={self.database}, namedentities={self.namedentities}, "\
+            +"lemmafd={self.lemmafd}"
+    def __repr__(self):
+        return f"database={self.database}, namedentities={self.namedentities}, "\
+            +f"lemmafd={self.lemmafd}"
 
 def load_text_fromfile(filename,en_code,line_separator="\n"):
     """returns TextMeta with raw,pathname,text,nodds,nchars
@@ -212,8 +211,8 @@ def save_list(mylist, fname, sep_columns =";", sep_rows = "\n") :
         with open(fname,'w',encoding="utf-8") as file:
             file.write(lines_in_file)
     else:
-        observer.notify("(kh.save_list) Sorry, I didn't save the list that starts with:"+
-              mylist[:4]+"\nI was expecting str, int, tuple or list as list elements")
+        observer.notify("(kh.save_list) Sorry, I didn't save the list that starts with: "+
+              f"{mylist[:4]}\nI was expecting str, int, tuple or list as list elements")
 
 def show_twenty(mylist):
     """prints first 20 elements of a list

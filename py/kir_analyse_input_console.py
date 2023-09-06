@@ -22,7 +22,7 @@ def check_fnin(fn_in):
     if fn_in in "cC":
         return "c"
     if fn_in[-4:] not in [".txt",".json"] :
-        kh.observer.notify("Hariho ikosa n'ifishi: '"+f_in
+        kh.observer.notify(f"Hariho ikosa n'ifishi: ' {f_in}"
               +"'\nNdashobora gukoresha ifishi ifise impera '.txt' canke '.json' gusa")
         sysexit()
     return "f"
@@ -47,7 +47,8 @@ def check_interest(interest0):
     for i in interest:
         if i not in "wlt?":
             # wrong character picked
-            kh.observer.notify("hari ikosa: no valid search criteria: gusa 'w', 't' , 'l' canke '?'")
+            kh.observer.notify("hari ikosa: no valid search criteria:"\
+                               "gusa 'w', 't' , 'l' canke '?'")
             sysexit()
     kind_of_search = {"w":"token","t":"pos","l":"lemma","?":"?"}
     #print(interest)
@@ -56,23 +57,24 @@ def check_interest(interest0):
 
 def specify_search(interest0):
     """takes exact searchword, searchtag or searchlemma"""
-    kind_of_search = {"token": "Ijambo ririhe? / Which word? : ",
-                      "pos": "Amajambo yose afise indanzi / all words with tag : ",
-                      "lemma": "Amajambo yose y'itsitso ririhe? / all words of lemma : "} 
+    kind_of_search = {"token": "Ijambo ririhe? (Which word?) : ",
+                      "pos": "Amajambo yose afise indanzi (all words with tag) : ",
+                      "lemma": "Amajambo yose y'itsitso ririhe? (all words of lemma) : "} 
                         #itsitsu -Wurzel
     search =[]
     notss = []
     give =""
-    if len(interest0) > 1 :
-        kh.observer.notify("Urashaka gutora "+str(len(interest0))+"-gram"\
-              +"\n(You are looking for a "+str(len(interest0))+"-gram)"\
-              +"\nspecify each part, put a '!' before it, if you want to exclude this word or tag")
-        count = "igice " # for printing confirmation later
-    else :
-        count = ""
+    kh.observer.notify(f"Urashaka gutora {len(interest0)}-gram "\
+                       f"(You are looking for a {len(interest0)}-gram)")
+    if len(interest0)>1:
+        kh.observer.notify("\n    now specify each part \n(you can put a '!' before it,"\
+                           " if you want to exclude this word or tag)")
+        count = "    igice " # for printing confirmation later
+    else:
+        count = "    "
     for i,interest in enumerate(interest0):
         if interest == "?" :
-            kh.observer.notify(str(i+1)+": kira jambo rirakunda")
+            kh.observer.notify(f"{i+1} : kira jambo rirakunda")
             search.append("?")
         else:
             take =input(count+str(i+1)+": "+kind_of_search.get(interest))
@@ -90,7 +92,7 @@ def specify_search(interest0):
                     search.append(take)
                     give += take +" + "
                 else:
-                    kh.observer.notify("indanzi "+take+" ntiriho") # gibt's nicht
+                    kh.observer.notify(f"indanzi {take} ntiriho") # gibt's nicht
                     sysexit()
             # word, lemma
             elif take != "" :
@@ -98,7 +100,7 @@ def specify_search(interest0):
                 give += take+" + "
             else:
                 search.append(take)
-    kh.observer.notify(give[:-3])
+    kh.observer.notify(f"\nNdarondera: {give[:-3]}")
     if not search:
         kh.observer.notify("Kubera ko ataco watoye nahejeje.")
         sysexit()
@@ -115,24 +117,24 @@ if __name__ == "__main__":
     # corpus or file, if file: ist it txt?
     MULTIPLE = bool(check_fnin(f_in) == "c")
     kh.observer.notify(r"""
-    Ushaka kurondera iki mu gisomwa? 
+    Ushaka kurondera iki mu gisomwa?
             - for Bigrams or Trigrams use a combination of two respectively three letters
-            - Possible POS-tags: 
-               ADJ, ADV, CONJ, EMAIL, F(foreign words), INTJ, NI, NOUN, 
-               NUM, NUM_ROM (roman numbers), 
-               PHRASE, PRON (pronouns), PROPN, PROPN_CUR, PROPN_LOC (geographical places), 
-               PROPN_NAM (personal names), PROPN_ORG , PROPN_PER, PROPN_REL, PROPN_SCI
-               PROPN_THG, PROPN_VEG, PRP (prepositions),
+            - Possible PoS-tags: 
+               ADJ, ADV, CONJ, EMAIL, F(foreign words), INTJ, NI, NOUN,
+               NUM, NUM_ROM (roman numbers), PRON (pronouns),
+               PROPN, PROPN_CUR, PROPN_LOC (geographical places),
+               PROPN_NAM (personal names), PROPN_ORG , PROPN_PER, PROPN_REL,
+               PROPN_SCI, PROPN_THG, PROPN_VEG, PRP (prepositions),
                SYMBOL, UNK (unkwon to dictionary), VERB, WWW (webaddresses)
         
-    Tora indome - chose a letter""")
+    Tora indome muri (chose letters from)""")
 
     # word/tag/lemma/?
-    wtl = input(r"""    W = exact word
+    wtl = input(r"""        W = exact word
         L = all wordforms of a lemma
         T = part of speech-tag
         ? = wildcard
-     : """)
+    : """)
     wtl = check_interest(wtl)
     # specify the wtl or exclude a wtl (word/tag/lemma)
     nots,quterms = specify_search(wtl)

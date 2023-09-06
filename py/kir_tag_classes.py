@@ -286,8 +286,8 @@ class FreqSimple:
         # frequency distribution
         self.freq = self.__f_dist__(blanktext)
         self.ntypes = len(self.freq)
-        kh.observer.notify("\nvocabulary: "+str(self.ntokens)+" tokens\n"+11*" "\
-                        +str(self.ntypes)+" types\n")
+        kh.observer.notify(f"\nvocabulary: {self.ntokens} tokens"\
+                           +f"\n{11*' '}{self.ntypes} types\n")
 
 class Collection:
     """collects types in PoS lists
@@ -302,8 +302,8 @@ class Collection:
         self.exclams = []
         self.unk = []
     def known(self):
-        """ returns a list of all types which found a lemma
-        sorted by lemma
+        """ returns a list of all types which found a lemma,
+        sorted by lemma frequency
         """
         known = self.names \
             +self.advs \
@@ -313,13 +313,15 @@ class Collection:
             +self.verbs \
             +self.exclams
         for i in known:
+            # lemma,id,PoS,count,n-wordforms,found forms: count should be int
             if type(i[3]) is not int:
-                kh.observer.notify(i+" type [3]: "+type(i[3]))
+                kh.observer.notify(f"{i[0]}, {i[3]} type of 'count': {type(i[3])}")
+        # sort by count of lemma
         known.sort(key=lambda x: x[3], reverse = True)
         return known
     def all_in(self):
-        """returns a list of all types sorted by lemma or themselves if they didn't match
-        a lemma
+        """returns a list of all types sorted by frequency of lemma 
+        or frequency of themselves if they didn't match a lemma
         """
         all_in = self.known()+self.unk
         all_in.sort(key=lambda x: x[3], reverse = True)
@@ -365,7 +367,7 @@ class FreqMeta:
 
 class Token:
     """a word in a text with its lemma and PoS-tag and
-    diverse numbers for its positions in text and sentence
+    its positions in text and sentence
     """
     def __init__(self, token, pos="UNK", lemma=None):
         self.id_token = None
@@ -398,7 +400,6 @@ class Token:
         if tag_str == "pos" :
             return self.pos
         return self.lemma
-
 
 
 class TokenList:
