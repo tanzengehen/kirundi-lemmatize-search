@@ -33,6 +33,7 @@ def load_dbkirundi():
         line_count = 0
         for row in csv_reader:
             # attention: column numbers still valid?
+            # first row is column names
             if line_count > 0 :
                 if row[8] == "0" :
                     if row[13] and row[15]:
@@ -168,18 +169,20 @@ class NamedEntities:
     def set_persons(self):
         """set regex for persons
         """
-        if self.lemma[:5] == "umuny" :
+        # if self.lemma[:5] == "umuny" :
+        #     for alt in self.alternatives:
+        #         self.persons += [r"umuny[ae]"+alt,r"abany[ae]"+alt]
+        if self.lemma[:3] =="umw" :
             for alt in self.alternatives:
-                self.persons += [r"umuny[ae]"+alt,r"abany[ae]"+alt]
+                self.persons += ["umw"+alt,"ab"+alt,
+                                 r"umuny"+alt,r"abany"+alt]
         elif self.lemma[:3] =="umu" :
             for alt in self.alternatives:
-                self.persons += ["umu"+alt,"aba"+alt]
-        elif self.lemma[:3] =="umw" :
-            for alt in self.alternatives:
-                self.persons += ["umw"+alt,"ab"+alt]
+                self.persons += ["umu"+alt,"aba"+alt,
+                                 r"umuny[ae]"+alt,r"abany[ae]"+alt]
         for i in self.persons:
-            self.questions += [r"^"+sd.NounPrepositions().qu_nta+"?"+i[1:]+"(kazi)?$",
-                               r"^"+sd.NounPrepositions().qu_ca_vowel+"?"+i+"(kazi)?$"]
+            self.questions += [r"^"+sd.NounPrepositions.qu_nta+"?"+i[1:]+"(kazi)?$",
+                               r"^"+sd.NounPrepositions.qu_ca_vowel+"?"+i+"(kazi)?$"]
     def set_languages(self):
         """set regex for languages
         """
@@ -196,7 +199,7 @@ class NamedEntities:
             for i in self.alternatives:
                 self.lang.append("ic"+i)
         for i in self.lang:
-            self.questions.append(r"^"+i+"$")
+            self.questions +=[r"^"+i+"$", r"^"+i[1:]+"$"]
 
 def check_entries_location_person_language(propn_list1, propn_list2,lang_or_per="per"):
     """check if there are extra entries for location, person, language, 
@@ -230,23 +233,35 @@ def set_person_language_out_of_location(loc,per,lng):
         # only countries which start with ubu need ubu also in their variants
         if i.lemma[:3] =="ubu":
             for location in i.alternatives:
-                i.questions += [r"^"+sd.NounPrepositions().qu_nta+"?bu"+location+"$",
-                                r"^"+sd.NounPrepositions().qu_ca_vowel+"?ubu"+location+"$"]
+                i.questions += [r"^"+sd.NounPrepositions.qu_nta+"?bu"+location+"$",
+                                r"^"+sd.NounPrepositions.qu_ca_vowel+"?ubu"+location+"$"]
                 if sd.sortletter(i.lemma[4]) == "weak_consonant":
                     langname = "iki"+i.lemma[3:]
                 elif sd.sortletter(i.lemma[4]) == "hard_consonant":
                     langname = "igi"+i.lemma[3:]
+                # add alternative forms without ubu
+                i.questions += [r"^"+sd.NounPrepositions.qu_nta+"?"+location+"$",
+                                r"^"+sd.NounPrepositions.qu_ca_konsonant+"?"+location+"$"]
                 pername = "umu"+i.lemma[3:]
         elif i.lemma[:3] in "ubw":
             for location in i.alternatives:
-                i.questions += [r"^"+sd.NounPrepositions().qu_nta+"?bw"+location+"$",
-                                r"^"+sd.NounPrepositions().qu_ca_vowel+"?ubw"+location+"$"]
+                i.questions += [r"^"+sd.NounPrepositions.qu_nta+"?bw"+location+"$",
+                                r"^"+sd.NounPrepositions.qu_ca_vowel+"?ubw"+location+"$"]
                 langname = "ic"+i.lemma[3:]
                 pername = "umw"+i.lemma[3:]
+        # locations without ubu/ubw
         else:
-            i.questions = i.alternatives
             langname = "ikinya_"+i.lemma
             pername = "umunya_"+i.lemma
+            # location name starts with vowel
+            if sd.sortletter(i.lemma[0]) == "vowel":
+                for location in i.alternatives:
+                    i.questions += [r"^"+sd.NounPrepositions.qu_nta+"?"+location+"$",
+                                    r"^"+sd.NounPrepositions.qu_ca_vowel+"?"+location+"$"]
+            # location name starts with consonant
+            else:
+                i.questions += [r"^"+sd.NounPrepositions.qu_nta+"?"+location+"$",
+                                r"^"+sd.NounPrepositions.qu_ca_konsonant+"?"+location+"$"]
 
         if i.lang != "done":
             i.row[0] =langname

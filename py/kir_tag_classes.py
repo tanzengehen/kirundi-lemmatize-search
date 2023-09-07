@@ -287,7 +287,7 @@ class FreqSimple:
         self.freq = self.__f_dist__(blanktext)
         self.ntypes = len(self.freq)
         kh.observer.notify(f"\nvocabulary: {self.ntokens} tokens"\
-                           +f"\n{11*' '}{self.ntypes} types\n")
+                           +f"\n{12*' '}{self.ntypes} types\n")
 
 class Collection:
     """collects types in PoS lists

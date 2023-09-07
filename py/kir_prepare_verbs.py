@@ -918,7 +918,7 @@ def sammle_verben(db_verben, freq_d):
             found.sort()
             #head of line
             found = [verb.lemma, verb.dbid, "VERB", freqsum, len(found)]+ found
-            if len(verb.lemma) >2 and verb.lemma[-2] == "_" :
+            if len(verb.dbid) >2 and verb.dbid[-2] == "_" :
                 # id has two variants of writing the verb, collect all of those verbs here
                 collection_a.append(found)
             else :

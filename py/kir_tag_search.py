@@ -26,13 +26,13 @@ def reduce_simplefreq_to_lemma_collection(simple_freq_list):
     #fremd = load_text8_aslist(CORPUS_ROOT+, "\n")
     (dict_verbs, dict_subs, dict_adj, dict_prns,
      dict_adv, dict_rests, dict_stems) =dbc.load_dbkirundi()
-    kh.observer.notify(f"sorting Named Entities {28*'.'}")
+    kh.observer.notify(f"sorting Named Entities {27*'.'}")
     collection = tc.Collection(simple_freq_list)
     (collection.names, still_unk) = dbc.filter_names_out(names, simple_freq_list)
     len_before = len(still_unk)
     (collection.advs, still_unk) = dbc.collect_adv_plus(dict_adv, still_unk)
     kh.observer.notify("\nNamed Entities      : "
-                       +f"{len_before-len(still_unk)} / {len(still_unk)}")
+                       +f"\t{len_before-len(still_unk)} / {len(still_unk)}")
     len_before = len(still_unk)
     (collection.pronouns, still_unk) = dbc.collect_pronouns(dict_prns, still_unk)
     kh.observer.notify(f"adverbs etc         : {len_before-len(still_unk)} >> "
@@ -185,7 +185,7 @@ def tag_text_with_db(mytext):#, lemmafreq_all) :
     else:
         points = 1
     sent_count = 0
-    kh.observer.notify("\ntagging text, this may take some moments ..........")
+    kh.observer.notify("\ntagging text, this may take some moments .........")
     for sentence in sentences_list:
         nr_sen +=1
         #len_sen = len(sentence)
