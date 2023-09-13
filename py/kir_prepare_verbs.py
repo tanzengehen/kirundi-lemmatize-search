@@ -35,7 +35,9 @@ class Lemma:
         if entry[2]:
             self.stem = entry[2].strip()
         else:
-            kh.observer.notify(f"lemma has no stem in database: ID{self.dbid}")
+            # Translators: (debug) check dictionary new entry
+            kh.OBSERVER.notify(
+                kh._("lemma has no stem in database: ID{}").format(self.dbid))
             self.stem = "xxx"
         # self.questions = [self.lemma,]
         if entry[4]:
@@ -60,7 +62,7 @@ class Lemma:
 def regex_prfx_autonom_subjects_verbs():
     """ regex for autonomous verbform
     """
-    ####### autonom subjects ########
+    # ###### autonom subjects ########
 
     # time3 (only possibility for time in this forms) uwu-ta-:
     #    uwa, uwara, uwuta, uwutara, uwo, uwuto, uwuzo, !uwutazo,
@@ -493,12 +495,18 @@ class Verb(Lemma):
             if self.perfective.find(" "):
                 self.perfective = self.perfective.split()[0]
         if self.perfective is None:
-            kh.observer.notify(f"perfective is lost: {self.lemma}")
+            # (debug) check dictionary new entry
+            # Translators: for debugging only
+            kh.OBSERVER.notify(
+                kh._("perfective is lost: {}").format(self.lemma))
         else:
             self.perfective = self.perfective.strip()
         # if perfective is unclear
         if self.perfective.find("?") > -1:
-            kh.observer.notify(f"{self.lemma}: perfective? {self.perfective}.")
+            # (debug) check dictionary new entry
+            # Translators: for debugging only
+            kh.OBSERVER.notify(
+                kh._("{}: perfective? -{}").format(self.lemma, self.perfective))
             self.unclear.append(
                 [self.lemma, "perfective unclear:", self.perfective])
             self.perfective = None
@@ -538,8 +546,10 @@ class Verb(Lemma):
                     self.unclear.append(
                         ["perfective: unexpected letter before [y] ",
                          self.lemma, self.perfective])
-                    kh.observer.notify("add passiv to perfective: unk vor y " +
-                                       f"{self.lemma} {self.perfective}")
+                    # Translators: (debug) check dictionary new entry
+                    kh.OBSERVER.notify(f"\t{self.lemma} -{self.perfective}:"
+                                       + kh._("""\n\t\ttried to add passiv to
+perfective but unknown letter before y"""))
                     perfp = self.perfective
             elif len(self.perfective) > 3 and self.perfective[-2] in "jzshw":
                 perfp = self.perfective[:-1]+r"((w)?e)"
@@ -775,7 +785,7 @@ def filter_proverbs_out(verb_list):
         try:
             if verb.proverb is False:
                 new_list.append(verb)
-                pur_stems.append(verb.stem)
+                pur_stems.insert(0, verb.stem)
                 continue
             # verb-part of proverb maybe already as pure infinitiv in the list?
             if verb.stem in pur_stems:
@@ -785,33 +795,40 @@ def filter_proverbs_out(verb_list):
             new_list.append(verb)
             pur_stems.append(verb.stem)
         except Exception:
-            kh.observer.notify(f"filter proverbs out doesn't work': {verb}")
+            # Translators: (debug) check dictionary new entry
+            kh.OBSERVER.notify(kh._(
+                "filter proverbs out doesn't work': {}").format(verb.lemma))
     return new_list
 
 
 def filter_passiv_out(verb_list):
     """because it's not really a lemma and will be asked with its base form
     """
-    # sort by length of lemma to have proverbs later than pur verbs
-    verbs = sorted(verb_list, key=lambda x: len(x.lemma))
-    pur_stems = []
+    # sort by length of lemma to have passiv later than base form
+    verbs = sorted(verb_list, key=lambda x: x.lemma)
+    baseforms = []
     new_list = []
     for verb in verbs:
         verb.mark_passiv()
         try:
             if verb.passiv is False:
                 new_list.append(verb)
-                pur_stems.append(verb.stem)
+                baseforms.insert(0, verb.stem)
                 continue
-            # verb without passiv maybe already as pure infinitiv in the list?
-            if verb.stem in pur_stems:
-                # we can skip it
+            # base form is already in the list?
+            if verb.stem[:-2]+"a" in baseforms:
+                # kunywa is not passiv of kunya
+                if verb.lemma == "kunywa":
+                    new_list.append(verb)
+                # we can skip the others
                 continue
-            # there is no pure version in the list, we take it
+            # there is no base form in the list, we take it
             new_list.append(verb)
-            pur_stems.append(verb.stem)
+            baseforms.append(verb.stem)
         except Exception:
-            kh.observer.notify(f"filter passiv out doesn't work': {verb}")
+            # Translators: (debug) check dictionary new entry
+            kh.OBSERVER.notify(
+                kh._("filter passiv out doesn't work': {}").format(verb.lemma))
     return new_list
 
 
@@ -882,7 +899,6 @@ def sammle_verben(db_verben, freq_d):
         if len(verb.stem) == 2 \
            and verb.lemma[0] in "gk-" \
            and len(verb.lemma) < 5:
-            # print ("stem2 :", lemma, inf, stem)
             qu_list_for_short_freqs = \
                 [sd.breakdown_consonants(x + verb.stem) for x in ["naiu"]]
             if len(verb.lemma) == 4:

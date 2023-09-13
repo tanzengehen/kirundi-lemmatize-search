@@ -9,6 +9,7 @@ Created on Sat May 20 15:32:20 2023
 
 import re
 import json
+from sys import exit as sysexit
 from unidecode import unidecode
 import kir_prepare_verbs as kv
 import kir_helper2 as kh
@@ -22,46 +23,56 @@ def reduce_simplefreq_to_lemma_collection(simple_freq_list):
      reads simple_freq as list of [type,frequency]
      returns object of class Collection"""
     names = dbc.load_ne()
+    kh.OBSERVER.notify(
+        kh._("\nPreparing dictionary, just a moment ..."))
     (dict_verbs, dict_subs, dict_adj, dict_prns,
      dict_adv, dict_rests, dict_stems) = dbc.load_dbkirundi()
-    kh.observer.notify(f"sorting Named Entities {27*'.'}")
+    # Translators: fill points up to 50 letters
+    kh.OBSERVER.notify(
+        kh._("sorting Named Entities ..........................."))
     collection = tc.Collection(simple_freq_list)
     (collection.names, still_unk) = dbc.filter_names_out(names,
                                                          simple_freq_list)
     len_before = len(still_unk)
     (collection.advs, still_unk) = dbc.collect_adv_plus(dict_adv, still_unk)
-    kh.observer.notify("\nNamed Entities      : "
-                       f"\t{len_before-len(still_unk)} / {len(still_unk)}")
+    kh.OBSERVER.notify(kh._("\nNamed Entities      : ")
+                      + f"\t\t{len_before-len(still_unk)}\t({len(still_unk)})")
     len_before = len(still_unk)
     (collection.pronouns,
      still_unk) = dbc.collect_pronouns(dict_prns, still_unk)
-    kh.observer.notify(f"adverbs etc         : {len_before-len(still_unk)} >> "
-                       f"{len(collection.advs)-1} / {len(still_unk)}")
-    kh.observer.notify(f"sorting nouns {36*'.'}")
+    kh.OBSERVER.notify(kh._("adverbs etc         : ")
+                       + f"{len_before-len(still_unk)} >> "
+                       + f"{len(collection.advs)-1}\t({len(still_unk)})")
+    # Translators: fill points up to 50 letters
+    kh.OBSERVER.notify(
+        kh._("sorting nouns ...................................."))
     len_before = len(still_unk)
     (collection.nouns,
      still_unk, subs_later) = dbc.collect_nouns(dict_subs, still_unk, True)
-    kh.observer.notify(
-        f"\npronouns            : {len_before-len(still_unk)} >> "
-        f"{len(collection.pronouns)-1} / {len(still_unk)}")
+    kh.OBSERVER.notify(
+        kh._("\npronouns            : ") + f"{len_before-len(still_unk)} >> "
+        f"{len(collection.pronouns)-1}\t({len(still_unk)})")
     len_before = len(still_unk)
     (collection.adjs, still_unk) = dbc.collect_adjs(dict_adj, still_unk)
-    kh.observer.notify(f"nouns               : {len_before-len(still_unk)} >> "
-                       f"{len(collection.nouns)-1} / {len(still_unk)}")
-    kh.observer.notify(f"sorting verbs {36*'.'}")
+    kh.OBSERVER.notify(kh._("nouns               : ")
+                       + f"{len_before-len(still_unk)} >> "
+                       + f"{len(collection.nouns)-1}\t({len(still_unk)})")
+    kh.OBSERVER.notify(
+        kh._("sorting verbs ...................................."))
     len_before = len(still_unk)
     (collection.verbs, still_unk) = kv.sammle_verben(dict_verbs, still_unk)
-    kh.observer.notify(
-        f"\nadjektives          : {len_before-len(still_unk)} >> "
-        f"{len(collection.adjs)-1} / {len(still_unk)}")
+    kh.OBSERVER.notify(kh._("\nadjektives          : ")
+                       + f"{len_before-len(still_unk)} >> "
+                       + f"{len(collection.adjs)-1}\t({len(still_unk)})")
     # now we search for the substantives we skipped before verbs (uku...)
     len_before = len(still_unk)
     (found_here,
      still_unk,
      doesntmatteranymore) = dbc.collect_nouns(subs_later, still_unk, False)
     collection.nouns += found_here
-    kh.observer.notify(f"verbs               : {len_before-len(still_unk)} >> "
-                       f"{len(collection.verbs)-1} / {len(still_unk)}")
+    kh.OBSERVER.notify(kh._("verbs               : ")
+                       + f"{len_before-len(still_unk)} >> "
+                       + f"{len(collection.verbs)-1}\t({len(still_unk)})")
 
     (collection.exclams,
      still_unk) = dbc.collect_exclamations(dict_rests, still_unk)
@@ -87,23 +98,26 @@ def split_in_sentences(mytext):
     that's only a rough approach
     returns list with strings
     """
-    # mach lesbar, aber Zeichensetzung ist noch drin
-    all_sents = [mytext, ]
-    # teile die Portionen alle gleichwertig, nicht geschachtelt
-    for seperator in ".?!:;":
+    # set a headlines and paragraph flag: "#|*"
+    mytextn = mytext.replace("\\n", " #|* ")
+    all_sents = [mytextn, ]
+    # to get a list, not a nested list
+    for seperator in [".", "?", "!", ":", ";", "#|*"]:
         storage = []
         for part in all_sents:
-            newportion = part.split(seperator+" ")
-            if len(newportion) > 1:
-                for new in newportion[:-1]:
+            newportions = part.split(seperator+" ")
+            if len(newportions) > 1:
+                for new in newportions[:-1]:
                     new = new+seperator
                     storage.append(new)
-                storage.append(newportion[-1])
+                storage.append(newportions[-1])
             else:
                 storage.append(part)
             all_sents = storage
     if len(all_sents[-1].strip()) < 2:
         all_sents.pop(-1)
+    # delete headline flags
+    all_sents = [i.strip("#|*") for i in all_sents if i != "#|*"]
     return all_sents
 
 
@@ -160,7 +174,7 @@ def tag_lemma(myword, knownlemmafreq):
                     tag = tc.Token(myword, entry[2], qu_entry)
                     return tag
         except:
-            kh.observer.notify(f"{entry} {word} {variant}")
+            kh.OBSERVER.notify(f"{entry} {word} {variant}")
     tag = tc.Token(myword, "UNK", word)
     return tag
 
@@ -173,8 +187,8 @@ def tag_text_with_db(mytext):  # , lemmafreq_all) :
     collection = make_lemmafreq_fromtext(mytext)
     known = collection.known()
     # TODO where to put the metadata
-    kh.observer.notify(f"lemmata of text: {len(known)}"
-                       f"\nunknown types  : {len(collection.unk)}")
+    kh.OBSERVER.notify(kh._("\nlemmata of text: {}").format(len(known)))
+    kh.OBSERVER.notify(kh._("unknown types  : {}").format(len(collection.unk)))
     # split into sentences -- roughly
     sentences_list = split_in_sentences(mytext)
     punctuation = sd.punctuation()
@@ -190,7 +204,8 @@ def tag_text_with_db(mytext):  # , lemmafreq_all) :
     else:
         points = 1
     sent_count = 0
-    kh.observer.notify("\ntagging text, this may take some moments .........")
+    kh.OBSERVER.notify(
+        kh._("\ntagging text, this may take some moments ........."))
     for sentence in sentences_list:
         nr_sen += 1
         # len_sen = len(sentence)
@@ -328,10 +343,12 @@ def find_ngrams(wordlist_tagged, wtl, nots, questions):
                     continue
                 # next token also matches
                 if (nots[n_count] != "!"
-                   and (wtl[n_count] == "?"
-                        or candidate.get(wtl[n_count]).lower() == questions[n_count].lower())) \
-                or (nots[n_count] == "!"
-                   and candidate.get(wtl[n_count]).lower() != questions[n_count].lower()):
+                        and (wtl[n_count] == "?"
+                             or candidate.get(wtl[n_count]).lower() ==
+                             questions[n_count].lower())) \
+                    or (nots[n_count] == "!"
+                        and candidate.get(wtl[n_count]).lower() !=
+                        questions[n_count].lower()):
 
                     # add token and count it
                     part_found += " " + candidate.token
@@ -364,9 +381,9 @@ def go_search(tagged_list, whattodo):
     if found:
         # tag missing?
         if found[1]:
-            kh.observer.notify("hari ikosa: indanzi irabuze")
+            kh.OBSERVER.notify(kh._("Error: missing tag"))
             for i in found[1]:
-                kh.observer.notify(i)
+                kh.OBSERVER.notify(i)
         return found[0]
     return found
 
@@ -383,10 +400,10 @@ def tag_or_load_tags(whattodo):
             sd.ResourceNames.root+"/resources/freq_fett.csv",
             whattodo.fn_tag)
         if good_old:
-            kh.observer.notify(
-                  f"Hari ifishi n'indanzi: (rikorwa {good_old})"
-                  + "\n" + '\t'*6 + '/'.join(whattodo.fn_tag.split('/')[-4:])
-                  + "\nniryo ndakoresha ku kibanza ca gusubira gukora indanzi")
+            kh.OBSERVER.notify(
+                kh._("There is already a tagged file: (made {})").format(good_old)
+                + "\n\t" + '/'.join(whattodo.fn_tag.split('/')[-4:])
+                + kh._("\nWe use this instead of tagging again.\n"))
             text_tagged = load_json(whattodo.fn_tag)
             return text_tagged
     # 2. maybe the given file itself is a json file? >> already tagged >> read
@@ -395,7 +412,8 @@ def tag_or_load_tags(whattodo):
             text_tagged = load_json(whattodo.fn_in)
             return text_tagged
         except:
-            kh.observer.notify("Are you sure, that this is a tagged file?")
+            kh.OBSERVER.notify(
+                kh._("Are you sure, that this is a tagged file?"))
             # TODO get new data
     # 3. read raw txt utf8 or utf16
     try:
@@ -406,30 +424,32 @@ def tag_or_load_tags(whattodo):
             meta = kh.load_text_fromfile(whattodo.fn_in, 'utf-16')
             # raw = meta.raw
         except:
-            kh.observer.notify(f"Sorry, can't use the file: {whattodo.fn_in}")
-    # start whole NLP task: read,clean,tag...
-    kh.observer.notify(
-        "\nRindira akanya, ndiko ndategura amajambo ya kazinduzi ...")
+            kh.OBSERVER.notify(
+                kh._("Sorry, can't use the file: {}").format(whattodo.fn_in))
+            meta = ""
+    if not meta:
+        sysexit
+    # start whole NLP task: read, clean, tag...
     # freq_lemma_all = kh.load_freqfett()
-    kh.observer.notify("ndiko ndategura ifishi ...\n")
+    kh.OBSERVER.notify(kh._("Preparing file ..."))
     lemmafreq, text_tagged = tag_text_with_db(meta.text)  # ,freq_lemma_all)
     # insert first line as head for csv file
     lemmafreq.insert(0, sd.first_line_in_pos_collection(), )
     kh.save_list(lemmafreq, whattodo.fn_freqlemma)
     # remove first line again
     lemmafreq.pop(0)
-    kh.observer.notifyFrequencies(whattodo.fn_in.split("/")[-1],
-                                  whattodo.fn_freqlemma.split("/")[-1],
-                                  kh.Dates.database)
+    kh.OBSERVER.notify_frequencies(whattodo.fn_in.split("/")[-1],
+                                   whattodo.fn_freqlemma.split("/")[-1],
+                                   kh.Dates.database)
     # save tagged file for reuse
     kh.save_json(text_tagged, whattodo.fn_tag)
-    kh.observer.notifyTagging(whattodo.fn_in.split("/")[-1],
-                              whattodo.fn_tag.split("/")[-1],
-                              kh.Dates.database)
-    kh.observer.notify(
-          "\n\nNashinguye iki gisomwa n'indanzi mu fishi: \n"
-          + "\t"*6 + "/" + "/".join(whattodo.fn_tag.split("/")[-4:])
-          + "\nTurashobora gusubira kurikoresha ikindi gihe."
+    kh.OBSERVER.notify_tagging(whattodo.fn_in.split("/")[-1],
+                               whattodo.fn_tag.split("/")[-1],
+                               kh.Dates.database)
+    kh.OBSERVER.notify(
+          kh._("\n\nTagged file saved as: \n")
+          + "\t/" + "/".join(whattodo.fn_tag.split("/")[-4:])
+          + kh._("\nWe can use it again later.")
           )
     return text_tagged
 
@@ -461,7 +481,7 @@ def search_or_load_search(f_in, wtl, nots, quterms, multiple):
                         result.append(res)
             # headline
             if result:
-                result.insert(0,"file_id || characters || path || results counted || results")
+                result.insert(0, "file_id || characters || path || results counted || results")
         else:
             # tags the file or takes an already tagged version of the file
             text_with_tags = tag_or_load_tags(whattodo)
@@ -469,15 +489,17 @@ def search_or_load_search(f_in, wtl, nots, quterms, multiple):
             result = go_search(text_with_tags, whattodo)
             count_results = len(result)
     if result:
-        kh.observer.notify(
-            f"\nInyishu 1-20 (hari {len(result)}). Uraronka zose mu fishi:" +
-            "\n"+"\t"*6+f'/{"/".join(whattodo.fn_search.split("/")[-3:])}\n')
+        kh.OBSERVER.notify(
+            kh._("\nHit 1-20 (out of {}). All results are saved in file:")
+            .format(len(result))
+            + "\n\t"
+            + f'/{"/".join(whattodo.fn_search.split("/")[-3:])}\n')
         kh.show_twenty(result)
         # save results as txt
         if not already_done:
             kh.save_list(result, whattodo.fn_search)
     else:
-        kh.observer.notify("Nta nyishu.")
+        kh.OBSERVER.notify(kh._("\nNo results for this query."))
 
 
 def load_json(filename):  # , klasse="Token"):
@@ -502,6 +524,6 @@ def load_json(filename):  # , klasse="Token"):
     #                     i.get('comb'),i.get('proverb'))
     #         objects.append(verb)
     else:
-        kh.observer.notify("sorry, unknown format")
+        kh.OBSERVER.notify(kh._("Sorry, unknown format."))
         return objects
     return objects

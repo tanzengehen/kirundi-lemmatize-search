@@ -7,6 +7,7 @@ Created on Sun May 28 07:37:34 2023
 """
 
 from ast import literal_eval
+import gettext
 import os
 import time
 import json
@@ -15,29 +16,34 @@ import kir_tag_classes as tc
 import kir_string_depot as sd
 
 
+# def N_(message):
+#    """if we use kh._ in loops"""
+#     return message
+
+
 class Observer:
     @abstractmethod
     def notify(self, message):
         """Receive a status message
         """
-        pass
+        # pass
 
     @abstractmethod
-    def notifyTagging(self, source_file, tag_file, db_version):
+    def notify_tagging(self, source_file, tag_file, db_version):
         """Record that an tag file has been made
         """
-        pass
+        # pass
 
     @abstractmethod
-    def notifyFrequencies(self, source_file, frequencies_file, db_version):
+    def notify_frequencies(self, source_file, frequencies_file, db_version):
         """Record that a frequency statistic has been made
         """
-        pass
+        # pass
 
 
 class PrintConsole(Observer):
     """is notified by observed subject
-    to print new messages into console
+    to print messages to terminal
     """
 
     def notify(self, message):
@@ -45,18 +51,41 @@ class PrintConsole(Observer):
         """
         print(str(message))
 
-    def notifyTagging(self, source_file, tag_file, db_version):
+    def notify_tagging(self, source_file, tag_file, db_version):
         """ignored in console mode
         """
-        pass
+        # pass
 
-    def notifyFrequencies(self, source_file, frequencies_file, db_version):
+    def notify_frequencies(self, source_file, frequencies_file, db_version):
         """ignored in console mode
         """
-        pass
+        # pass
 
 
-observer = None
+def set_ui_language(language_name):
+    if language_name.lower() in ["d", "de", "deutsch"]:
+        lang = gettext.translation("messages", sd.ResourceNames.fn_i18n,
+                                   languages=["de"], fallback=True)
+    elif language_name.lower() in ["r", "k", "", "rn", "kirundi", "rundi"]:
+        lang = gettext.translation("messages", sd.ResourceNames.fn_i18n,
+                                   languages=["rn"], fallback=True)
+    elif language_name.lower() in ["f", "fr", "fra", "francais", "français"]:
+        lang = gettext.translation("messages", sd.ResourceNames.fn_i18n,
+                                   languages=["fr"], fallback=True)
+    elif language_name.lower() in ["e", "en", "uk", "english"]:
+        lang = gettext.translation("messages", sd.ResourceNames.fn_i18n,
+                                   languages=["en_UK"], fallback=True)
+    else:
+        return "not"
+    return lang
+
+
+# LANG_DE = gettext.translation("messages", sd.ResourceNames.fn_i18n,
+#                               languages=["de"], fallback=True)
+# # _ = LANG_DE.gettext
+# LANG_RN = gettext.translation("messages", sd.ResourceNames.fn_i18n,
+#                               languages=["rn", "fr"], fallback=True)
+OBSERVER = None
 
 
 def check_file_exits(fn_file, fn_dir):
@@ -230,9 +259,11 @@ def save_list(mylist, fname, sep_columns=";", sep_rows="\n"):
         with open(fname, 'w', encoding="utf-8") as file:
             file.write(lines_in_file)
     else:
-        observer.notify("(kh.save_list) Sorry, I didn't save the list that "
-                        + f"starts with: {mylist[:4]}\nI was expecting str, "
-                        + "int, tuple or list as list elements")
+        # TODO try except
+        # Translators: debugging mode
+        OBSERVER.notify(_("""Sorry, I didn't save the list that starts with: 
+{}\nI was expecting str, int, tuple or list
+as list elements.""").format(mylist[:4]))
 
 
 def show_twenty(mylist):
@@ -240,9 +271,10 @@ def show_twenty(mylist):
     """
     for i in mylist[:20]:
         if isinstance(i, str):
-            observer.notify(i)
+            OBSERVER.notify(i)
         elif isinstance(i, (tuple, list)):
-            observer.notify(f"{i[0]} ; {i[1]}")
+            OBSERVER.notify(f"{i[0]} ; {i[1]}")
+
 
 # will be exchanged with hash value question
 def check_time(older, younger):

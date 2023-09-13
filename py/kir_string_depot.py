@@ -13,6 +13,7 @@ class ResourceNames:
     """pathames for resource files
     """
     root = "/".join(os.getcwd().split("/")[:-1])
+    fn_i18n = root+"/i18n"
     fn_corpuslist = root+"/resources/verzeichnis.txt"
     fn_namedentities = root+"/resources/extern.csv"
     fn_freqfett = root+"/resources/freq_fett.csv"

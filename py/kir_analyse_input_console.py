@@ -10,135 +10,213 @@ Sebastian Lisken is working on the website interface'
 """
 
 from sys import exit as sysexit
+from os.path import exists as file_exists
 import kir_string_depot as sd
 import kir_helper2 as kh
 from kir_tag_search import search_or_load_search
+# # nur vorübergehend
+# import gettext
 
 
-def check_fnin(fn_in):
-    """checks filename of txt ending"""
-    if fn_in == "":
-        kh.observer.notify("Kubera ko ataco watoye nahejeje.")
-        sysexit()
-    if fn_in in "cC":
-        return "c"
-    if fn_in[-4:] not in [".txt", ".json"]:
-        kh.observer.notify(f"Hariho ikosa n'ifishi: ' {f_in}"
-                           "'\nNdashobora gukoresha ifishi ifise impera "
-                           "'.txt' canke '.json' gusa")
-        sysexit()
-    return "f"
+def input_fnin():
+    """get the path to a raw Kirundi text or already tagged text
+    allows txt and json
+    """
+    while True:
+        fnin = input("  : ")
+        if fnin[-4:] != ".txt" and fnin[-5:] != ".json":
+            if fnin == "q":
+                sysexit()
+            if fnin in ["c", "C"]:
+                break
+            # Translators: terminal only
+            kh.OBSERVER.notify(kh._("txt or json file or 'q' for 'quit'"))
+            continue
+        if not file_exists(fnin):
+            kh.OBSERVER.notify(kh._("""This file doesn't exist.
+Try again""").format(fnin))
+            continue
+        break
+    return fnin
 
 
-def check_interest(interest0):
-    """checks kind of search: word, tag, lemma or joker
-    returns list with indices for tag-parts:
-    [1,1,2] for tag, tag, lemma"""
-    interest = interest0.replace(" ", "").lower()
-    interest_nojoker = interest0.replace("?", "")
-    if interest == "":
-        # nothing picked
-        kh.observer.notify("Kubera ko ataco watoye nahejeje.")
-        sysexit()
-    elif interest_nojoker == "":
-        # '?' on all positions
-        kh.observer.notify("nonosora ukurondera kwawe")  # specify your search
-        sysexit()
-    elif len(interest_nojoker) == 1:
-        # only one is no '?'
-        interest = interest_nojoker
-    for i in interest:
-        if i not in "wlt?":
-            # wrong character picked
-            kh.observer.notify("hari ikosa: no valid search criteria:"
-                               "gusa 'w', 't' , 'l' canke '?'")
+def input_searchterm():
+    """get a query string of search terms
+    returns list of strings, allows (!)words, (!)tags, *
+    """
+    while True:
+        searchterm = input("  : ")
+        searchterm = searchterm.strip()
+        searchterm = searchterm.strip("*")
+        if searchterm == "":
+            # Translators: terminal only
+            kh.OBSERVER.notify(kh._("please give me a searchterm"))
+            continue
+        searchterm = searchterm.split()
+        for i in searchterm:
+            # check if '*' is inside of a word
+            if len(i) > 1 and "*" in i:
+                kh.OBSERVER.notify(kh._("""'*' only for words, not for letters.
+Write searchterm again please"""))
+                again = True
+                break
+            again = False
+        if again is True:
+            continue  # next input
+        break
+    return searchterm
+
+
+def input_wtl(lengths):
+    """specify if a word in the searchstring should be seen as
+    word, tag or lemma
+    """
+    while True:
+        short = input("  : ")
+        short = short.replace(" ", "").lower()
+        if not short:
+            # Translators: terminal only
+            kh.OBSERVER.notify(
+                kh._("""please enter the 'wtl' combination for your
+searchterms or 'q' for 'quit'"""))
+            continue
+        if short == 'q':
             sysexit()
+        for i in short:
+            if i not in "wlt?":
+                # Translators: terminal only
+                kh.OBSERVER.notify(
+                    kh._("\tonly 'w', '!w', 't', '!t', 'l', '!l' or '?'"))
+                again = True
+                break
+            again = False
+        if again is True:
+            continue
+        if len(short) != lengths:
+            # Translatorse: terminal only
+            kh.OBSERVER.notify(
+                kh._("Hm, not as many as searchterms... Please again."))
+            continue
+        break
     kind_of_search = {"w": "token", "t": "pos", "l": "lemma", "?": "?"}
-    interest1 = [kind_of_search.get(i) for i in interest]
-    return interest1
+    tags = [kind_of_search.get(i) for i in short]
+    return tags
 
 
-def specify_search(interest0):
-    """takes exact searchword, searchtag or searchlemma"""
-    kind_of_search = {"token": "Ijambo ririhe? (Which word?) : ",
-                      "pos": "Amajambo yose afise indanzi (all words with tag) : ",
-                      "lemma": "Amajambo yose y'itsitso ririhe? (all words of lemma) : "}
+def check_search_wtl(whichtags, whichwords):
+    """check if searchterm and wtl match in length and possibilities
+    """
+    possible = sd.PossibleTags
     search = []
     notss = []
-    give = ""
-    kh.observer.notify(f"Urashaka gutora {len(interest0)}-gram "
-                       f"(You are looking for a {len(interest0)}-gram)")
-    if len(interest0) > 1:
-        kh.observer.notify("\n    now specify each part \n(you can put a '!' "
-                           "before it, if you want to exclude this word or tag)")
-        # for printing confirmation later
-        count = "    igice "
-    else:
-        count = "    "
-    for i, interest in enumerate(interest0):
+    show = ""
+    for i, interest in enumerate(whichtags):
+        # wildcard
         if interest == "?":
-            kh.observer.notify(f"{i+1} : kira jambo rirakunda")
+            notss.append("y")
             search.append("?")
+            # Translators: terminal only
+            show += kh._("all + ")
+            if whichwords[i] != '*':
+                # it should be * but we don't ask again, only warn
+                # Translators: terminal only
+                kh.OBSERVER.notify(kh._("mismatch: wildcard {}.").format(i+1))
+                # Translators: terminal only
+                yesno = input(kh._("I go with the wildcard. Y/N : "))
+                # Translators: terminal only
+                if yesno not in kh._("yY"):
+                    # Translators: terminal only
+                    kh.OBSERVER.notify(kh._("Start again"))
+                    sysexit()
+        # not wildcard
         else:
-            take = input(count+str(i+1)+": " + kind_of_search.get(interest))
-            if take[0] == "!":
+            # not this word, tag or lemma
+            if whichwords[i][0] == "!":
                 notss.append("!")
-                give += "alles außer "
-                take = take.strip("!")
+                show += kh._("all except ")
+                whichwords[i] = whichwords[i].strip("!")
             else:
                 notss.append("y")
-            possible = sd.PossibleTags
+            # tag
             if interest == "pos":
                 # PoS tags always in uppercase
-                take = take.upper()
-                if take in possible.pt:
-                    search.append(take)
-                    give += take+" + "
+                whichwords[i] = whichwords[i].upper()
+                if whichwords[i] in possible.pt:
+                    search.append(whichwords[i])
+                    show += whichwords[i]+" + "
                 else:
-                    kh.observer.notify(f"indanzi {take} ntiriho")  # =no tag
+                    # Translators: terminal only
+                    kh.OBSERVER.notify(
+                        kh._("Invalid tag: {}. There will be no result.")
+                        .format(whichwords[i]))
                     sysexit()
-            # word, lemma
-            elif take != "":
-                search.append(take)
-                give += take+" + "
+            # word or lemma
             else:
-                search.append(take)
-    kh.observer.notify(f"\nNdarondera: {give[:-3]}")
-    if not search:
-        kh.observer.notify("Kubera ko ataco watoye nahejeje.")
-        sysexit()
+                search.append(whichwords[i])
+                # lemma
+                if interest == "lemma":
+                    show += whichwords[i]+"(lemma) + "
+                # word
+                else:
+                    show += whichwords[i]+" + "
+    kh.OBSERVER.notify("\n"+kh._("Query = {}\n").format(show[:-3]))
     return notss, search
 
 
 if __name__ == "__main__":
-    kh.observer = kh.PrintConsole()
-    f_in = input(r"""Tora ifishi ushaka kwihweza
-      c                      = tagged korpus yose
-      inzira/ku/fishi.txt    = ifishi rimwe (tora variante tagged iyo ufise)
-      (filename please)
-     : """)
+    kh.OBSERVER = kh.PrintConsole()
+    kh.OBSERVER.notify("""Ubu nyene ururimi rw'igikoresho ni kirundi.
+Pfyonda ENTER canke andika 'de', 'en' canke 'fr' iyo urashaka ko turaganira mu
+rundi rurimi.
+   (Default UI-language is Rundi. Just press ENTER for OK or change it.
+   Die UI-Sprache ist auf kirundi voreingestellt, du kannst aber auch wechseln.
+   Au moment l'interface utilisateur est rundi, mais tu peux l'échanger.
+deutsch, english, français)
+'de', 'en', 'fr' ,'rn'""")
+    while True:
+        locale = input("  : ")
+        lang = kh.set_ui_language(locale)
+        if lang == "not":
+            continue
+        break
+    lang.install()
+    kh._ = lang.gettext
+
+    kh.OBSERVER.notify(kh._("\nSelect the Rundi text you want to inspect:"))
+    # Translators: terminal only
+    kh.OBSERVER.notify(kh._("\tc\t\t\t\t= whole tagged corpus"))
+    # Translators: terminal only
+    kh.OBSERVER.notify(kh._("\tpath/to/file\t\t= a single file (txt or json)"))
+    kh.OBSERVER.notify(kh._("Prefer the tagged file, if there is one already.\n"))
     # corpus or file, if file: ist it txt?
-    MULTIPLE = bool(check_fnin(f_in) == "c")
-    kh.observer.notify(r"""
-    Ushaka kurondera iki mu gisomwa?
-            - for Bigrams or Trigrams use a combination of two respectively three letters
-            - Possible PoS-tags:
-               ADJ, ADV, CONJ, EMAIL, F(foreign words), INTJ, NI, NOUN,
-               NUM, NUM_ROM (roman numbers), PRON (pronouns),
-               PROPN, PROPN_CUR, PROPN_LOC (geographical places),
-               PROPN_NAM (personal names), PROPN_ORG , PROPN_PER, PROPN_REL,
-               PROPN_SCI, PROPN_THG, PROPN_VEG, PRP (prepositions),
-               SYMBOL, UNK (unkwon to dictionary), VERB, WWW (webaddresses)
+    f_in = input_fnin()
+    MULTIPLE = f_in == "c"
+    # Translators: terminal only
+    kh.OBSERVER.notify(kh._("""\nWhat are you looking for?
+    Divide searchterms with space characters.
+    You can put a '!' before a !word or !tag, if you want to exclude it.
+    You can place a separate '*' for a wildcard.
 
-    Tora indome muri (chose letters from)""")
-
-    # word/tag/lemma/?
-    wtl = input(r"""        W = exact word
-        L = all wordforms of a lemma
-        T = part of speech-tag
-        ? = wildcard
-    : """)
-    wtl = check_interest(wtl)
-    # specify the wtl or exclude a wtl (word/tag/lemma)
-    nots, quterms = specify_search(wtl)
+    Possible PoS-tags:
+        [ADJ, ADV, CONJ, EMAIL, F(foreign word), INTJ, NI, NOUN,
+        NUM, NUM_ROM (roman number), PRON (pronouns), PROPN,
+        PROPN_CUR, PROPN_LOC (geographical place),
+        PROPN_NAM (personal name), PROPN_ORG,
+        PROPN_PER (group of persons), PROPN_REL, PROPN_SCI,
+        PROPN_THG, PROPN_VEG, PRP (prepositions), SYMBOL,
+        UNK (unkwon to dictionary), VERB, WWW (webaddress)]
+Your searchterm"""))
+    query = input_searchterm()
+    kh.OBSERVER.notify(
+        kh._("\tOK, you are looking for a {}-gram.\n").format((len(query))))
+    # Translators: terminal only
+    kh.OBSERVER.notify(kh._("""For distinction between type, tag and lemma
+chose for each part of the searchterm a letter..."""))
+    # Translators: terminal only
+    kh.OBSERVER.notify(kh._("""\t\tW = this type
+\t\tL = all types of this lemma
+\t\tT = Part of Speech-tag
+\t\t? = wildcard"""))
+    wtl = input_wtl(len(query))
+    nots, quterms = check_search_wtl(wtl, query)
     search_or_load_search(f_in, wtl, nots, quterms, MULTIPLE)

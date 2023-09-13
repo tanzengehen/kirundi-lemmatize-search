@@ -53,7 +53,7 @@ def load_dbkirundi():
                     pronouns.append(Pronoun(row))
                 # prepositions, adverbs, conjunctions, interjections
                 elif row[8] == "3" or row[8] == "6" or row[8] == "7" \
-                   or row[8] == "8":
+                        or row[8] == "8":
                     unchanging_words.append(kv.Lemma(row))
                 # prefixes, phrases
                 else:
@@ -61,7 +61,8 @@ def load_dbkirundi():
                 # stems as set
                 stems.add(unidecode(row[4]).lower())
             line_count += 1
-    kh.observer.notify(f'{line_count} entries of the dictionary prepared.')
+    kh.OBSERVER.notify(
+        kh._('{} entries of the dictionary prepared.').format(line_count))
     csv_file.close()
     verbs = kv.filter_proverbs_out(verbs)
     verbs = kv.filter_passiv_out(verbs)
@@ -80,7 +81,6 @@ def load_ne():
     with open(sd.ResourceNames.fn_namedentities, encoding="utf-8") as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=";")
         for row in csv_reader:
-            # print(row[1])
             if row[2] == "F":
                 foreign.append(Foreign(row))
             elif row[2] == "PROPN_LOC":
@@ -151,7 +151,6 @@ class NamedEntities:
                    2,  # entry1-PoS
                    4]  # entry2-alternatives
         entry = [unidecode(row[x].strip().lower()) for x in columns]
-        # print("in NE init", entry)
         self.row = row
         self.dbid = ""
         self.lemma = entry[0].strip()
@@ -232,7 +231,8 @@ def check_entries_location_person_language(
                 done = True
                 break
             if propn1.lemma[:3] == "ubu" \
-               and propn1.lemma[3:] == propn2.lemma[3:][-(len(propn1.lemma)-3):]:
+                    and propn1.lemma[3:] == \
+                    propn2.lemma[3:][-(len(propn1.lemma)-3):]:
                 done = True
                 break
         if done:

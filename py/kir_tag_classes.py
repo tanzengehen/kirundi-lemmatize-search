@@ -302,8 +302,10 @@ class FreqSimple:
         # frequency distribution
         self.freq = self.__f_dist__(blanktext)
         self.ntypes = len(self.freq)
-        kh.observer.notify(f"\nvocabulary: {self.ntokens} tokens"
-                           + f"\n{12*' '}{self.ntypes} types\n")
+        kh.OBSERVER.notify(
+            kh._("\tvocabulary: {ntokens} tokens\n                {ntypes} types\n")
+            .format(ntokens=self.ntokens,
+                    ntypes=self.ntypes))
 
 
 class Collection:
@@ -333,9 +335,9 @@ class Collection:
             + self.exclams
         for i in known:
             # lemma,id,PoS,count,n-wordforms,found forms: count should be int
-            if type(i[3]) is not int:
-                kh.observer.notify(
-                    f"{i[0]}, {i[3]} type of 'count': {type(i[3])}")
+            # for debugging only
+            if isinstance((i[3]), int) is False:
+                print(f"{i[0]}, {i[3]} type of 'count': {type(i[3])}")
         # sort by count of lemma
         known.sort(key=lambda x: x[3], reverse=True)
         return known
