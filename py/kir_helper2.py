@@ -8,7 +8,7 @@ Created on Sun May 28 07:37:34 2023
 
 from ast import literal_eval
 import gettext
-import os
+import os.path as osp
 import time
 import json
 from abc import abstractmethod
@@ -86,14 +86,15 @@ def set_ui_language(language_name):
 # LANG_RN = gettext.translation("messages", sd.ResourceNames.fn_i18n,
 #                               languages=["rn", "fr"], fallback=True)
 OBSERVER = None
+# _ = GNUTranslation()
+# _ = None
 
 
-def check_file_exits(fn_file, fn_dir):
+def check_file_exits(fn_file):
     """save energy, don't search twice
     """
-    files_list = os.listdir(fn_dir)
-    # TODO check hash-values corpus/file, freq_fett, code.py and result file
-    return fn_file in files_list
+    # TODO check hash-values
+    return osp.exists(fn_file)
 
 
 def load_columns_fromfile(fname, upto_column=-1, separator=";"):
@@ -279,8 +280,8 @@ def show_twenty(mylist):
 # will be exchanged with hash value question
 def check_time(older, younger):
     """compares timestamps of last changes of two files"""
-    tic_o = os.path.getmtime(older)
-    tic_y = os.path.getmtime(younger)
+    tic_o = osp.getmtime(older)
+    tic_y = osp.getmtime(younger)
     if tic_y > tic_o:
         t_obj = time.strptime(time.ctime(tic_y))
         t_stamp = time.strftime("%d.%m.%Y %H:%M:%S", t_obj)
@@ -299,3 +300,9 @@ def save_json(dict_list, filename):
     with open(filename, 'w', encoding="utf-8") as file:
         # consider: without indent it's only half as big
         json.dump({class_name: argo}, file, indent=4)
+
+
+# lang = set_ui_language("de")
+# lang.install()
+# _ = lang.gettext
+# OBSERVER = PrintConsole()

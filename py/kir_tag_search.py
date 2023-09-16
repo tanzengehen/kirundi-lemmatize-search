@@ -93,16 +93,25 @@ def make_lemmafreq_fromtext(mytext):
     return lemma_collection
 
 
-def split_in_sentences(mytext):
+# def split_in_paragraphsentences(mytext):
+#     """returns dict: {number paragraphs: [sentences strings]}
+#     """
+#     para = mytext.replace("\\n", " #|* ")
+#     allpara = [split_in_sentences(i) for i in para]
+#     para_d = {i: allpara[i] for i in range(len(allpara))}
+#     return para_d
+
+
+def split_in_sentences(mytext, para=" #|* "):
     """splits texts where [?.!;:] + space_character
-    that's only a rough approach
+    it's only a rough approach
     returns list with strings
     """
     # set a headlines and paragraph flag: "#|*"
-    mytextn = mytext.replace("\\n", " #|* ")
+    mytextn = mytext.replace("\\n", para)
     all_sents = [mytextn, ]
     # to get a list, not a nested list
-    for seperator in [".", "?", "!", ":", ";", "#|*"]:
+    for seperator in [".", "?", "!", ":", ";"]:
         storage = []
         for part in all_sents:
             newportions = part.split(seperator+" ")
@@ -116,9 +125,10 @@ def split_in_sentences(mytext):
             all_sents = storage
     if len(all_sents[-1].strip()) < 2:
         all_sents.pop(-1)
-    # delete headline flags
-    all_sents = [i.strip("#|*") for i in all_sents if i != "#|*"]
+    # # delete headline flags
+    # all_sents = [i.strip("#|*") for i in all_sents if i != "#|*"]
     return all_sents
+
 
 
 def tag_word_nrmailweb(myword):
@@ -152,7 +162,8 @@ def tag_punctmarks_etc(myword):
     # if myword in ",.;:!?(){}[]'\"" :
     #     tag = tc.Token(myword,myword,myword)
     #     return tag
-    if myword in ',.;:!?(){}[]\'"´`#$%&*+-/<=>@\\^_|~':
+    punctuation = sd.punctuation()
+    if myword in punctuation:
         tag = tc.Token(myword, "SYMBOL", myword)
         return tag
     return []
@@ -190,15 +201,17 @@ def tag_text_with_db(mytext):  # , lemmafreq_all) :
     kh.OBSERVER.notify(kh._("\nlemmata of text: {}").format(len(known)))
     kh.OBSERVER.notify(kh._("unknown types  : {}").format(len(collection.unk)))
     # split into sentences -- roughly
-    sentences_list = split_in_sentences(mytext)
+    line_end = " #|* "
+    sentences_list = split_in_sentences(mytext, line_end)
     punctuation = sd.punctuation()
-    # punctuation = r'´`\'.!"#$%&()*+,-/:<=>?[\\]^_{|}~;@'
+    # punctuation = ',.;:!?(){}[]\'"´`#%&+-*/<=>@\\^°_|~'
 
     # collects whole text
     tagged = []
     nr_sen = -1
     nr_token = -1
     nr_char = 0
+    nr_para = 0
     if len(sentences_list) > 50:
         points = int(len(sentences_list)/50)
     else:
@@ -213,13 +226,22 @@ def tag_text_with_db(mytext):  # , lemmafreq_all) :
         # collects sentence
         nr_word_in_sen = -1
         for word in words:
+            if word == line_end.strip():
+                nr_para += 1
+                nr_sen += 1
+                nr_word_in_sen = -1
+                continue
+            # else:
+            #     paralast = False
+            # print(word, paralast)
             nr_word_in_sen += 1
             nr_token += 1
             # check for emails, webaddress, number, roman number
             # returns for email and webaddress alias
             tag1 = tag_word_nrmailweb(word)
             if tag1:
-                tag1.set_nrs(nr_sen, nr_word_in_sen, nr_token, nr_char)
+                tag1.set_nrs(nr_sen, nr_word_in_sen, nr_token, nr_char,
+                             nr_para)
                 tagged.append(tag1)
                 nr_char += len(tag1.token)+1
                 continue
@@ -234,7 +256,8 @@ def tag_text_with_db(mytext):  # , lemmafreq_all) :
                 # check for punctuation
                 tag2 = tag_punctmarks_etc(w_or_c)
                 if tag2:
-                    tag2.set_nrs(nr_sen, nr_word_in_sen, nr_token, nr_char)
+                    tag2.set_nrs(nr_sen, nr_word_in_sen, nr_token, nr_char,
+                                 nr_para)
                     tagged.append(tag2)
                     # TO DO nr_char is not correct because
                     # we don't know if with whitespace or not
@@ -243,9 +266,13 @@ def tag_text_with_db(mytext):  # , lemmafreq_all) :
                     # check for lemma
                     # tag3 = tag_lemma(w_or_c,lemmafreq_all)
                     tag3 = tag_lemma(w_or_c, known)
-                    tag3.set_nrs(nr_sen, nr_word_in_sen, nr_token, nr_char)
+                    tag3.set_nrs(nr_sen, nr_word_in_sen, nr_token, nr_char,
+                                 nr_para)
                     tagged.append(tag3)
                     nr_char += len(tag3.token)+1
+            # if paralast is True:
+            #     nr_para += 1
+            #     nr_sen += 1
         # progress bar ;-)
         if sent_count % points == 0:
             print('.', end="")
@@ -393,8 +420,8 @@ def tag_or_load_tags(whattodo):
     """
     # 1. is there already a tagged json variant?
     # TODO check hash values
-    if kh.check_file_exits(whattodo.fn_tag.split("/")[-1],
-                           sd.ResourceNames.dir_tagged):
+    if kh.check_file_exits(sd.ResourceNames.dir_tagged
+                           + whattodo.fn_tag.split("/")[-1]):
         # check if tagged version is younger than big lemma collection
         good_old = kh.check_time(
             sd.ResourceNames.root+"/resources/freq_fett.csv",
@@ -459,8 +486,8 @@ def search_or_load_search(f_in, wtl, nots, quterms, multiple):
     """
     whattodo = sd.Search(f_in, wtl, nots, quterms, multiple)
     # check if search was already done before
-    already_done = kh.check_file_exits(whattodo.fn_search.split("/")[-1],
-                                       sd.ResourceNames.dir_searched)
+    already_done = kh.check_file_exits(sd.ResourceNames.dir_searched
+                                       + whattodo.fn_search.split("/")[-1])
     if already_done:
         result = kh.load_lines(whattodo.fn_search)
         count_results = len(result)
@@ -514,7 +541,8 @@ def load_json(filename):  # , klasse="Token"):
         for i in raw.get(class_name):
             tag = tc.Token(i.get('token'), i.get('pos'), i.get('lemma'))
             tag.set_nrs(i.get('id_sentence'), i.get('id_tokin_sen'),
-                        i.get('id_token'), i.get('id_char'))
+                        i.get('id_token'), i.get('id_char'),
+                        i.get('id_para'))
             objects.append(tag)
     # TODO other classes: PreparedFile
     # elif klasse == "Corpus/Single" and class_name == klasse :

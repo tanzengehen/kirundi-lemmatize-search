@@ -265,9 +265,9 @@ class FreqSimple:
         self.pathname = None
         self.fileid = None
         self.freq = None
-        self.blanktext = blanktext
+        self.blanktext = ""
         self.ntokens = None
-        self.__make_simplefreq_fromtext__(self.blanktext)
+        self.__make_simplefreq_fromtext__(blanktext)
 
     def __str__(self):
         return f"origin='{self.pathname}', fileid={self.fileid}, "\
@@ -292,15 +292,15 @@ class FreqSimple:
         """
         # replace linebreaks and diacritics and lower
         cleaned1 = unidecode(blanktext.lower()).replace("\\n", " ")
-        longpunctuation = '´`\'!"#$€%&()*+,-/:<=>?[\\]^_{|}~;.@0123456789'
+        longpunctuation = '.´`\',;:!?"-()0123456789*+/<=>[\\]^_{|}~@$€«»#%&'
         for p in longpunctuation:
             cleaned2 = cleaned1.replace(p, " ")
             cleaned1 = cleaned2
         # reduce the new whitespaces
-        blanktext = re.sub(r"\s+", " ", cleaned2)
-        self.ntokens = len(blanktext.split())
+        self.blanktext = re.sub(r"\s+", " ", cleaned2)
+        self.ntokens = len(self.blanktext.split())
         # frequency distribution
-        self.freq = self.__f_dist__(blanktext)
+        self.freq = self.__f_dist__(self.blanktext)
         self.ntypes = len(self.freq)
         kh.OBSERVER.notify(
             kh._("\tvocabulary: {ntokens} tokens\n                {ntypes} types\n")
@@ -335,7 +335,7 @@ class Collection:
             + self.exclams
         for i in known:
             # lemma,id,PoS,count,n-wordforms,found forms: count should be int
-            # for debugging only
+            # f  or debugging only
             if isinstance((i[3]), int) is False:
                 print(f"{i[0]}, {i[3]} type of 'count': {type(i[3])}")
         # sort by count of lemma
@@ -400,6 +400,7 @@ class Token:
         self.id_char = None
         self.id_sentence = None
         self.id_tokin_sen = None
+        self.id_para = None
         self.token = token
         self.pos = pos
         if not lemma:
@@ -408,20 +409,23 @@ class Token:
             self.lemma = lemma
 
     def __str__(self):
-        return f"'{self.token}', POS-tag={self.pos}, lemma='{self.lemma}'"
+        return f"'{self.token}', PoS-tag={self.pos}, lemma='{self.lemma}', " \
+                + f"id_token={self.id_token}"
 
     def __repr__(self):
         return f"Token( {self.token}/{self.pos}/{self.lemma},"\
                 + f"\n\t\tchar={self.id_char}, token={self.id_token}, "\
                 + f"sentence={self.id_sentence}, "\
-                + f"word_in_sentence={self.id_tokin_sen})"
+                + f"word_in_sentence={self.id_tokin_sen}, "\
+                + f"paragraph={self.id_para}"
 
-    def set_nrs(self, isentence, iword_in_sentence, itoken, ichar):
+    def set_nrs(self, isentence, iword_in_sentence, itoken, ichar, ipara):
         """stores position of the token"""
         self.id_sentence = isentence
         self.id_tokin_sen = iword_in_sentence
         self.id_token = itoken
         self.id_char = ichar
+        self.id_para = ipara
 
     def get(self, tag_str="lemma"):
         """call the tags when not knowing wich one"""
@@ -438,7 +442,8 @@ class TokenList:
 
     def __init__(self, tagged_list):
         self.tokens = tagged_list
-        self.ntokens = len(self.tokens)
+        self.ntokens = 0
+        self.ncut_tokens = 0
         self.ntypes = len({i.token for i in self.tokens})
         self.nlemmata = len({i.lemma for i in self.tokens})
         self.lemmasoup = ""
@@ -447,6 +452,7 @@ class TokenList:
         self.lemmasoup = self.lemmasoup.strip()
         self.tokensoup = ""
         self.possoup = ""
+        self._count_tokens()
 
     def __str__(self):
         return f"ntokens={self.ntokens} ntypes={self.ntypes} "\
@@ -456,16 +462,44 @@ class TokenList:
         return f"ntokens={self.ntokens} ntypes={self.ntypes} "\
             + f"nlemmata={self.nlemmata}"
 
+    def _count_tokens(self):
+        """counts tokens and cut_tokens"""
+        bond = 0
+        cut = 0
+        for i, tok in enumerate(self.tokens[1:], 1):
+            if tok.id_token != self.tokens[i-1].id_token:
+                bond += 1
+            if tok.pos != "SYMBOL":
+                cut += 1
+        self.ntokens = bond
+        self.ncut_tokens = cut
+
     def make_tokensoup(self):
-        """replaces tokens in an text by its lemma if known
+        """all tokens in an text just as one string
         """
         for i in self.tokens:
-            self.tokensoup += i.token+" "
+            if i.pos != "SYMBOL":
+                self.tokensoup += i.token+" "
         self.tokensoup = self.tokensoup.strip()
 
     def make_possoup(self):
         """replaces tokens in an text by its PoS-tag if known
         """
         for i in self.tokens:
-            self.possoup += i.token+" "
+            self.possoup += i.pos+" "
         self.possoup = self.possoup.strip()
+
+    def remake_text(self):
+        """makes out of json the text again
+        """
+        text = self.tokens[0].token
+        for i, tok in enumerate(self.tokens[1:], 1):
+            # end of line
+            if tok.id_para > self.tokens[i-1].id_para:
+                text += "\n" + tok.token
+            # put tokens with apostrophe in it together again
+            elif self.tokens[i-1].id_tokin_sen == tok.id_tokin_sen:
+                text += tok.token
+            else:
+                text += " " + tok.token
+        return text

@@ -664,12 +664,12 @@ def collect_pronouns(db_pronouns, freq_d):
     collection.sort(key=lambda x: int(x[1]))
     coll = []
     run_next = True
-    for i in range(len(collection)-1):
+    for i in range(1, len(collection)):
         if run_next is True:
-            if int(collection[i][1]) == int(collection[i+1][1]):
-                collection[i][3] += collection[i+1][3]
-                collection[i][4] += collection[i+1][4]
-                coll.append(collection[i]+collection[i+1][5:])
+            if int(collection[i][1]) == int(collection[i-1][1]):
+                collection[i][3] += collection[i-1][3]
+                collection[i][4] += collection[i-1][4]
+                coll.append(collection[i]+collection[i-1][5:])
                 run_next = False
             else:
                 coll.append(collection[i])

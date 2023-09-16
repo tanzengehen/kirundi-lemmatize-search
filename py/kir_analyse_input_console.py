@@ -10,7 +10,6 @@ Sebastian Lisken is working on the website interface'
 """
 
 from sys import exit as sysexit
-from os.path import exists as file_exists
 import kir_string_depot as sd
 import kir_helper2 as kh
 from kir_tag_search import search_or_load_search
@@ -32,7 +31,7 @@ def input_fnin():
             # Translators: terminal only
             kh.OBSERVER.notify(kh._("txt or json file or 'q' for 'quit'"))
             continue
-        if not file_exists(fnin):
+        if not kh.check_file_exits(fnin):
             kh.OBSERVER.notify(kh._("""This file doesn't exist.
 Try again""").format(fnin))
             continue
@@ -168,9 +167,9 @@ if __name__ == "__main__":
     kh.OBSERVER.notify("""Ubu nyene ururimi rw'igikoresho ni kirundi.
 Pfyonda ENTER canke andika 'de', 'en' canke 'fr' iyo urashaka ko turaganira mu
 rundi rurimi.
-   (Default UI-language is Rundi. Just press ENTER for OK or change it.
-   Die UI-Sprache ist auf kirundi voreingestellt, du kannst aber auch wechseln.
-   Au moment l'interface utilisateur est rundi, mais tu peux l'échanger.
+    (Default UI-language is Rundi. Just press ENTER for OK or change it.
+    Die UI-Sprache ist auf kirundi voreingestellt, du kannst aber auch wechseln.
+    Au moment l'interface utilisateur est rundi, mais tu peux l'échanger.
 deutsch, english, français)
 'de', 'en', 'fr' ,'rn'""")
     while True:
@@ -181,7 +180,7 @@ deutsch, english, français)
         break
     lang.install()
     kh._ = lang.gettext
-
+    
     kh.OBSERVER.notify(kh._("\nSelect the Rundi text you want to inspect:"))
     # Translators: terminal only
     kh.OBSERVER.notify(kh._("\tc\t\t\t\t= whole tagged corpus"))
