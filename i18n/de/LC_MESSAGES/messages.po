@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Ingenzura-ikirundi 1.0\n"
 "Report-Msgid-Bugs-To: deki.kazinduzi@gmail.com\n"
-"POT-Creation-Date: 2023-09-13 20:54+0200\n"
+"POT-Creation-Date: 2023-09-16 16:33+0200\n"
 "PO-Revision-Date: 2023-09-09 21:34+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: de_DE\n"
@@ -115,7 +115,7 @@ msgstr "\tpfad/zur/datei\t= einzelne Datei (txt oder json)"
 msgid "Prefer the tagged file, if there is one already.\n"
 msgstr "Falls es schon eine zugehörige json Datei gibt, nimm eher die.\n"
 
-#: py/kir_analyse_input_console.py:195
+#: py/kir_analyse_input_console.py:196
 msgid ""
 "\n"
 "What are you looking for?\n"
@@ -149,11 +149,11 @@ msgstr ""
 "Wörterbuch unbekannt), VERB, WWW(Webadresse)]\n"
 "Suchanfrage"
 
-#: py/kir_analyse_input_console.py:211
+#: py/kir_analyse_input_console.py:212
 msgid "\tOK, you are looking for a {}-gram.\n"
 msgstr "\tEs wird ein {}-gram gesucht.\n"
 
-#: py/kir_analyse_input_console.py:213
+#: py/kir_analyse_input_console.py:214
 msgid ""
 "For distinction between type, tag and lemma\n"
 "chose for each part of the searchterm a letter..."
@@ -161,7 +161,7 @@ msgstr ""
 "Zur Unterscheidung zwischen Wort, Etikett und Lemma bitte pro Suchbegriff "
 "einen der folgenden Buchstaben eingeben..."
 
-#: py/kir_analyse_input_console.py:216
+#: py/kir_analyse_input_console.py:217
 msgid ""
 "\t\tW = this type\n"
 "\t\tL = all types of this lemma\n"
@@ -177,15 +177,15 @@ msgstr ""
 msgid "{} entries of the dictionary prepared."
 msgstr "{} Einträge vom Wörterbuch eingelesen."
 
-#: py/kir_helper2.py:264
+#: py/kir_helper2.py:268
 msgid ""
-"Sorry, I didn't save the list that starts with: \n"
+"Sorry, I didn't save the list that starts with:\n"
 "{}\n"
 "I was expecting str, int, tuple or list\n"
 "as list elements."
 msgstr ""
 "Oh, die Liste, die mit {} beginnt, konnte nicht gespeichert werden, weil es "
-"darin unerwartete Listenelemente gab.\n"
+"darin unerwartete Listenelemente gibt.\n"
 "Gültig sind nur: str, int, tuple oder list."
 
 #: py/kir_prepare_verbs.py:40
@@ -221,7 +221,7 @@ msgid "filter passiv out doesn't work': {}"
 msgstr "Passiv rauszufiltern funktioniert nicht: {}"
 
 # space characters to fill up until 12 letters
-#: py/kir_tag_classes.py:306
+#: py/kir_tag_classes.py:324
 msgid ""
 "\tvocabulary: {ntokens} tokens\n"
 "                {ntypes} types\n"
@@ -235,7 +235,7 @@ msgid ""
 "Preparing dictionary, just a moment ..."
 msgstr ""
 "\n"
-"Die Einträge vom Wörterbuch werden eingelesen, Momentchen noch ..."
+"Das Wörterbuch wird eingelesen, Momentchen noch ..."
 
 #: py/kir_tag_search.py:32
 msgid "sorting Named Entities ..........................."
@@ -286,7 +286,7 @@ msgid "verbs               : "
 msgstr "Verben              : "
 
 # should have same length as 'unknown types  : {}'
-#: py/kir_tag_search.py:190
+#: py/kir_tag_search.py:201
 msgid ""
 "\n"
 "lemmata of text: {}"
@@ -295,11 +295,11 @@ msgstr ""
 "Lemmata im Text  : {}"
 
 # should have same length as 'lemmata of text: {}'
-#: py/kir_tag_search.py:191
+#: py/kir_tag_search.py:202
 msgid "unknown types  : {}"
 msgstr "unbekannte Types : {}"
 
-#: py/kir_tag_search.py:208
+#: py/kir_tag_search.py:221
 msgid ""
 "\n"
 "tagging text, this may take some moments ........."
@@ -307,17 +307,27 @@ msgstr ""
 "\n"
 "Wörter werden etikettiert, das kann etwas dauern..."
 
-#: py/kir_tag_search.py:384
+#: py/kir_tag_search.py:411
 msgid "Error: missing tag"
 msgstr "Ups, ein Fehler: das Etikett fehlt"
 
-#: py/kir_tag_search.py:404
+#: py/kir_tag_search.py:427
+msgid "OK, cool environment down, less work, it's a tagged text!"
+msgstr ""
+"Oh wie schön, dieser Text wurde schon getaggt und wir können uns Arbeit "
+"sparen!"
+
+#: py/kir_tag_search.py:431
+msgid "Are you sure, that this is a tagged file?"
+msgstr "Ist das ganz sicher eine Datei mit Etiketten?"
+
+#: py/kir_tag_search.py:443
 msgid "There is already a tagged file: (made {})"
 msgstr ""
 "Es gibt von diesem Text bereits eine Datei mit Etiketten:\n"
 "(vom {})"
 
-#: py/kir_tag_search.py:406
+#: py/kir_tag_search.py:445
 msgid ""
 "\n"
 "We use this instead of tagging again.\n"
@@ -325,19 +335,15 @@ msgstr ""
 "\n"
 "Statt nochmal neu zu etikettieren, wird diese Datei benutzt.\n"
 
-#: py/kir_tag_search.py:416
-msgid "Are you sure, that this is a tagged file?"
-msgstr "Ist das ganz sicher eine Datei mit Etiketten?"
-
-#: py/kir_tag_search.py:428
+#: py/kir_tag_search.py:456
 msgid "Sorry, can't use the file: {}"
 msgstr "Tut  mir leid, folgende Datei kann nicht eingelesen werden: {}"
 
-#: py/kir_tag_search.py:434
+#: py/kir_tag_search.py:464
 msgid "Preparing file ..."
 msgstr "die Datei wird eingelesen ..."
 
-#: py/kir_tag_search.py:450
+#: py/kir_tag_search.py:480
 msgid ""
 "\n"
 "\n"
@@ -347,7 +353,7 @@ msgstr ""
 "\n"
 "Der etikettierte Text wurde in folgender Datei gespeichert: \n"
 
-#: py/kir_tag_search.py:452
+#: py/kir_tag_search.py:482
 msgid ""
 "\n"
 "We can use it again later."
@@ -355,16 +361,20 @@ msgstr ""
 "\n"
 "Darauf kann später erneut zugegriffen werden."
 
-#: py/kir_tag_search.py:493
+#: py/kir_tag_search.py:496
+msgid "You searched this already"
+msgstr "Das wurde schon gesucht"
+
+#: py/kir_tag_search.py:521
 msgid ""
 "\n"
 "Hit 1-20 (out of {}). All results are saved in file:"
 msgstr ""
 "\n"
 "Treffer 1-20 von {}.\n"
-"Die Suchergebnisse wurden in folgender Datei gepeichert:"
+"Alle Suchergebnisse wurden in folgender Datei gepeichert:"
 
-#: py/kir_tag_search.py:502
+#: py/kir_tag_search.py:530
 msgid ""
 "\n"
 "No results for this query."
@@ -372,7 +382,7 @@ msgstr ""
 "\n"
 "Keine Treffer für diese Suchanfrage gefunden."
 
-#: py/kir_tag_search.py:527
+#: py/kir_tag_search.py:556
 msgid "Sorry, unknown format."
 msgstr "Oha, ein unbekanntes Format."
 
