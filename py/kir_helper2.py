@@ -12,7 +12,7 @@ import os.path as osp
 import time
 import json
 from abc import abstractmethod
-import kir_tag_classes as tc
+# import kir_tag_classes as tc
 import kir_string_depot as sd
 
 
@@ -63,21 +63,24 @@ class PrintConsole(Observer):
 
 
 def set_ui_language(language_name):
+    """ translated to german, french, english, rundi
+    accepts de, fr, en, rn
+    """
     if language_name.lower() in ["d", "de", "deutsch"]:
-        lang = gettext.translation("messages", sd.ResourceNames.fn_i18n,
-                                   languages=["de"], fallback=True)
+        mylang = gettext.translation("messages", sd.ResourceNames.fn_i18n,
+                                     languages=["de"], fallback=True)
     elif language_name.lower() in ["r", "k", "", "rn", "kirundi", "rundi"]:
-        lang = gettext.translation("messages", sd.ResourceNames.fn_i18n,
-                                   languages=["rn"], fallback=True)
+        mylang = gettext.translation("messages", sd.ResourceNames.fn_i18n,
+                                     languages=["rn"], fallback=True)
     elif language_name.lower() in ["f", "fr", "fra", "francais", "français"]:
-        lang = gettext.translation("messages", sd.ResourceNames.fn_i18n,
-                                   languages=["fr"], fallback=True)
+        mylang = gettext.translation("messages", sd.ResourceNames.fn_i18n,
+                                     languages=["fr"], fallback=True)
     elif language_name.lower() in ["e", "en", "uk", "english"]:
-        lang = gettext.translation("messages", sd.ResourceNames.fn_i18n,
-                                   languages=["en_UK"], fallback=True)
+        mylang = gettext.translation("messages", sd.ResourceNames.fn_i18n,
+                                     languages=["en_UK"], fallback=True)
     else:
         return "not"
-    return lang
+    return mylang
 
 
 # LANG_DE = gettext.translation("messages", sd.ResourceNames.fn_i18n,
@@ -157,8 +160,8 @@ def load_text_fromfile(filename, en_code, line_separator="\n"):
     """
     with open(filename, encoding=en_code) as fname:
         text_raw = fname.read().replace("\n", line_separator)
-    meta = tc.TextMeta(text_raw, filename)
-    return meta
+    #meta = tc.TextMeta(text_raw, filename)
+    return text_raw
 
 
 def load_freqfett():
@@ -262,7 +265,7 @@ def save_list(mylist, fname, sep_columns=";", sep_rows="\n"):
     else:
         # TODO try except
         # Translators: debugging mode
-        OBSERVER.notify(_("""Sorry, I didn't save the list that starts with: 
+        OBSERVER.notify(_("""Sorry, I didn't save the list that starts with:
 {}\nI was expecting str, int, tuple or list
 as list elements.""").format(mylist[:4]))
 

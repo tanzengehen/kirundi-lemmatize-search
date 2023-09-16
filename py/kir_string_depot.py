@@ -235,30 +235,30 @@ class Search:
         self.nots = nots
         self.questions = quterms
         self.short = ""
-        self.fn_tag = ""
-        self.fn_freqlemma = ""
-        self.set_fntag()
+        # self.fn_tag = ""
+        # self.fn_freqlemma = ""
+        # self.set_fntag()
         self.fn_search = self.set_fnsearch()
 
     def __str__(self):
         return f"wtl={self.wtl}, questions={self.questions}, \
-            short={self.short}, fn_tag={self.fn_tag}"
+            nots={self.nots}, short={self.short}"
 
     def __repr__(self):
         return f"wtl={self.wtl}, questions={self.questions}, \
-            short={self.short}, fn_tag={self.fn_tag}"
+            nots={self.nots}, short={self.short}"
 
-    def set_fntag(self):
-        """set filenames to store tagged file and lemma frequency distribution
-        for lemmafreq still undecided if csv or json
-        """
-        root_tagg = ResourceNames.dir_tagged
-        myname = self.fn_in.split("/")[-1]
-        # TODO check if f_in is json or txt
-        short = myname.find(".")
-        self.short = myname[:short]
-        self.fn_tag = root_tagg+"tag__"+self.short+".json"
-        self.fn_freqlemma = root_tagg+"fl__"+self.short+".csv"
+    # def set_fntag(self):
+    #     """set filenames to store tagged file and lemma frequency distribution
+    #     for lemmafreq still undecided if csv or json
+    #     """
+    #     root_tagg = ResourceNames.dir_tagged
+    #     myname = self.fn_in.split("/")[-1]
+    #     # TODO check if f_in is json or txt
+    #     short = myname.find(".")
+    #     self.short = myname[:short]
+    #     self.fn_tag = root_tagg+"tag__"+self.short+".json"
+    #     self.fn_freqlemma = root_tagg+"fl__"+self.short+".csv"
 
     def set_fnsearch(self):
         """combine filename of analysed file and search-terms for making
@@ -274,6 +274,9 @@ class Search:
                 search += "!"+que+"_"
             else:
                 search += que+"_"
+        myname = self.fn_in.split("/")[-1]
+        short = myname.find(".")
+        self.short = myname[:short]
         fn = ResourceNames.dir_searched+self.short+"__"+search+".txt"
         return fn
 

@@ -415,73 +415,76 @@ def go_search(tagged_list, whattodo):
     return found
 
 
-def tag_or_load_tags(whattodo):
+def tag_or_load_tags(fn_in):
     """save energy, don't tag twice
     """
-    # 1. is there already a tagged json variant?
-    # TODO check hash values
-    if kh.check_file_exits(sd.ResourceNames.dir_tagged
-                           + whattodo.fn_tag.split("/")[-1]):
-        # check if tagged version is younger than big lemma collection
-        good_old = kh.check_time(
-            sd.ResourceNames.root+"/resources/freq_fett.csv",
-            whattodo.fn_tag)
-        if good_old:
-            kh.OBSERVER.notify(
-                kh._("There is already a tagged file: (made {})").format(good_old)
-                + "\n\t" + '/'.join(whattodo.fn_tag.split('/')[-4:])
-                + kh._("\nWe use this instead of tagging again.\n"))
-            text_tagged = load_json(whattodo.fn_tag)
-            return text_tagged
-    # 2. maybe the given file itself is a json file? >> already tagged >> read
-    if whattodo.fn_in[-5:] == ".json":
+    whattext = tc.TextMeta(fn_in)
+    # 1. maybe the given file itself is a json file? >> already tagged >> read
+    if whattext.fn_in[-5:] == ".json":
         try:
-            text_tagged = load_json(whattodo.fn_in)
+            text_tagged = load_json(whattext.fn_in)
+            kh.OBSERVER.notify(
+                kh._("OK, cool environment down, less work, it's a tagged text!"))
             return text_tagged
         except:
             kh.OBSERVER.notify(
                 kh._("Are you sure, that this is a tagged file?"))
             # TODO get new data
+    # 2. is there already a tagged json variant?
+    # TODO check hash values
+    if kh.check_file_exits(sd.ResourceNames.dir_tagged
+                           + whattext.fn_tag.split("/")[-1]):
+        # check if tagged version is younger than big lemma collection
+        good_old = kh.check_time(
+            sd.ResourceNames.root+"/resources/freq_fett.csv",
+            whattext.fn_tag)
+        if good_old:
+            kh.OBSERVER.notify(
+                kh._("There is already a tagged file: (made {})").format(good_old)
+                + "\n\t" + '/'.join(whattext.fn_tag.split('/')[-4:])
+                + kh._("\nWe use this instead of tagging again.\n"))
+            text_tagged = load_json(whattext.fn_tag)
+            return text_tagged
     # 3. read raw txt utf8 or utf16
     try:
-        meta = kh.load_text_fromfile(whattodo.fn_in, 'utf-8')
-        # raw = meta.raw
+        whattext.raw = kh.load_text_fromfile(whattext.fn_in, 'utf-8')
     except:
         try:
-            meta = kh.load_text_fromfile(whattodo.fn_in, 'utf-16')
-            # raw = meta.raw
+            whattext.raw = kh.load_text_fromfile(whattext.fn_in, 'utf-16')
         except:
             kh.OBSERVER.notify(
-                kh._("Sorry, can't use the file: {}").format(whattodo.fn_in))
-            meta = ""
-    if not meta:
+                kh._("Sorry, can't use the file: {}").format(whattext.fn_in))
+            whattext.raw = ""
+    if not whattext.raw:
         sysexit
+    whattext.replace_strangeletters(whattext.raw)
+
     # start whole NLP task: read, clean, tag...
     # freq_lemma_all = kh.load_freqfett()
     kh.OBSERVER.notify(kh._("Preparing file ..."))
-    lemmafreq, text_tagged = tag_text_with_db(meta.text)  # ,freq_lemma_all)
+    lemmafreq, text_tagged = tag_text_with_db(whattext.text)  # ,freq_lemma_all)
     # insert first line as head for csv file
     lemmafreq.insert(0, sd.first_line_in_pos_collection(), )
-    kh.save_list(lemmafreq, whattodo.fn_freqlemma)
+    kh.save_list(lemmafreq, whattext.fn_freqlemma)
     # remove first line again
     lemmafreq.pop(0)
-    kh.OBSERVER.notify_frequencies(whattodo.fn_in.split("/")[-1],
-                                   whattodo.fn_freqlemma.split("/")[-1],
+    kh.OBSERVER.notify_frequencies(whattext.fn_in.split("/")[-1],
+                                   whattext.fn_freqlemma.split("/")[-1],
                                    kh.Dates.database)
     # save tagged file for reuse
-    kh.save_json(text_tagged, whattodo.fn_tag)
-    kh.OBSERVER.notify_tagging(whattodo.fn_in.split("/")[-1],
-                               whattodo.fn_tag.split("/")[-1],
+    kh.save_json(text_tagged, whattext.fn_tag)
+    kh.OBSERVER.notify_tagging(whattext.fn_in.split("/")[-1],
+                               whattext.fn_tag.split("/")[-1],
                                kh.Dates.database)
     kh.OBSERVER.notify(
           kh._("\n\nTagged file saved as: \n")
-          + "\t/" + "/".join(whattodo.fn_tag.split("/")[-4:])
+          + "\t/" + "/".join(whattext.fn_tag.split("/")[-4:])
           + kh._("\nWe can use it again later.")
           )
     return text_tagged
 
 
-def search_or_load_search(f_in, wtl, nots, quterms, multiple):
+def search_or_load_search(f_in, wtl, nots, quterms, multiple, tagged):
     """main
     """
     whattodo = sd.Search(f_in, wtl, nots, quterms, multiple)
@@ -490,31 +493,29 @@ def search_or_load_search(f_in, wtl, nots, quterms, multiple):
                                        + whattodo.fn_search.split("/")[-1])
     if already_done:
         result = kh.load_lines(whattodo.fn_search)
-        count_results = len(result)
+        kh.OBSERVER.notify(kh._("You searched this already"))
     else:
-        count_results = 0
+        # TODO
         if multiple is True:
-            # already tagged files of the corpus
-            tagged_meta = kh.load_meta_file(
-                sd.ResourceNames.root+"/depot_analyse/meta_tags_for_training.txt")
-            result = []
-            for tagged in tagged_meta:
-                result1 = go_search(tagged, whattodo)
-                if result1:
-                    count_results += len(result1)
-                    result.append(f"***** {tagged[0]} || {tagged[1]} ||" +
-                                  "{tagged[3]} || {len(result1))} || *****")
-                    for res in result1:
-                        result.append(res)
-            # headline
-            if result:
-                result.insert(0, "file_id || characters || path || results counted || results")
+            pass
+        #     # already tagged files of the corpus
+        #     tagged_meta = kh.load_meta_file(
+        #         sd.ResourceNames.root+"/depot_analyse/meta_tags_for_training.txt")
+        #     result = []
+        #     for tagged in tagged_meta:
+        #         result1 = go_search(tagged, whattodo)
+        #         if result1:
+        #             count_results += len(result1)
+        #             result.append(f"***** {tagged[0]} || {tagged[1]} ||" +
+        #                           "{tagged[3]} || {len(result1))} || *****")
+        #             for res in result1:
+        #                 result.append(res)
+        #     # headline
+        #     if result:
+        #         result.insert(0, "file_id || characters || path || results counted || results")
         else:
-            # tags the file or takes an already tagged version of the file
-            text_with_tags = tag_or_load_tags(whattodo)
             # searches in the tagged file
-            result = go_search(text_with_tags, whattodo)
-            count_results = len(result)
+            result = go_search(tagged, whattodo)
     if result:
         kh.OBSERVER.notify(
             kh._("\nHit 1-20 (out of {}). All results are saved in file:")
@@ -553,5 +554,4 @@ def load_json(filename):  # , klasse="Token"):
     #         objects.append(verb)
     else:
         kh.OBSERVER.notify(kh._("Sorry, unknown format."))
-        return objects
     return objects

@@ -13,6 +13,7 @@ from sys import exit as sysexit
 import kir_string_depot as sd
 import kir_helper2 as kh
 from kir_tag_search import search_or_load_search
+from kir_tag_search import tag_or_load_tags
 # # nur vorübergehend
 # import gettext
 
@@ -180,7 +181,7 @@ deutsch, english, français)
         break
     lang.install()
     kh._ = lang.gettext
-    
+
     kh.OBSERVER.notify(kh._("\nSelect the Rundi text you want to inspect:"))
     # Translators: terminal only
     kh.OBSERVER.notify(kh._("\tc\t\t\t\t= whole tagged corpus"))
@@ -189,6 +190,7 @@ deutsch, english, français)
     kh.OBSERVER.notify(kh._("Prefer the tagged file, if there is one already.\n"))
     # corpus or file, if file: ist it txt?
     f_in = input_fnin()
+    tagged = tag_or_load_tags(f_in)
     MULTIPLE = f_in == "c"
     # Translators: terminal only
     kh.OBSERVER.notify(kh._("""\nWhat are you looking for?
@@ -218,4 +220,5 @@ chose for each part of the searchterm a letter..."""))
 \t\t? = wildcard"""))
     wtl = input_wtl(len(query))
     nots, quterms = check_search_wtl(wtl, query)
-    search_or_load_search(f_in, wtl, nots, quterms, MULTIPLE)
+
+    search_or_load_search(f_in, wtl, nots, quterms, MULTIPLE, tagged)

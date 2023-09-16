@@ -18,26 +18,31 @@ class TextMeta:
     """statistics
     """
 
-    def __init__(self, raw, pathname=None, fileid=None):
-        self.fileid = fileid
-        self.pathname = pathname
+    def __init__(self, fn_in=None):
+        self.fileid = None
+        self.fn_in = fn_in
+        self.raw = ""
         self.categories = ""
-        self.raw = raw
         # for results
-        self.text, self.nodds = self.replace_strangeletters(self.raw)
+        self.text = ""
+        self.nodds = ""
         self.nchars = len(self.text)
+        self.fn_short = ""
+        self.fn_tag = ""
+        self.fn_freqlemma = ""
+        self.setfn_tagandlemma()
 
     def __str__(self):
         if self.text:
             textset = True
-        return f"FileMeta: fileid={self.fileid}, pathname={self.pathname}, "\
+        return f"FileMeta: fileid={self.fileid}, pathname={self.fn_in}, "\
                f"text_prepared={textset}, mistakes while "\
                f"loaded={self.nodds}, characters={self.nchars}"
 
     def __repr__(self):
-        if self.raw:
-            textset = "set"
-        return f"FileMeta: fileid={self.fileid} pathname={self.pathname} "\
+        if self.text:
+            textset = True
+        return f"FileMeta: fileid={self.fileid} pathname={self.fn_in} "\
                f"text={textset} nodd={self.nodds}"\
                f" nchar={self.nchars}"
 
@@ -251,7 +256,20 @@ class TextMeta:
             strangethings = text2
         # all whitespaces become only one blank
         text2 = re.sub(r"\s+", " ", text2)
-        return text2, n_mistakes
+        self.text = text2
+        self.nodds = n_mistakes
+        # return text2, n_mistakes
+
+    def setfn_tagandlemma(self):
+        """set filenames to store tagged file and lemma frequency distribution
+        for lemmafreq still undecided if csv or json
+        """
+        root_tagg = sd.ResourceNames.dir_tagged
+        myname = self.fn_in.split("/")[-1]
+        short = myname.find(".")
+        self.short = myname[:short]
+        self.fn_tag = root_tagg+"tag__"+self.short+".json"
+        self.fn_freqlemma = root_tagg+"fl__"+self.short+".csv"
 
 
 class FreqSimple:
