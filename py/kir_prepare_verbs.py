@@ -963,9 +963,9 @@ def sammle_verben(db_verben, freq_d):
                 collection_a.append(found)
             else:
                 collection.append(found)
-        # Fortschrittsbalken ;-)
+        # progress bar ;-)
         if lemma_count % points == 0:
-            print('.', end="")
+            kh.OBSERVER.notify_cont('.')
         lemma_count += 1
 
     # map both variants of verbs to one id and add this to the big collection

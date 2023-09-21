@@ -11,7 +11,7 @@ from nltk.text import FreqDist
 from nltk.corpus import PlaintextCorpusReader
 from unidecode import unidecode
 import kir_string_depot as sd
-import kir_helper2 as kh
+# import kir_helper2 as kh
 
 
 class TextMeta:
@@ -26,25 +26,23 @@ class TextMeta:
         # for results
         self.text = ""
         self.nodds = ""
-        self.nchars = len(self.text)
+        self.nchars = None
         self.fn_short = ""
         self.fn_tag = ""
         self.fn_freqlemma = ""
         self.setfn_tagandlemma()
 
     def __str__(self):
-        if self.text:
-            textset = True
+        textset = bool(self.text)
         return f"FileMeta: fileid={self.fileid}, pathname={self.fn_in}, "\
                f"text_prepared={textset}, mistakes while "\
                f"loaded={self.nodds}, characters={self.nchars}"
 
     def __repr__(self):
-        if self.text:
-            textset = True
-        return f"FileMeta: fileid={self.fileid} pathname={self.fn_in} "\
-               f"text={textset} nodd={self.nodds}"\
-               f" nchar={self.nchars}"
+        textset = bool(self.text)
+        return f"FileMeta: fileid={self.fileid}, pathname={self.fn_in}, "\
+               f"text={textset}, nodd={self.nodds},"\
+               f" nchar={self.nchars}, fn_tag={self.fn_tag}"
 
     def set_corpuscategories(self, pathname):
         """extracts categories from filenames of files in university-corpus
@@ -258,7 +256,7 @@ class TextMeta:
         text2 = re.sub(r"\s+", " ", text2)
         self.text = text2
         self.nodds = n_mistakes
-        # return text2, n_mistakes
+        self.nchars = len(self.text)
 
     def setfn_tagandlemma(self):
         """set filenames to store tagged file and lemma frequency distribution
@@ -271,6 +269,12 @@ class TextMeta:
         self.fn_tag = root_tagg+"tag__"+self.short+".json"
         self.fn_freqlemma = root_tagg+"fl__"+self.short+".csv"
 
+    def setfnbbc(self):
+        """set filenames for results in multiple mode
+        """
+        self.fn_tag = sd.ResourceNames.dir_tagged + "bbc/tag__" + self.short + ".json"
+        self.fn_freqlemma = sd.ResourceNames.dir_tagged+"bbc/fl__"+self.short+".csv"
+
 
 class FreqSimple:
     """frequency distribution of types
@@ -278,7 +282,7 @@ class FreqSimple:
 
     def __init__(self, blanktext):
         self.ntypes = None
-        self.n_unk = None
+        # self.n_unk = None
         self.n_one = None
         self.pathname = None
         self.fileid = None
@@ -320,10 +324,6 @@ class FreqSimple:
         # frequency distribution
         self.freq = self.__f_dist__(self.blanktext)
         self.ntypes = len(self.freq)
-        kh.OBSERVER.notify(
-            kh._("\tvocabulary: {ntokens} tokens\n                {ntypes} types\n")
-            .format(ntokens=self.ntokens,
-                    ntypes=self.ntypes))
 
 
 class Collection:
@@ -431,7 +431,7 @@ class Token:
                 + f"id_token={self.id_token}"
 
     def __repr__(self):
-        return f"Token( {self.token}/{self.pos}/{self.lemma},"\
+        return f"Token ({self.token}/{self.pos}/{self.lemma},"\
                 + f"\n\t\tchar={self.id_char}, token={self.id_token}, "\
                 + f"sentence={self.id_sentence}, "\
                 + f"word_in_sentence={self.id_tokin_sen}, "\
@@ -446,7 +446,7 @@ class Token:
         self.id_para = ipara
 
     def get(self, tag_str="lemma"):
-        """call the tags when not knowing wich one"""
+        """call the tags when not knowing before which one to call"""
         if tag_str == "token":
             return self.token
         if tag_str == "pos":
@@ -460,52 +460,67 @@ class TokenList:
 
     def __init__(self, tagged_list):
         self.tokens = tagged_list
-        self.ntokens = 0
-        self.ncut_tokens = 0
-        self.ntypes = len({i.token for i in self.tokens})
-        self.nlemmata = len({i.lemma for i in self.tokens})
-        self.lemmasoup = ""
-        for i in self.tokens:
-            self.lemmasoup += i.lemma+" "
-        self.lemmasoup = self.lemmasoup.strip()
-        self.tokensoup = ""
-        self.possoup = ""
+        self.n_tokensbond = 0
+        self.n_tokenscut = 0
+        self.n_unk = 0
+        self.percent_unk = None
+        self.n_types = len({i.token for i in self.tokens})
+        self.n_lemmata = len({i.lemma for i in self.tokens})
         self._count_tokens()
 
     def __str__(self):
-        return f"ntokens={self.ntokens} ntypes={self.ntypes} "\
-            + f"nlemmata={self.nlemmata}"
+        return f"Tokens={self.n_tokensbond} Tokens(cut)={self.n_tokenscut} "\
+             + f"Types={self.n_types} Lemmata={self.n_lemmata}"
 
     def __repr__(self):
-        return f"ntokens={self.ntokens} ntypes={self.ntypes} "\
-            + f"nlemmata={self.nlemmata}"
+        return f"n_tokenscut={self.n_tokenscut} n_types={self.n_types} "\
+             + f"n_lemmata={self.n_lemmata}"
 
     def _count_tokens(self):
-        """counts tokens and cut_tokens"""
-        bond = 0
-        cut = 0
+        """counts tokens, cut_tokens, unknowns
+        """
+        bond, cut, unk = 0, 0, 0
         for i, tok in enumerate(self.tokens[1:], 1):
             if tok.id_token != self.tokens[i-1].id_token:
                 bond += 1
             if tok.pos != "SYMBOL":
                 cut += 1
-        self.ntokens = bond
-        self.ncut_tokens = cut
+        self.n_tokensbond = bond
+        self.n_tokenscut = cut
+        for i in self.tokens:
+            unk += 1
+        self.n_unk = unk
 
-    def make_tokensoup(self):
-        """all tokens in an text just as one string
+    def lemmasoup(self):
+        """replaces tokens in the text by its lemma if known,
+        marks unknown types with '?'
+        (skips SYMBOL)
         """
+        lemmasoup = ""
         for i in self.tokens:
             if i.pos != "SYMBOL":
-                self.tokensoup += i.token+" "
-        self.tokensoup = self.tokensoup.strip()
+                if i.pos == "UNK":
+                    lemmasoup += "?"+i.lemma+" "
+                else:
+                    lemmasoup += i.lemma+" "
+        return lemmasoup.strip()
 
-    def make_possoup(self):
+    def tokensoup(self):
+        """deletes tokens with PoS 'SYMBOL'
+        """
+        tokensoup = ""
+        for i in self.tokens:
+            if i.pos != "SYMBOL":
+                tokensoup += i.token+" "
+        return tokensoup.strip()
+
+    def possoup(self):
         """replaces tokens in an text by its PoS-tag if known
         """
+        possoup = ""
         for i in self.tokens:
-            self.possoup += i.pos+" "
-        self.possoup = self.possoup.strip()
+            possoup += i.pos+" "
+        return possoup.strip()
 
     def remake_text(self):
         """makes out of json the text again

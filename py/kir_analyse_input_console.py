@@ -12,8 +12,8 @@ Sebastian Lisken is working on the website interface'
 from sys import exit as sysexit
 import kir_string_depot as sd
 import kir_helper2 as kh
-from kir_tag_search import search_or_load_search
-from kir_tag_search import tag_or_load_tags
+import kir_tag_search as ts
+import kir_db_classes as dbc
 # # nur vorübergehend
 # import gettext
 
@@ -28,12 +28,14 @@ def input_fnin():
             if fnin == "q":
                 sysexit()
             if fnin in ["c", "C"]:
+                # for debugging only
+                fnin = "c"
                 break
             # Translators: terminal only
             kh.OBSERVER.notify(kh._("txt or json file or 'q' for 'quit'"))
             continue
         if not kh.check_file_exits(fnin):
-            kh.OBSERVER.notify(kh._("""This file doesn't exist.
+            kh.OBSERVER.notify(kh._("""This file doesn't exist. {}
 Try again""").format(fnin))
             continue
         break
@@ -163,8 +165,18 @@ def check_search_wtl(whichtags, whichwords):
     return notss, search
 
 
+def getresources():
+    """load Named Entities and db_kirundi
+    """
+    dbrundi = dbc.load_dbkirundi()
+    dbrundi.update({"names": dbc.load_ne()})
+    return dbrundi
+
+
 if __name__ == "__main__":
     kh.OBSERVER = kh.PrintConsole()
+    kh.SINGLE = True
+    db_rundi = getresources()
     kh.OBSERVER.notify("""Ubu nyene ururimi rw'igikoresho ni kirundi.
 Pfyonda ENTER canke andika 'de', 'en' canke 'fr' iyo urashaka ko turaganira mu
 rundi rurimi.
@@ -181,7 +193,6 @@ deutsch, english, français)
         break
     lang.install()
     kh._ = lang.gettext
-
     kh.OBSERVER.notify(kh._("\nSelect the Rundi text you want to inspect:"))
     # Translators: terminal only
     kh.OBSERVER.notify(kh._("\tc\t\t\t\t= whole tagged corpus"))
@@ -190,8 +201,14 @@ deutsch, english, français)
     kh.OBSERVER.notify(kh._("Prefer the tagged file, if there is one already.\n"))
     # corpus or file, if file: ist it txt?
     f_in = input_fnin()
-    tagged = tag_or_load_tags(f_in)
-    MULTIPLE = f_in == "c"
+
+    if f_in != "c":
+        tagged = ts.tag_or_load_tags(f_in, db_rundi)
+    else:
+        f_in = "/Users/doreen/Programmieren/Python/find_lemmata_in_corpus/resources/meta_bbc.txt"
+        if f_in[-12:] == "meta_bbc.txt":
+            ts.tag_multogether(f_in, db_rundi)
+            sysexit()
     # Translators: terminal only
     kh.OBSERVER.notify(kh._("""\nWhat are you looking for?
     Divide searchterms with space characters.
@@ -221,4 +238,4 @@ chose for each part of the searchterm a letter..."""))
     wtl = input_wtl(len(query))
     nots, quterms = check_search_wtl(wtl, query)
 
-    search_or_load_search(f_in, wtl, nots, quterms, MULTIPLE, tagged)
+    ts.search_or_load_search(f_in, wtl, nots, quterms, kh.SINGLE, tagged.tokens)

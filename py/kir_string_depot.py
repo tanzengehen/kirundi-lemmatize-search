@@ -181,10 +181,10 @@ class NounPrepositions:
             + f"qu_ca_konsonant = {self.qu_ca_konsonant}"
 
 
-def first_line_in_pos_collection():
+def column_names_lemmafreq():
     """headline for lemmafreq.csv
     """
-    first_line = "lemma;id;PoS;count;counted forms;forms"
+    first_line = "lemma;id;PoS;tokens;types;forms"
     return first_line
 
 
@@ -228,16 +228,12 @@ class Search:
     """query and filenames for result, frequency distributions and tagged text
     """
 
-    def __init__(self, f_in, wtl, nots, quterms, multiple=False):
+    def __init__(self, f_in, wtl, nots, quterms):
         self.fn_in = f_in
-        self.multiple = multiple
         self.wtl = wtl
         self.nots = nots
         self.questions = quterms
         self.short = ""
-        # self.fn_tag = ""
-        # self.fn_freqlemma = ""
-        # self.set_fntag()
         self.fn_search = self.set_fnsearch()
 
     def __str__(self):
@@ -247,18 +243,6 @@ class Search:
     def __repr__(self):
         return f"wtl={self.wtl}, questions={self.questions}, \
             nots={self.nots}, short={self.short}"
-
-    # def set_fntag(self):
-    #     """set filenames to store tagged file and lemma frequency distribution
-    #     for lemmafreq still undecided if csv or json
-    #     """
-    #     root_tagg = ResourceNames.dir_tagged
-    #     myname = self.fn_in.split("/")[-1]
-    #     # TODO check if f_in is json or txt
-    #     short = myname.find(".")
-    #     self.short = myname[:short]
-    #     self.fn_tag = root_tagg+"tag__"+self.short+".json"
-    #     self.fn_freqlemma = root_tagg+"fl__"+self.short+".csv"
 
     def set_fnsearch(self):
         """combine filename of analysed file and search-terms for making

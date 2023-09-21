@@ -7,6 +7,7 @@ Created on Sun May 28 07:37:34 2023
 """
 
 from ast import literal_eval
+#from time import sleep
 import gettext
 import os.path as osp
 import time
@@ -47,9 +48,24 @@ class PrintConsole(Observer):
     """
 
     def notify(self, message):
-        """prints to console
+        """prints to console only in single mode
         """
-        print(str(message))
+        print(message)
+
+    def notify_cont(self, message):
+        """continue next print without linebreak
+        """
+        print(message, end="")
+
+    # def notify_yes(self, message):
+    #     """prints alwaysy to console (single and multiple mode)
+    #     """
+    #     print(message)
+
+    # def notify_yescont(self, message):
+    #     """prints alwaysy to console (single and multiple mode)
+    #     """
+    #     print(message, end="")
 
     def notify_tagging(self, source_file, tag_file, db_version):
         """ignored in console mode
@@ -203,7 +219,8 @@ def load_meta_file(fname):
     '''reads files like: line with meta data (||), lines with data, empty line.
     If there is an explanation in the first lines, the n-line-pattern of
     data starts after the first empty line
-    attention: meta-data may vary in number, but data is always the last element'''
+    attention: meta-data may vary in number,
+    but data is always the last element'''
     # text_list = load_text_as_linelist("depot_analyse/tags_for_training.txt")
     text_list = load_lines(fname)
 
@@ -294,18 +311,26 @@ def check_time(older, younger):
 
 
 def save_json(dict_list, filename):
-    """saves list of class objects with class_name"""
+    """saves nested dicts"""
     if filename.split(".")[-1] != "json":
         filename = filename[: -len(filename.split(".")[-1])]+"json"
-    # write classname into file to identify if loading later
-    argo = [dict(x.__dict__) for x in dict_list]
-    class_name = str(type(dict_list[0])).split(".")[-1][:-2]
     with open(filename, 'w', encoding="utf-8") as file:
-        # consider: without indent it's only half as big
-        json.dump({class_name: argo}, file, indent=4)
+        # consider: without indent it's only as half as big
+        json.dump(dict_list, file, indent=4)
 
 
-# lang = set_ui_language("de")
-# lang.install()
-# _ = lang.gettext
-# OBSERVER = PrintConsole()
+def progress(percent=0):
+    """progress bar"""
+    # width = 50
+    left = 50 * percent // 100
+    right = 50 - left
+    print('\r[', '.'*left, ' '*right, ']',
+          f'{percent:.0f}%,',
+          sep='', end='', flush=True)
+
+
+lang = set_ui_language("de")
+lang.install()
+_ = lang.gettext
+OBSERVER = PrintConsole()
+SINGLE = True

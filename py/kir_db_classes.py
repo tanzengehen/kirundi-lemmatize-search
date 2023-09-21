@@ -61,13 +61,22 @@ def load_dbkirundi():
                 # stems as set
                 stems.add(unidecode(row[4]).lower())
             line_count += 1
-    kh.OBSERVER.notify(
-        kh._('{} entries of the dictionary prepared.').format(line_count))
+    # kh.OBSERVER.notify(
+    #     kh._('{} entries of the dictionary prepared.\n').format(line_count))
     csv_file.close()
     verbs = kv.filter_proverbs_out(verbs)
     verbs = kv.filter_passiv_out(verbs)
+    nouns_one, nouns_two = noun_partition(nouns)
     stems = list(stems)
-    return (verbs, nouns, adjectivs, pronouns, unchanging_words, rests, stems)
+    dbrundi = {"verbs": verbs,
+               "nouns1": nouns_one,
+               "nouns2": nouns_two,
+               "adjectives": adjectivs,
+               "pronouns": pronouns,
+               "unchanging_words": unchanging_words,
+               "rests": rests,
+               "stems": stems}
+    return dbrundi
 
 
 def load_ne():
@@ -382,7 +391,21 @@ class Noun(kv.Lemma):
         self.coll = coll
 
 
-def collect_nouns(db_substantive, freq_d, before_verbs=False):
+def noun_partition(db_substantive):
+    """devide nouns into analysed before or after verbs and adjectives
+    because otherwise they could produce many false positives"""
+    part_one = []
+    part_two = []
+    for noun in db_substantive:
+        if (noun.lemma[:2] in ["uk", "ug"] and noun.lemma[-1] == "a") \
+                or noun.lemma in ["se", "inshi"]:
+            part_two.append(noun)
+        else:
+            part_one.append(noun)
+    return part_one, part_two
+
+
+def collect_nouns(db_substantive, freq_d):
     """maps nouns to lemmata in dbkirundi
     takes frequency-dictionary and list of nouns
     returns list with columns:
@@ -390,44 +413,22 @@ def collect_nouns(db_substantive, freq_d, before_verbs=False):
                 all forms found ([form, frequency] per column)
             and changed frequency-dictionary {'found_noun':0}
     """
-    # freqSubs = {str(n[0]):n[1] for n in freq_d[:29290]}
     freq_subs = {x: y for x, y in freq_d.items() if y != 0}
     collection = []
-    subs_ukg = []
     points = int(len(db_substantive)/50)
     lemma_count = 0
     for noun in db_substantive:
-        # collect nouns that could be verbs, inspect them after verbs
-        if before_verbs is True \
-           and noun.lemma[:2] in ["uk", "ug"] \
-           and noun.lemma[-1] == "a":
-            subs_ukg.append(noun)
-            # skip to next lemma
-            continue
         found = regex_search(noun, freq_subs)
         if found:
             collection.append(found)
-        if before_verbs is True:
-            # progress bar ;-)
-            lemma_count += 1
-            if lemma_count % points == 0:
-                print('.', end="")
-
+        lemma_count += 1
+        if lemma_count % points == 0:
+            kh.OBSERVER.notify_cont('.')
     if collection:
         # result: first most wordforms, with high freq first
         collection.sort(key=lambda x: x[3], reverse=True)
         collection.sort(key=lambda x: x[4], reverse=True)
-
-    # if before_verbs == True :
-    #     # Wörter, die zum Wörterbuch gemappt wurden sind 0
-    #     save_dict(freq_subs,"keine4_subst.csv")
-    #     # Wörter, die im Korpus vorkommen
-    #     kh.save_list(collection,"found4_subst.csv",";")
-    #     # Dictionary-Einträge, fdist ausgedünnt, später zu untersuchende Substantive
-    # else :
-    #     save_dict(freq_subs,"keine7_subst.csv")
-    #     kh.save_list(collection,"found7_subst.csv",";")
-    return (collection, freq_subs, subs_ukg)
+    return (collection, freq_subs)
 
 
 class Adjectiv(kv.Lemma):
@@ -705,9 +706,11 @@ def filter_names_out(names_and_foreign_words, freq_list):
         if found:
             collection.append(found)
         lemma_count += 1
+        # kh.progress(int(lemma_count/maxi)*100)
         # progress bar
         if lemma_count % points == 0:
-            print('.', end="")
+            # print('.', end="")
+            kh.OBSERVER.notify_cont('.')
     collection.sort(key=lambda x: x[3], reverse=True)
     return (collection, freq_names)
 
