@@ -263,9 +263,10 @@ def set_person_language_out_of_location(loc, per, lng):
                     r"^"+sd.NounPrepositions.qu_nta+"?bu"+location+"$",
                     r"^"+sd.NounPrepositions.qu_ca_vowel+"?ubu"+location+"$"
                     ]
-                if sd.sortletter(i.lemma[4]) == "weak_consonant":
+                # if sd.sortletter(i.lemma[4]) == "weak_consonant":
+                if i.lemma[4] in sd.Letter.weak_consonant:
                     langname = "iki"+i.lemma[3:]
-                elif sd.sortletter(i.lemma[4]) == "hard_consonant":
+                elif i.lemma[4] in sd.Letter.hard_consonant:
                     langname = "igi"+i.lemma[3:]
                 # add alternative forms without ubu
                 i.questions += [
@@ -286,7 +287,7 @@ def set_person_language_out_of_location(loc, per, lng):
             langname = "ikinya_"+i.lemma
             pername = "umunya_"+i.lemma
             # location name starts with vowel
-            if sd.sortletter(i.lemma[0]) == "vowel":
+            if i.lemma[0] in sd.Letter.vowel:
                 for location in i.alternatives:
                     i.questions += [
                         r"^"+sd.NounPrepositions.qu_nta+"?"+location+"$",
@@ -330,11 +331,12 @@ class Noun(kv.Lemma):
         self.questions = []
         self.coll = []
         self._set_questions(row)
+        # print(self.coll)
 
     def __str__(self):
         return f"lemma={self.lemma}, ID={self.dbid}, POS= {self.pos}, "\
                + f"all variants={self.coll}, "\
-               + f"questions: {len(self.questions)}"
+               + f"n_questions: {len(self.questions)}"
 
     def __repr__(self):
         return f"lemma={self.lemma}, dbid={self.dbid}, POS= {self.pos}, "\
@@ -376,14 +378,14 @@ class Noun(kv.Lemma):
         else:
             coll = [self.lemma, ]
         # add alternatives
-        # there is at least one alternativ
+        # there is at least one alternative
         if self.alternatives:
             for i in self.alternatives:
                 coll.append(i)
-                # add plural of alternativ
-                # begin of alternativ is same like sg-prefix of lemma
+                # add plural of alternative
+                # alternative starts with same letters as sg-prefix of lemma
                 if entry[0] == "" or i[:(len(entry[2]))] == entry[0]:
-                    # use plural-prefix for alternativ
+                    # use plural-prefix of lemma also for alternative
                     coll.append(
                         sd.breakdown_consonants(entry[1]+i[len(entry[0]):]))
         for i in coll:
@@ -397,8 +399,7 @@ def noun_partition(db_substantive):
     part_one = []
     part_two = []
     for noun in db_substantive:
-        if (noun.lemma[:2] in ["uk", "ug"] and noun.lemma[-1] == "a") \
-                or noun.lemma in ["se", "inshi"]:
+        if noun.lemma[:2] in ["uk", "ug"] or noun.stem in ["se", "inshi"]:
             part_two.append(noun)
         else:
             part_one.append(noun)
@@ -413,19 +414,24 @@ def collect_nouns(db_substantive, freq_d):
                 all forms found ([form, frequency] per column)
             and changed frequency-dictionary {'found_noun':0}
     """
-    freq_subs = {x: y for x, y in freq_d.items() if y != 0}
+    freq_subs = freq_d
     collection = []
-    points = int(len(db_substantive)/50)
+    if len(db_substantive) < 50:
+        points = False
+    else:
+        points = int(len(db_substantive)/50)
     lemma_count = 0
     for noun in db_substantive:
+        # print("noun", noun.questions)
         found = regex_search(noun, freq_subs)
         if found:
             collection.append(found)
         lemma_count += 1
-        if lemma_count % points == 0:
+        if points and lemma_count % points == 0:
             kh.OBSERVER.notify_cont('.')
     if collection:
-        # result: first most wordforms, with high freq first
+        freq_subs = {x: y for x, y in freq_subs.items() if y != 0}
+        # result: most wordforms first, with high freq first
         collection.sort(key=lambda x: x[3], reverse=True)
         collection.sort(key=lambda x: x[4], reverse=True)
     return (collection, freq_subs)
@@ -458,12 +464,13 @@ class Adjectiv(kv.Lemma):
 
     def set_qu(self, coll):
         """sets regex-questions for fishing adjectivs out of
-        requency distribution
+        frequency distribution
         """
         # prefixes1 = ["ba","ka","ma","ha","aya",
         #              "bi","ki","mi","ri","yi","zi",\
         #              "bu","ku","mu","ru","tu","uyu","uwu","n"]
         pre_kgregex = r"^((a?[bgkmhy]?a)|(i?[bgkmryz]?i)|(u?[bgkmrdtwy]?u)|[mn])(%s)$"
+        # TODO make separated g- and k-regex
         # prefixes2 = ["bw","kw","mw","rw","tw","ny","ry","vy","y","n","z",\
         #                b","k","c","h"]
         pre_aregex = r"^((u?[bkmrt]?w)|(i?[nrv]?y)|a?[bkh]|i?[cz]|n)(%s)$"
@@ -491,6 +498,8 @@ class Adjectiv(kv.Lemma):
             # ??? to do: what about ki-co ...
             # in case it's an adjective with two hyphen (e.g. -re-re)
             if len(teil) == 2:
+                if variant[0] == "r":
+                    self.questions.append("ndende")
                 if teil[1][0] == "a":
                     quest = quest[:-1]+pre_aregex[1:] % (teil[1])
                 elif teil[1][0] == "o":
@@ -509,17 +518,38 @@ def collect_adjs(db_adjektive, freq_d):
             and changed frequency-dictionary {'found_adjectiv':0}
     """
     collection = []
-    # kommt freq als liste oder dict? (vorher sammle_subst?)
-    # freqText = {freq[x][0]:freq[x][1] for x in freq if freqfreq[x][1] != 0}
-    freq_adj = {x: y for x, y in freq_d.items() if y != 0}
+    freq_adj = freq_d
     for adj in db_adjektive:
         found = regex_search(adj, freq_adj)
         if found:
-            collection.append(found)
-    collection.sort(key=lambda x: x[3], reverse=True)
-    collection.sort(key=lambda x: x[4], reverse=True)
+            teil = found[0].strip("-").split("-")
+            # filter wrong positivs out: ibirebire yes, but not abarekure
+            if len(teil) == 2 and teil[0] == teil[1]:
+                new = []
+                for foundtype in found[5:]:
+                    ftype = foundtype[0]
+                    # print(ftype)
+                    # find both syllables
+                    first_end = ftype.find(teil[0])
+                    second_end = ftype.rfind(teil[0])
+                    first = ftype[:first_end]
+                    second = ftype[first_end + len(teil[0]):second_end]
+                    if second in [first, first[1:]]:
+                        new.append(foundtype)
+                    else:
+                        # was wrong positiv, roll back
+                        freq_adj.update({ftype: foundtype[1]})
+                        found[4] -= 1
+                        found[3] -= foundtype[1]
+                    found = found[:5]+new
+                collection.append(found)
+            else:
+                collection.append(found)
+    if collection:
+        freq_adj = {x: y for x, y in freq_adj.items() if y != 0}
+        collection.sort(key=lambda x: x[3], reverse=True)
+        collection.sort(key=lambda x: x[4], reverse=True)
 
-    # mapped types now have 0 in simplefreq
     # save_dict(freq_adj,"keine5_adj.csv")
     # all adjectives
     # kh.save_list(collection,"found5_adj.csv",";")
@@ -548,6 +578,30 @@ class Pronoun(kv.Lemma):
                 + f"questions={self.questions}"
 
 
+def put_same_ids_together(collection):
+    """sums up and adds found types of same ID,
+    for interjections + adverbs and pronouns
+    because some of them are made with regex and not listed in db"""
+    collection.sort(key=lambda x: int(x[1]))
+    coll = []
+    run_next = True
+    for i in enumerate(collection):
+        if run_next is True:
+            if int(collection[i][1]) == int(collection[i-1][1]):
+                collection[i][3] += collection[i-1][3]
+                collection[i][4] += collection[i-1][4]
+                coll.append(collection[i]+collection[i-1][5:])
+                run_next = False
+            else:
+                coll.append(collection[i])
+        else:
+            # skip only one
+            run_next = True
+    coll.sort(key=lambda x: x[3], reverse=True)
+    coll.sort(key=lambda x: x[4], reverse=True)
+    return coll
+
+
 def collect_pronouns(db_pronouns, freq_d):
     """maps pronouns to lemmata of db and also builds other combinations
     takes frequency-dictionary and list of pronouns
@@ -557,8 +611,8 @@ def collect_pronouns(db_pronouns, freq_d):
             and changed frequency-dictionary {'found_pronouns':0}
     """
     collection = []
-    freq_prn = {x: y for x, y in freq_d.items() if y != 0}
-
+    #freq_prn = {x: y for x, y in freq_d.items() if y != 0}
+    freq_prn = freq_d
     regex_prn_c_a = r"(([bkrt]w|[rv]?y|[bchkwz]))"
     regex_prn_c_o = r"([bkrt]?w|[rv]?y|[bchkz])"
     regex_prn_ic_o = r"(a[bhky]|i([cz]|([rv]?)y)|u(([bkrt]?w?)|y))"
@@ -661,29 +715,15 @@ def collect_pronouns(db_pronouns, freq_d):
         found = string_search(lemma, freq_prn)
         if found:
             collection.append(found)
-    # put same IDs together
-    collection.sort(key=lambda x: int(x[1]))
-    coll = []
-    run_next = True
-    for i in range(1, len(collection)):
-        if run_next is True:
-            if int(collection[i][1]) == int(collection[i-1][1]):
-                collection[i][3] += collection[i-1][3]
-                collection[i][4] += collection[i-1][4]
-                coll.append(collection[i]+collection[i-1][5:])
-                run_next = False
-            else:
-                coll.append(collection[i])
-        else:
-            # skip only one
-            run_next = True
-    coll.sort(key=lambda x: x[3], reverse=True)
-    coll.sort(key=lambda x: x[4], reverse=True)
-    # # Wörter, die zum Wörterbuch gemappt wurden, sind jetzt auf 0
+
+    if collection:
+        collection = put_same_ids_together(collection)
+        freq_prn = {x: y for x, y in freq_prn.items() if y != 0}
+
     # save_dict(freq_prn,"keine3_pron.csv")
     # # Wörter, die im Korpus vorkommen
     # kh.save_list(collection,"found3_pron.csv",";")
-    return (coll, freq_prn)
+    return (collection, freq_prn)
 
 
 def filter_names_out(names_and_foreign_words, freq_list):
@@ -711,12 +751,15 @@ def filter_names_out(names_and_foreign_words, freq_list):
         if lemma_count % points == 0:
             # print('.', end="")
             kh.OBSERVER.notify_cont('.')
-    collection.sort(key=lambda x: x[3], reverse=True)
+    if collection:
+        collection.sort(key=lambda x: x[3], reverse=True)
+        freq_names = {x: y for x, y in freq_names.items() if y != 0}
     return (collection, freq_names)
 
 
 def collect_adv_plus(db_advplus, freq_d):
-    """maps prepositions, adverbs, conjunctions and interjections to lemma in db
+    """maps prepositions, adverbs, conjunctions and interjections
+    to lemma in db
     takes frequency-dictionary and list of lemmata
     returns list with columns:
                 lemma, id, sum of frequency of all forms, counted forms,
@@ -724,12 +767,14 @@ def collect_adv_plus(db_advplus, freq_d):
             and a frequency-dictionary {'found_word':0}
     """
     collection = []
-    freq_unchangable = {x: y for x, y in freq_d.items() if y != 0}
+    freq_unchangable = freq_d
     for lemma in db_advplus:
         found = string_search(lemma, freq_unchangable)
         if found:
             collection.append(found)
-    collection.sort(key=lambda x: x[3], reverse=True)
+    if collection:
+        collection.sort(key=lambda x: x[3], reverse=True)
+        freq_unchangable = {x: y for x, y in freq_unchangable.items() if y != 0}
     # # Wörter, die zum Wörterbuch gemappt wurden, sind jetzt auf 0
     # save_dict(freq_unchangable,"keine2_div.csv")
     # # Wörter, die im Korpus vorkommen
@@ -765,7 +810,7 @@ def collect_exclamations(db_rest, freq_d):
             and a frequency-dictionary {'found_word':0}
     """
     collection = []
-    freq_exc = {x: y for x, y in freq_d.items() if y != 0}
+    freq_exc = freq_d
     regex_exc_ego = r"^(y?e+go+|e+h?|y?ee+)$"
     regex_exc_oya = r"^(oya+)$"
     regex_exc_ha = r"^(ha)+$"
@@ -773,9 +818,11 @@ def collect_exclamations(db_rest, freq_d):
     regex_exc_ah = r"^([au]+h|aa+|y?uu+|ah[ao]+|hu+)$"
     regex_exc_yo = r"^(y?o+h?|o+ho+|oh+)$"
     regex_exc_mh = r"^(m+h+|hu+m+|hm+|mm+|uu+m)$"
-    regex_exc_he = r"^(e?he+)$"
+    regex_exc_he = r"^(e?(he+)+)$"
     regex_exc_kye = r"^(kye+)+$"
     regex_exc_luya = r"^(h?al+e+l+u+[iy]a+)$"
+    regex_exec_alo = r"^(alo+)$"
+    regex_exec_euh = r"^(e+uh)$"
     # exclamations not in the original db get IDs from 30000
     ecxl_made_here = [["ego", regex_exc_ego, 818],  # db_id
                       ["oya", regex_exc_oya, 3556],
@@ -787,6 +834,8 @@ def collect_exclamations(db_rest, freq_d):
                       ["hee", regex_exc_he, 30005],
                       ["kyee", regex_exc_kye, 30006],
                       ["alleluia", regex_exc_luya, 30007],
+                      ["alo", regex_exec_alo, 3008],
+                      ["euh", regex_exec_euh, 3009]
                       ]
     for excl in ecxl_made_here:
         freqsum = 0
@@ -823,8 +872,12 @@ def collect_exclamations(db_rest, freq_d):
             collection.append(found)
             freq_exc.update({freqs: 0})
 
-    collection.sort(key=lambda x: x[3], reverse=True)
-    collection.sort(key=lambda x: x[4], reverse=True)
+    if collection:
+        freq_exc = {x: y for x, y in freq_exc.items() if y != 0}
+        collection = put_same_ids_together(collection)
+        # collection.sort(key=lambda x: x[3], reverse=True)
+        # collection.sort(key=lambda x: x[4], reverse=True)
+
     # # Wörter, die zum Wörterbuch gemappt wurden, sind jetzt auf 0
     # save_dict(freq_exc,"keine8_excl_div2.csv")
     # # Wörter, die im Korpus vorkommen

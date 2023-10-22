@@ -836,7 +836,7 @@ def sammle_verben(db_verben, freq_d):
     """sorts verbforms to their stem
     takes fdist as a dict and returns also dict"""
 
-    freq_verb = {x: y for x, y in freq_d.items() if y != 0}
+    freq_verb = freq_d
     collect_unclear_things = ["things that didn't match\n",]
     # sort by length of stem, for better hits
     verben = sorted(db_verben, key=lambda x: len(x.stem), reverse=True)
@@ -967,7 +967,7 @@ def sammle_verben(db_verben, freq_d):
         if lemma_count % points == 0:
             kh.OBSERVER.notify_cont('.')
         lemma_count += 1
-
+    
     # map both variants of verbs to one id and add this to the big collection
     # sort by id, so the variants become neighbours with id_0 before id_a
     collection_b = sorted(collection_a, key=lambda x: x[3])
@@ -1002,8 +1002,10 @@ def sammle_verben(db_verben, freq_d):
 
     # Eintrag,id,Anzahl verschiedener Formen,Summe aller Formen,
     #      nach Variantenreichtum sortiert (Form,Anzahl - hier alphabetisch)
-    collection.sort(key=lambda x: x[3], reverse=True)
-    collection.sort(key=lambda x: x[4], reverse=True)
+    if collection:
+        collection.sort(key=lambda x: x[3], reverse=True)
+        collection.sort(key=lambda x: x[4], reverse=True)
+        freq_verb = {x: y for x, y in freq_verb.items() if y != 0}
     # else : sammlung1 = []
 
     # kh.save_list(collection, "found6_verbs.csv", ";")

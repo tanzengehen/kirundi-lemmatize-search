@@ -37,20 +37,24 @@ def reduce_simplefreq_to_lemma_collection(simple_freq_list,
     kh.OBSERVER.notify(
         kh._("sorting Named Entities ..........................."))
     collection = tc.Collection(simple_freq_list)
+    len_before = len(simple_freq_list)
     (collection.names, still_unk) = dbc.filter_names_out(names,
                                                          simple_freq_list)
-    len_before = len(still_unk)
-    (collection.advs, still_unk) = dbc.collect_adv_plus(dict_adv, still_unk)
     kh.OBSERVER.notify(
         kh._("\nNamed Entities      : ")
-        + f"\t\t{len_before-len(still_unk)}\t({len(still_unk)})")
+        + f"\t{len_before-len(still_unk)}\t\t({len(still_unk)})")
     len_before = len(still_unk)
-    (collection.pronouns,
-     still_unk) = dbc.collect_pronouns(dict_prns, still_unk)
+    (collection.advs, still_unk) = dbc.collect_adv_plus(dict_adv, still_unk)
     kh.OBSERVER.notify(
         kh._("adverbs etc         : ")
         + f"{len_before-len(still_unk)} >> "
         + f"{len(collection.advs)-1}\t({len(still_unk)})")
+    len_before = len(still_unk)
+    (collection.pronouns,
+     still_unk) = dbc.collect_pronouns(dict_prns, still_unk)
+    kh.OBSERVER.notify(
+        kh._("pronouns            : ") + f"{len_before-len(still_unk)} >> "
+        f"{len(collection.pronouns)-1}\t({len(still_unk)})")
     # Translators: fill points up to 50 letters
     kh.OBSERVER.notify(
         kh._("sorting nouns ...................................."))
@@ -58,36 +62,36 @@ def reduce_simplefreq_to_lemma_collection(simple_freq_list,
     (collection.nouns,
      still_unk) = dbc.collect_nouns(dict_nouns1, still_unk)
     kh.OBSERVER.notify(
-        kh._("\npronouns            : ") + f"{len_before-len(still_unk)} >> "
-        f"{len(collection.pronouns)-1}\t({len(still_unk)})")
+        kh._("\nnouns               : ")
+        + f"{len_before-len(still_unk)} >> "
+        + f"{len(collection.nouns)-1}\t({len(still_unk)})")
     len_before = len(still_unk)
     (collection.adjs, still_unk) = dbc.collect_adjs(dict_adj, still_unk)
     kh.OBSERVER.notify(
-        kh._("nouns               : ")
+        kh._("adjektives          : ")
         + f"{len_before-len(still_unk)} >> "
-        + f"{len(collection.nouns)-1}\t({len(still_unk)})")
+        + f"{len(collection.adjs)-1}\t({len(still_unk)})")
     kh.OBSERVER.notify(
         kh._("sorting verbs ...................................."))
     len_before = len(still_unk)
     (collection.verbs, still_unk) = kv.sammle_verben(dict_verbs, still_unk)
     kh.OBSERVER.notify(
-        kh._("\nadjektives          : ")
+        kh._("\nverbs               : ")
         + f"{len_before-len(still_unk)} >> "
-        + f"{len(collection.adjs)-1}\t({len(still_unk)})")
+        + f"{len(collection.verbs)-1}\t({len(still_unk)})")
     # now we search for the nouns we skipped before verbs (uku...)
     len_before = len(still_unk)
     (found_here,
      still_unk) = dbc.collect_nouns(dict_nouns2, still_unk)
-    kh.OBSERVER.notify_cont("\n")
-
     collection.nouns += found_here
-    kh.OBSERVER.notify(
-        kh._("verbs               : ")
-        + f"{len_before-len(still_unk)} >> "
-        + f"{len(collection.verbs)-1}\t({len(still_unk)})")
-
-    (collection.exclams,
+    (exclams,
      still_unk) = dbc.collect_exclamations(dict_rests, still_unk)
+    collection.advs += exclams
+    collection.advs = dbc.put_same_ids_together(collection.advs)
+    kh.OBSERVER.notify(
+        kh._("\nexclamations        : ")
+        + f"\t\t{len_before-len(still_unk)}"
+        + f"\nunknown             :\t\t\t\t({len(still_unk)})")
     # collection.unk=[]
     for key, value in still_unk.items():
         if value != 0:
@@ -190,7 +194,7 @@ def tag_lemma(myword, dict_known_types):
     return tag
 
 
-def known_lemmatypes(lemmafreq_known):
+def prepare_lemmatypes(lemmafreq_known):
     """converts nested list of    lemmata[lemma, id, PoS, ..., types,]
                   into dictionary {type: [PoS, lemma, id]}
     """
@@ -209,13 +213,18 @@ def tag_text_with_db(mytext, dbrundi):
         and the tagged text with meta-data
     """
     collection = make_lemmafreq_fromtext(mytext, dbrundi)
-    knowntypes = known_lemmatypes(collection.known())
+    collection.put_known()
+    lemmatypes = prepare_lemmatypes(collection.known)
     # Percentage of unkown types
-    percent = round(len(collection.unk) / (len(collection.unk)+len(knowntypes))
+    n_lemmatypes = 0
+    for lemma in collection.known:
+        n_lemmatypes += lemma[4]
+    percent = round(len(collection.unk) / (len(collection.unk)+n_lemmatypes)
                     * 100, 2)
     kh.OBSERVER.notify(kh._(
         "unknown types      : {} ({}%)").format(len(collection.unk), percent))
-    kh.OBSERVER.notify(kh._("recognized lemmata : {}").format(len(knowntypes)))
+    kh.OBSERVER.notify(kh._(
+        "recognized lemmata : {}").format(len(collection.known)))
     # split into sentences -- roughly
     line_end = " #|* "
     sentences_list = split_in_sentences(mytext, line_end)
@@ -276,8 +285,7 @@ def tag_text_with_db(mytext, dbrundi):
                     nr_char += len(tag2.token)
                 else:
                     # check for lemma
-                    # tag3 = tag_lemma(w_or_c,lemmafreq_all)
-                    tag3 = tag_lemma(w_or_c, knowntypes)
+                    tag3 = tag_lemma(w_or_c, lemmatypes)
                     tag3.set_nrs(nr_sen, nr_word_in_sen, nr_token, nr_char,
                                  nr_para)
                     tagged.append(tag3)
@@ -286,7 +294,7 @@ def tag_text_with_db(mytext, dbrundi):
         if sent_count % points == 0:
             kh.OBSERVER.notify_cont('.')
         sent_count += 1
-        text_tagged = tc.TokenList(tagged)
+        text_tagged = tc.TokenMeta(tagged)
         text_tagged.percent_unk = percent
     return (collection,
             text_tagged)
@@ -531,6 +539,27 @@ def tag_multiple(fn_in, dbrundi):
           )
 
 
+def show_meta(fromjson):
+    """print meta data of tagged text"""
+    meta_data = fromjson.get("meta_data")
+    kh.OBSERVER.notify(
+        kh._("""\nStatistics
+characters               {char}\t(broken char from bad OCR: {odds})
+tokens                   {tokensbond}
+tokens (split by \')      {tokens_split}
+types                    {types}
+recognized lemmata       {lemmata}
+unknown types            {unk}""").
+        format(char=meta_data.get("n_char"),
+               odds=meta_data.get("n_odds"),
+               tokensbond=meta_data.get("n_tokens"),
+               tokens_split=meta_data.get("n_tokens_split"),
+               types=meta_data.get("n_types"),
+               lemmata=meta_data.get("n_lemmata"),
+               unk=meta_data.get("n_unk_types")
+               ))
+
+
 def tag_or_load_tags(fn_in, dbrundi):
     """save energy, don't tag twice
     """
@@ -543,27 +572,11 @@ def tag_or_load_tags(fn_in, dbrundi):
         except:
             kh.OBSERVER.notify(
                 kh._("Are you sure, that this is a tagged file?"))
-        text_tagged = tc.TokenList(fromjson.get("TokenList"))
-        meta_data = fromjson.get("meta_data")
-        kh.OBSERVER.notify(
-            kh._("""\nStatistics
-characters               {char}\t(broken char from bad OCR: {odds})
-tokens                   {tokensbond}
-tokens (split by \')      {tokens_split}
-types                    {types}
-recognized lemmata       {lemmata}
-unknown types            {unk}""").
-            format(char=meta_data.get("n_char"),
-                   odds=meta_data.get("n_odds"),
-                   tokensbond=meta_data.get("n_tokens"),
-                   tokens_split=meta_data.get("n_tokens_split"),
-                   types=meta_data.get("n_types"),
-                   lemmata=meta_data.get("n_lemmata"),
-                   unk=meta_data.get("n_unk_types")
-                   ))
+        text_tagged = tc.TokenMeta(fromjson.get("TokenList"))
+        show_meta(fromjson)
         return text_tagged
             # TODO get new data
-    # 2. is there already a tagged json variant?
+    # 2. has the given txt a tagged json variant already?
     # TODO check hash values
     if kh.check_file_exits(sd.ResourceNames.dir_tagged
                            + whattext.fn_tag.split("/")[-1]):
@@ -577,10 +590,11 @@ unknown types            {unk}""").
                 + "\n\t" + '/'.join(whattext.fn_tag.split('/')[-4:])
                 + kh._("\nWe use this instead of tagging again.\n"))
             fromjson = load_json(whattext.fn_in)
-            text_tagged = tc.TokenList(fromjson.get("TokenList"))
+            text_tagged = tc.TokenMeta(fromjson.get("TokenList"))
+            show_meta(fromjson)
             return text_tagged
 
-    # 4. read raw txt utf8 or utf16
+    # 3. read raw txt utf8 or utf16
     else:
         try:
             whattext.raw = kh.load_text_fromfile(whattext.fn_in, 'utf-8')
@@ -612,7 +626,7 @@ unknown types            {unk}""").
                  "n_tokens_split": text_tagged.n_tokenscut,
                  "n_types": text_tagged.n_types,
                  "n_unk_types": str(text_tagged.percent_unk)+" %",
-                 "n_lemmata": len(lemma_lists.known())
+                 "n_lemmata": len(lemma_lists.known)
                  }
     jtokens = [dict(x.__dict__) for x in text_tagged.tokens]
     kh.save_json({"meta_data": meta_data,
@@ -680,8 +694,8 @@ def search_or_load_search(f_in, wtl, nots, quterms, single, tagged):
 # this function has to be in this module
 # because module kh can't import module tc
 def load_json(filename):
-    """reads and maps json-file
-    to class name written in file
+    """read json-file with meta data and tagged text
+    return nested dict
     """
     with open(filename, encoding='utf-8') as file:
         raw = json.load(file)
@@ -689,6 +703,7 @@ def load_json(filename):
     for num in range(len(list(raw.keys()))):
         class_name = list(raw.keys())[num]
         objects = []
+        # tagged text as list of objects Token
         if class_name == "Token":
             for i in raw.get(class_name):
                 tag = tc.Token(i.get('token'), i.get('pos'), i.get('lemma'))
@@ -697,6 +712,7 @@ def load_json(filename):
                             i.get('id_para'))
                 objects.append(tag)
             data.update({"TokenList": objects})
+        # meta data as dict
         if class_name == "meta_data":
             meta_data = raw.get(class_name)
             data.update({"meta_data": meta_data})

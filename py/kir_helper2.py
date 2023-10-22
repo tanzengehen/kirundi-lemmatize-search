@@ -333,4 +333,4 @@ lang = set_ui_language("de")
 lang.install()
 _ = lang.gettext
 OBSERVER = PrintConsole()
-SINGLE = True
+# # SINGLE = True

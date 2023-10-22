@@ -175,7 +175,7 @@ def getresources():
 
 if __name__ == "__main__":
     kh.OBSERVER = kh.PrintConsole()
-    kh.SINGLE = True
+    # kh.SINGLE = True
     db_rundi = getresources()
     kh.OBSERVER.notify("""Ubu nyene ururimi rw'igikoresho ni kirundi.
 Pfyonda ENTER canke andika 'de', 'en' canke 'fr' iyo urashaka ko turaganira mu
@@ -202,13 +202,14 @@ deutsch, english, français)
     # corpus or file, if file: ist it txt?
     f_in = input_fnin()
 
-    if f_in != "c":
-        tagged = ts.tag_or_load_tags(f_in, db_rundi)
-    else:
-        f_in = "/Users/doreen/Programmieren/Python/find_lemmata_in_corpus/resources/meta_bbc.txt"
+    if f_in == "c":
+        f_in = "/Users/doreen/Programmieren/Python/find_lemmata_in_corpus/results/tagged/bbc/tag__bbcall.json"
+        # f_in = "/Users/doreen/Programmieren/Python/find_lemmata_in_corpus/resources/meta_bbc.txt"
         if f_in[-12:] == "meta_bbc.txt":
             ts.tag_multogether(f_in, db_rundi)
             sysexit()
+    else:        
+        tagged = ts.tag_or_load_tags(f_in, db_rundi)
     # Translators: terminal only
     kh.OBSERVER.notify(kh._("""\nWhat are you looking for?
     Divide searchterms with space characters.

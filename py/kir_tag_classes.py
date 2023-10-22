@@ -65,8 +65,8 @@ class TextMeta:
 
     def replace_strangeletters(self, raw_text):
         """replaces odd characters from bad OCR
-        takes string
-        returns list [corrected string, mistakes]
+        take: string
+        set: text, nodds, nchars
         """
         strangethings = str(raw_text.encode(encoding="utf-8",
                                             errors="backslashreplace"))[2:-1]
@@ -270,10 +270,12 @@ class TextMeta:
         self.fn_freqlemma = root_tagg+"fl__"+self.short+".csv"
 
     def setfnbbc(self):
-        """set filenames for results in multiple mode
+        """set filenames for results in corpus mode
         """
-        self.fn_tag = sd.ResourceNames.dir_tagged + "bbc/tag__" + self.short + ".json"
-        self.fn_freqlemma = sd.ResourceNames.dir_tagged+"bbc/fl__"+self.short+".csv"
+        self.fn_tag = sd.ResourceNames.dir_tagged + \
+            "bbc/tag__" + self.short + ".json"
+        self.fn_freqlemma = sd.ResourceNames.dir_tagged + \
+            "bbc/fl__" + self.short + ".csv"
 
 
 class FreqSimple:
@@ -282,7 +284,6 @@ class FreqSimple:
 
     def __init__(self, blanktext):
         self.ntypes = None
-        # self.n_unk = None
         self.n_one = None
         self.pathname = None
         self.fileid = None
@@ -337,10 +338,10 @@ class Collection:
         self.nouns = []
         self.adjs = []
         self.verbs = []
-        self.exclams = []
         self.unk = []
+        self.known = []
 
-    def known(self):
+    def put_known(self):
         """ returns a list of all types which found a lemma,
         sorted by lemma frequency
         """
@@ -349,8 +350,7 @@ class Collection:
             + self.pronouns \
             + self.nouns \
             + self.adjs \
-            + self.verbs \
-            + self.exclams
+            + self.verbs
         for i in known:
             # lemma,id,PoS,count,n-wordforms,found forms: count should be int
             # f  or debugging only
@@ -358,15 +358,27 @@ class Collection:
                 print(f"{i[0]}, {i[3]} type of 'count': {type(i[3])}")
         # sort by count of lemma
         known.sort(key=lambda x: x[3], reverse=True)
-        return known
+        self.known = known
 
     def all_in(self):
-        """returns a list of all types sorted by frequency of lemma
+        """return a list of all types sorted by frequency of lemma
         or frequency of themselves if they didn't match a lemma
         """
-        all_in = self.known()+self.unk
+        all_in = self.known+self.unk
         all_in.sort(key=lambda x: x[3], reverse=True)
         return all_in
+
+    def __str__(self):
+        return f"names={len(self.names)}, adv={len(self.advs)}, "\
+                + f"prn={len(self.pronouns)}, nouns={len(self.nouns)}, "\
+                + f"adj={len(self.adjs)}, verbs={len(self.verbs)}, "\
+                + f"unk={len(self.unk)}, known={len(self.known)}"
+
+    def __repr__(self):
+        return f"names={len(self.names)}, adv={len(self.advs)}, "\
+                + f"prn={len(self.pronouns)}, nouns={len(self.nouns)}, "\
+                + f"adj={len(self.adjs)}, verbs={len(self.verbs)}, "\
+                + f"unk={len(self.unk)}, known={len(self.known)}"
 
 
 class FreqMeta:
@@ -454,7 +466,7 @@ class Token:
         return self.lemma
 
 
-class TokenList:
+class TokenMeta:
     """list of all tokens in a text
     """
 

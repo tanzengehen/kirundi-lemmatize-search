@@ -195,20 +195,17 @@ def punctuation():
     return ',.;:!?(){}[]\'"´`#%&+-*/<=>@\\^°_|~'
 
 
-def sortletter(letter):
-    """returns True, False, vowel or 'not in use'
+class Letter:
+    """group letters for class marker variants
     """
     # iki
-    if letter in "bdgjlmnrvwyz":
-        return "weak_consonant"
+    weak_consonant = "bdgjlmnrvwyz"
     # igi
-    if letter in "cfhkpst":
-        return "hard_consonant"
+    hard_consonant = "cfhkpst"
     # ic
-    if letter in "aeiou":
-        return "vowel"
-    # foreign (qx)
-    return "not_in_use"
+    vowel = "aeiou"
+    # foreign
+    not_in_use = "qx"
 
 
 def breakdown_consonants(mystring):
