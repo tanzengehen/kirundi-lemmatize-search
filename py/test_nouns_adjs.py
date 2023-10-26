@@ -11,11 +11,12 @@ from unittest import TestCase
 import kir_db_classes as dbc
 
 
-DB_DATA = {}
-DB_NOUN = []
-FREQ_SIM_NOUN = {}
-DB_ADJ = []
-FREQ_SIM_ADJ = {}
+# nosetests --with-spec --spec-color --with-coverage --cover-erase
+# coverage report -m
+
+DB_DATA = []
+FREQ_SIM = {}
+
 
 ###############################################################
 #       T E S T   NOUNS                                       #
@@ -28,72 +29,76 @@ class TestNoun(TestCase):
     @classmethod
     def setUpClass(cls):
         """ Connect and load data needed by tests """
-        global DB_NOUN
-        global FREQ_SIM_NOUN
+        global DB_DATA
+        # DB_DATA
+        global FREQ_SIM
         # with open("bsp.csv") as csv_data:
         #     DB_DATA = csv.reader(csv_data, delimiter=";")
 
-        noun0 = dbc.Noun(['8336', 'ubwinshi', 'ubwiínshi',
-                          'ubw', 'inshi', '', '', '', '1',
-                          '8', 'NULL', '14', 'NULL', '', '', '', '', '',
-                          '0', '', '1', '', 'NULL'])
-        noun1 = dbc.Noun(['6273', 'umupadiri', 'umupáadíri',
-                          'umu', 'padiri', '', '', 'aba', '1',
-                          '1', '1', '1', '2',
-                          'umupatiri;umupadri; umupatri;patiri;padiri',
-                          'umu', '', '', '',
-                          '0', '', '0', '', 'la'])
-        noun2 = dbc.Noun(['14', 'umwaka', 'umwáaka',
-                          'umw', 'aka', '', '', 'imy', '1',
-                          '2', '2', '3', '4', '', '', '', '', '',
-                          '0', '', '0', '', 'NULL'])
-        noun3 = dbc.Noun(['5965', 'inzira', 'inzira',
-                          'in', 'zira', '', '', 'in', '1',
-                          '3', '3', '9', '10', '', '', '', '', '',
-                          '0', '', '0', '', 'NULL'])
-        noun4 = dbc.Noun(['5939', 'izina', 'izína',
-                          'i', 'zina', '', '', 'ama', '1',
-                          '5', '5', '5', '6', '', '', '', '', '',
-                          '0', '', '0', '', 'NULL'])
-        noun5 = dbc.Noun(['1074', 'amagara', '', 'ama',
-                          'gara', '', '', '', '1',
-                          'NULL', '5', 'NULL', '6', '', '', '', '', '',
-                          '0', '', '0', '', 'NULL'])
-        noun6 = dbc.Noun(['3314', 'ikintu', 'ikiintu',
-                          'iki', 'ntu', '', '', 'ibi', '1',
-                          '4', '4', '7', '8', '', '', '', '', '',
-                          '0', '', '0', '', 'NULL'])
-        noun7 = dbc.Noun(['6664', 'icaha', 'icáaha',
-                          'ic', 'aha', '', '', 'ivy', '1',
-                          '4', '4', '7', '8', '', '', '', '', '',
-                          '0', '', '0', '', 'NULL'])
-        noun8 = dbc.Noun(['2905', 'urukundo', 'urukúundo',
-                          'uru', 'kundo', '', '', '', '1',
-                          '6', 'NULL', '11', 'NULL', '', '', '', '', '',
-                          '0', '', '0', '', 'NULL'])
-        noun9 = dbc.Noun(['6805', 'agashusho', 'agashusho',
-                          'aga', 'shusho', '', '', 'udu', '1',
-                          '7', '7', '12', '13', '', '', '', '', '',
-                          '0', '', '0', '', 'NULL'])
-        noun10 = dbc.Noun(['7193', 'akaburungu', 'akaburuungu',
-                           'aka', 'burungu', '', '', 'utu', '1',
-                           '7', '7', '12', '13', '', '', '', '', '',
-                           '0', '', '0', '', 'NULL'])
-        noun11 = dbc.Noun(['6674', 'uruhago', 'uruhago',
-                           'uru', 'hago', '', '', 'im', '1',
-                           '6', '6', '11', '10', '', '', '', '', '',
-                           '0', '', '0', 'impago', 'NULL'])
-        noun12 = dbc.Noun(['6677', 'kanseri', 'kaanséeri',
-                           '', 'kanseri', '', '', '', '1',
-                           '3', '3', '9', '10', 'kansere', '', '', '', '',
-                           '0', '', '1', '', 'fr'])
-        noun13 = dbc.Noun(['210', 'ukubaho', 'ukubahó',
-                           'uku', 'baho', '', '', '', '1',
-                           '9', 'NULL', '15', 'NULL', '', '', '', '', '',
-                           '0', '', '1', '', 'NULL'])
-        DB_NOUN = [noun0, noun1, noun2, noun3, noun4, noun5, noun6, noun7,
-                   noun8, noun9, noun10, noun11, noun12, noun13]
-        FREQ_SIM_NOUN = {
+        DB_DATA = [
+            dbc.Noun(['8336', 'ubwinshi', 'ubwiínshi',
+                      'ubw', 'inshi', '', '', '', '1',
+                      '8', 'NULL', '14', 'NULL', '', '', '', '', '',
+                      '0', '', '1', '', 'NULL']),
+            dbc.Noun(['6273', 'umupadiri', 'umupáadíri',
+                      'umu', 'padiri', '', '', 'aba', '1',
+                      '1', '1', '1', '2',
+                      'umupatiri;umupadri; umupatri;patiri;padiri',
+                      'umu', '', '', '',
+                      '0', '', '0', '', 'la']),
+            dbc.Noun(['14', 'umwaka', 'umwáaka',
+                      'umw', 'aka', '', '', 'imy', '1',
+                      '2', '2', '3', '4', '', '', '', '', '',
+                      '0', '', '0', '', 'NULL']),
+            dbc.Noun(['5965', 'inzira', 'inzira',
+                      'in', 'zira', '', '', 'in', '1',
+                      '3', '3', '9', '10', '', '', '', '', '',
+                      '0', '', '0', '', 'NULL']),
+            dbc.Noun(['5939', 'izina', 'izína',
+                      'i', 'zina', '', '', 'ama', '1',
+                      '5', '5', '5', '6', '', '', '', '', '',
+                      '0', '', '0', '', 'NULL']),
+            # no5
+            dbc.Noun(['1074', 'amagara', '', 'ama',
+                      'gara', '', '', '', '1',
+                      'NULL', '5', 'NULL', '6', '', '', '', '', '',
+                      '0', '', '0', '', 'NULL']),
+            dbc.Noun(['3314', 'ikintu', 'ikiintu',
+                      'iki', 'ntu', '', '', 'ibi', '1',
+                      '4', '4', '7', '8', '', '', '', '', '',
+                      '0', '', '0', '', 'NULL']),
+            dbc.Noun(['6664', 'icaha', 'icáaha',
+                      'ic', 'aha', '', '', 'ivy', '1',
+                      '4', '4', '7', '8', '', '', '', '', '',
+                      '0', '', '0', '', 'NULL']),
+            dbc.Noun(['2905', 'urukundo', 'urukúundo',
+                      'uru', 'kundo', '', '', '', '1',
+                      '6', 'NULL', '11', 'NULL', '', '', '', '', '',
+                      '0', '', '0', '', 'NULL']),
+            dbc.Noun(['6805', 'agashusho', 'agashusho',
+                      'aga', 'shusho', '', '', 'udu', '1',
+                      '7', '7', '12', '13', '', '', '', '', '',
+                      '0', '', '0', '', 'NULL']),
+            # no10
+            dbc.Noun(['7193', 'akaburungu', 'akaburuungu',
+                      'aka', 'burungu', '', '', 'utu', '1',
+                      '7', '7', '12', '13', '', '', '', '', '',
+                      '0', '', '0', '', 'NULL']),
+            dbc.Noun(['6674', 'uruhago', 'uruhago',
+                      'uru', 'hago', '', '', 'im', '1',
+                      '6', '6', '11', '10', '', '', '', '', '',
+                      '0', '', '0', 'impago', 'NULL']),
+            dbc.Noun(['6677', 'kanseri', 'kaanséeri',
+                      '', 'kanseri', '', '', '', '1',
+                      '3', '3', '9', '10', 'kansere', '', '', '', '',
+                      '0', '', '1', '', 'fr']),
+            # no13
+            dbc.Noun(['210', 'ukubaho', 'ukubahó',
+                      'uku', 'baho', '', '', '', '1',
+                      '9', 'NULL', '15', 'NULL', '', '', '', '', '',
+                      '0', '', '1', '', 'NULL'])
+        ]
+        FREQ_SIM = {
             'kaburungu': 70, 'akaburungu': 26, 'utuburungu': 2,
             'bakaburungu': 1, 'tuburungu': 1,
             'urukundo': 2011, 'rukundo': 659, 'ntarukundo': 3, 'atarukundo': 1,
@@ -124,8 +129,8 @@ class TestNoun(TestCase):
     @classmethod
     def tearDownClass(cls):
         """Disconnect from database"""
-        global DB_NOUN
-        DB_NOUN = None
+        global DB_DATA
+        DB_DATA = None
 
     # def setUp(self):
     #     """Setup before each test"""
@@ -135,35 +140,35 @@ class TestNoun(TestCase):
 
     def test_possibilities(self):
         """Test prepositions glued directly before noun"""
-        self.assertEqual(DB_NOUN[2]._possibilities("umwaka"),
+        self.assertEqual(DB_DATA[2]._possibilities("umwaka"),
                          [r"^([na]ta|[mk]u|s?i)?mwaka$",
                           r"^([bkmrt]?w|[rv]?y|[nsckzbh])?umwaka$"])
-        self.assertEqual(DB_NOUN[12]._possibilities("kanseri"),
+        self.assertEqual(DB_DATA[12]._possibilities("kanseri"),
                          [r"^([na]ta|[mk]u|s?i)?kanseri$",
                           r"^([nckzbh]|[bkmrt]?w|[rv]?y)[ao]kanseri$"])
 
     def test_init_simple(self):
         """Test direct initializations"""
-        self.assertEqual(DB_NOUN[1].lemma, "umupadiri")
-        self.assertEqual(DB_NOUN[1].dbid, "6273")
-        self.assertEqual(DB_NOUN[1].pos, "NOUN")
-        self.assertEqual(DB_NOUN[1].stem, "padiri")
+        self.assertEqual(DB_DATA[1].lemma, "umupadiri")
+        self.assertEqual(DB_DATA[1].dbid, "6273")
+        self.assertEqual(DB_DATA[1].pos, "NOUN")
+        self.assertEqual(DB_DATA[1].stem, "padiri")
 
     def test_set_questions_collection(self):
         """Test collect alternatives and plural"""
-        self.assertEqual(DB_NOUN[1].alternatives,
+        self.assertEqual(DB_DATA[1].alternatives,
                          ['umupatiri', 'umupadri', 'umupatri', 'patiri',
                           'padiri'])
-        self.assertEqual(DB_NOUN[1].coll, ['umupadiri', 'abapadiri',
+        self.assertEqual(DB_DATA[1].coll, ['umupadiri', 'abapadiri',
                                            'umupatiri', 'abapatiri',
                                            'umupadri', 'abapadri',
                                            'umupatri', 'abapatri',
                                            'patiri', 'padiri'])
-        self.assertEqual(DB_NOUN[11].coll, ['uruhago', 'impago'])
+        self.assertEqual(DB_DATA[11].coll, ['uruhago', 'impago'])
 
     def test_set_questionsl(self):
         """Test questions for all alternatives"""
-        self.assertEqual(DB_NOUN[2].questions,
+        self.assertEqual(DB_DATA[2].questions,
                          [r"^([na]ta|[mk]u|s?i)?mwaka$",
                           r"^([bkmrt]?w|[rv]?y|[nsckzbh])?umwaka$",
                           r"^([na]ta|[mk]u|s?i)?myaka$",
@@ -171,7 +176,7 @@ class TestNoun(TestCase):
 
     def test_partition(self):
         """Test part of nouns collecting before or after verbs"""
-        part1, part2 = dbc.noun_partition(DB_NOUN)
+        part1, part2 = dbc.noun_partition(DB_DATA)
         self.assertEqual(len(part1), 12)
         self.assertEqual(len(part2), 2)
         for noun in part2:
@@ -179,7 +184,7 @@ class TestNoun(TestCase):
 
     def test_collect_nouns(self):
         """Test collecting all variants of nouns"""
-        collection, freq_subs = dbc.collect_nouns(DB_NOUN, FREQ_SIM_NOUN)
+        collection, freq_subs = dbc.collect_nouns(DB_DATA, FREQ_SIM)
         types_num = 0
         for i in collection:
             types_num += i[4]
@@ -193,40 +198,41 @@ class TestNoun(TestCase):
 ###############################################################
 #       T E S T   ADJECTIVES                                  #
 ###############################################################
-class TestAdj(TestCase):
-    """ Test for Adjectives
+class TestAdjectives(TestCase):
+    """Test cases for Adjective
     alternatives, all classes, double-stem """
 
     @classmethod
     def setUpClass(cls):
         """ Connect and load data needed by tests """
-        global DB_ADJ
-        global FREQ_SIM_ADJ
+        global DB_DATA
+        global FREQ_SIM
         # with open("bsp.csv") as csv_data:
         #     DB_DATA = csv.reader(csv_data, delimiter=";")
 
-        adj0 = dbc.Adjectiv(['3943', '-re-re', '-ree-re',
-                             '-', 're-re', '', '', '', '2',
-                             '', '', '', '', '', '', '', '', '',
-                             '0', '', '0', '', 'NULL'])
-        adj1 = dbc.Adjectiv(['2190', '-inshi', '',
-                             '-', 'inshi', '', '', '', '2',
-                             '', '', '', '', '', '', '', '', '',
-                             '0', '', '2', '', 'NULL'])
-        adj2 = dbc.Adjectiv(['2937', '-kuru', 'kuru',
-                             '-', 'kuru', '', '', '', '2',
-                             '', '', '', '', '-kuru-kuru', '', '', '', '',
-                             '0', '', '0', '', 'NULL'])
-        adj3 = dbc.Adjectiv(['3141', '-ompi', '',
-                             '-', 'ompi', 'ompi', '', '', '2',
-                             '', '', '', '', 'mwempi; twempi', '', '', '', '',
-                             '0', '', '0', '', 'NULL'])
-        adj4 = dbc.Adjectiv(['3274', '-nini', '',
-                             '-', 'nini', 'nini', '', '', '2',
-                             '', '', '', '', '', '', '', '', '',
-                             '0', '', '0', '', 'NULL'])
-        DB_ADJ = [adj0, adj1, adj2, adj3, adj4]
-        FREQ_SIM_ADJ = {
+        DB_DATA = [
+            dbc.Adjectiv(['3943', '-re-re', '-ree-re',
+                          '-', 're-re', '', '', '', '2',
+                          '', '', '', '', '', '', '', '', '',
+                          '0', '', '0', '', 'NULL']),
+            dbc.Adjectiv(['2190', '-inshi', '',
+                          '-', 'inshi', '', '', '', '2',
+                          '', '', '', '', '', '', '', '', '',
+                          '0', '', '2', '', 'NULL']),
+            dbc.Adjectiv(['2937', '-kuru', 'kuru',
+                          '-', 'kuru', '', '', '', '2',
+                          '', '', '', '', '-kuru-kuru', '', '', '', '',
+                          '0', '', '0', '', 'NULL']),
+            dbc.Adjectiv(['3141', '-ompi', '',
+                          '-', 'ompi', 'ompi', '', '', '2',
+                          '', '', '', '', 'mwempi; twempi', '', '', '', '',
+                          '0', '', '0', '', 'NULL']),
+            dbc.Adjectiv(['3274', '-nini', '',
+                          '-', 'nini', 'nini', '', '', '2',
+                          '', '', '', '', '', '', '', '', '',
+                          '0', '', '0', '', 'NULL'])
+        ]
+        FREQ_SIM = {
             'abarekure': 1, 'arekure': 3, 'barebare': 7, 'barekure': 4,
             'birebire': 45, 'biregure': 1, 'birekure': 1, 'buregure': 1,
             'burekure': 1, 'burezire': 1, 'harehare': 3, 'ibirebire': 1,
@@ -257,8 +263,8 @@ class TestAdj(TestCase):
     @classmethod
     def tearDownClass(cls):
         """Disconnect from database"""
-        global DB_ADJ
-        DB_ADJ = None
+        global DB_DATA
+        DB_DATA = None
 
     # def setUp(self):
     #     """Setup before each test"""
@@ -268,26 +274,26 @@ class TestAdj(TestCase):
 
     def test_init_simple(self):
         """Test direct initializations"""
-        self.assertEqual(DB_ADJ[0].lemma, "-re-re")
-        self.assertEqual(DB_ADJ[0].dbid, "3943")
-        self.assertEqual(DB_ADJ[0].pos, "ADJ")
-        self.assertEqual(DB_ADJ[0].stem, "re-re")
+        self.assertEqual(DB_DATA[0].lemma, "-re-re")
+        self.assertEqual(DB_DATA[0].dbid, "3943")
+        self.assertEqual(DB_DATA[0].pos, "ADJ")
+        self.assertEqual(DB_DATA[0].stem, "re-re")
 
     def test_set_questionsl(self):
         """Test questions for all alternatives"""
         self.assertEqual(
-            DB_ADJ[1].questions,
+            DB_DATA[1].questions,
             ['^((a?[bkmh]e)|(u?[bkmrt]?w[i]+)|(i?[mnrv]?yi|n?zi|[bc]i))(nshi)$'])
-        self.assertEqual(len(DB_ADJ[2].questions), 2)
-        self.assertEqual(len(DB_ADJ[3].questions), 3)
+        self.assertEqual(len(DB_DATA[2].questions), 2)
+        self.assertEqual(len(DB_DATA[3].questions), 3)
         self.assertEqual(
-            DB_ADJ[4].questions,
+            DB_DATA[4].questions,
             ['^((a?[bgkmhy]?a)|(i?[bgkmryz]?i)|(u?[bgkmrdtwy]?u)|[mn])(nini)$'])
-        self.assertEqual(len(DB_ADJ[0].questions), 2)
+        self.assertEqual(len(DB_DATA[0].questions), 2)
 
     def test_collect_adjs(self):
         """Test collecting adjectives for all classes"""
-        collection, freq_no_adj = dbc.collect_adjs(DB_ADJ, FREQ_SIM_ADJ)
+        collection, freq_no_adj = dbc.collect_adjs(DB_DATA, FREQ_SIM)
         types_num = 0
         for i in collection:
             types_num += i[4]
@@ -298,3 +304,145 @@ class TestAdj(TestCase):
                   'murekure', 'turekure', 'turerure', 'uburegare', 'umurekure',
                   'urekure', 'yiregure']:
             self.assertIn(i, freq_no_adj)
+
+
+###############################################################
+#       T E S T   PRONOUNS                                    #
+###############################################################
+class TestPronouns(TestCase):
+    """Test cases for Pronouns
+    from db and built, alternatives, all classes"""
+
+    @classmethod
+    def setUpClass(cls):
+        """ Connect and load data needed by tests """
+        global DB_DATA
+        global FREQ_SIM
+        # with open("bsp.csv") as csv_data:
+        #     DB_DATA = csv.reader(csv_data, delimiter=";")
+
+        DB_DATA = [
+            dbc.Pronoun(['8274', 'iki', 'iki',
+                         '', 'iki', '', '', '', '5',
+                         '', '', '', '', '', '', '', '', '',
+                         '0', '', '1', '', 'NULL']),
+            dbc.Pronoun(['8098', '-abo', '-abo',
+                         '-', 'abo', '', '', '', '5',
+                         '', '', '', '', '', '', '', '', '',
+                         '0', '', '0', '', 'NULL']),
+            dbc.Pronoun(['1458', 'hano', 'háno',
+                         'ha', 'no', '', '', '', '5',
+                         '', '', '', '', '', '', '', '', '',
+                         '0', '', '0', '', 'NULL']),
+            dbc.Pronoun(['5447', 'twebwe', 'tweebwé',
+                         '', 'twebwe', '', '', '', '5',
+                         '', '', '', '', 'twebge;tweho', '', '', '', '',
+                         '0', '', '0', '', 'NULL']),
+            dbc.Pronoun(['7863', 'igihe?', 'ígihe?',
+                         'igi', 'he?', '', '', '', '5',
+                         '', '', '', '', '', '', '', '', '',
+                         '0', '', '0', '', 'NULL'])
+        ]
+        FREQ_SIM = {
+            'iki': 6373, 'igi': 3,
+            'twebge': 5, 'twebwe': 2060, 'tweho': 130,
+            'abiwabo': 15, 'biwabo': 1, 'iwabo': 600, 'iziwabo': 2,
+            'kubwabo': 14, 'rwiwabo': 1, 'twabo': 27, 'uwabo': 17, 'wiwabo': 1,
+            'yiwabo': 2, 'ziwabo': 1,
+            'ahabo': 11, 'akabo': 2, 'icabo': 8, 'iryabo': 7, 'ivyabo': 171,
+            'iyabo': 5, 'izabo': 156, 'mwabo': 1, 'nyabo': 18, 'ubwabo': 59,
+            'urwabo': 26, 'utwabo': 91,
+            'ahano': 4, 'akano': 5, 'ano': 139, 'bano': 290, 'bino': 111,
+            'buno': 481, 'hano': 1048, 'ino': 1193, 'irino': 5, 'kano': 155,
+            'kino': 657, 'kuno': 59, 'rino': 77, 'runo': 55, 'tuno': 8,
+            'ubuno': 1, 'uno': 1611, 'utuno': 1, 'zino': 66,
+            'catwo': 2, 'cavyo': 49, 'cawo': 21, 'cayo': 134, 'cazo': 13,
+            'habo': 4, 'haho': 4, 'haryo': 2
+            }
+
+    def test_build_pronouns(self):
+        """Test some composed pronouns"""
+        pronouns = dbc.build_pronouns()
+        self.assertEqual(len(pronouns), 31)
+        self.assertEqual(pronouns[5].lemma, '-o')
+        self.assertEqual(pronouns[5].dbid, 40002)
+        self.assertEqual(pronouns[5].questions,
+                         ['^([bkrt]?w|[rv]?y|[bchkz])o?$',])
+        self.assertEqual(pronouns[9].lemma, 'nyene')
+        self.assertEqual(pronouns[9].dbid, 3402)
+        self.assertEqual(len(pronouns[9].questions), 4)
+        self.assertEqual(
+            pronouns[9].questions[0],
+            '^(na)?((([jw]|[mt]w)e)|([bkrt]?w|[rv]?y|[bchkz])o)nyene$')
+        self.assertEqual(pronouns[13].lemma, '-ryo')
+        self.assertEqual(pronouns[13].dbid, 40014)
+        self.assertEqual(pronouns[13].questions,
+                         ['^((a?[bhk]a|i?[bkrz]i|u?[bkrt]u)|[aiu])ryo$'])
+        self.assertEqual(pronouns[23].lemma, 'si-')
+        self.assertEqual(pronouns[23].dbid, 40012)
+        self.assertEqual(pronouns[23].questions,
+                         ['^si([bkrt]?w|[rv]?y|[bchkz])o?$'])
+        self.assertEqual(pronouns[30].lemma, '-abo')
+        self.assertEqual(pronouns[30].dbid, 8098)
+        self.assertEqual(len(pronouns[30].questions), 2)
+        self.assertEqual(
+            pronouns[30].questions[1],
+            '^([bkrt]?w|[rv]?y|[bchkz])abo$')
+
+    def test_collect_pronouns(self):
+        """Test collecting pronouns from db and composed ones """
+        collection, freq_no_prn = dbc.collect_pronouns(DB_DATA, FREQ_SIM)
+        types_num = 0
+        for i in collection:
+            types_num += i[4]
+        # found types
+        self.assertEqual(types_num, 42)
+        # found lemmata
+        self.assertEqual(len(collection), 5)
+        # unknown types
+        self.assertEqual(len(freq_no_prn), 13)
+        for no_pronoun in ['igi', 'ahabo', 'akabo', 'icabo', 'iryabo',
+                           'ivyabo', 'iyabo', 'izabo', 'mwabo', 'nyabo',
+                           'ubwabo', 'urwabo', 'utwabo']:
+            self.assertIn(no_pronoun, freq_no_prn)
+
+
+###############################################################
+#       T E S T   FOREIGN WORDS                               #
+###############################################################
+class TestForeign(TestCase):
+    """Test case for collecting foreign words"""
+
+    DB_DATA = [
+        dbc.Pronoun(['8274', 'iki', 'iki',
+                     '', 'iki', '', '', '', '5',
+                     '', '', '', '', '', '', '', '', '',
+                     '0', '', '1', '', 'NULL'])]
+
+
+###############################################################
+#       T E S T   HELPER                                      #
+###############################################################
+class TestHelper(TestCase):
+    """Test helper functions in db_classes"""
+
+    def test_put_same_ids_together(self):
+        """Test merging found types of lemma from db-entry with
+        composed types"""
+        collection = [
+            ['-no', '1458', 'PRON', 4918, 18,
+                ['ahano', 4], ['akano', 5], ['ano', 139], ['bano', 290],
+                ['bino', 111], ['buno', 481], ['ino', 1193],
+                ['irino', 5], ['kano', 155], ['kino', 657], ['kuno', 59],
+                ['rino', 77], ['runo', 55], ['tuno', 8], ['ubuno', 1],
+                ['uno', 1611], ['utuno', 1], ['zino', 66]],
+            ['iki', '8274', 'PRON', 6373, 1, ['iki', 6373]],
+            ['hano', '1458', 'PRON', 1048, 1,
+                ['hano', 1048]]
+        ]
+        collection = dbc.put_same_ids_together(collection)
+        self.assertEqual(len(collection), 2)
+        self.assertIn(['hano', 1048], collection[0])
+        self.assertIn(['rino', 77], collection[0])
+        self.assertEqual(collection[0][3], 5966)
+        self.assertEqual(collection[0][4], 19)

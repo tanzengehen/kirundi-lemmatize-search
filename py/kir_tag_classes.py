@@ -11,6 +11,7 @@ from nltk.text import FreqDist
 from nltk.corpus import PlaintextCorpusReader
 from unidecode import unidecode
 import kir_string_depot as sd
+import kir_db_classes as dbc
 # import kir_helper2 as kh
 
 
@@ -338,7 +339,7 @@ class Collection:
         self.nouns = []
         self.adjs = []
         self.verbs = []
-        self.unk = []
+        self.unk = simple_freq_list
         self.known = []
 
     def put_known(self):
@@ -361,7 +362,7 @@ class Collection:
         self.known = known
 
     def all_in(self):
-        """return a list of all types sorted by frequency of lemma
+        """returns a list of all types sorted by frequency of lemma
         or frequency of themselves if they didn't match a lemma
         """
         all_in = self.known+self.unk

@@ -38,8 +38,7 @@ def reduce_simplefreq_to_lemma_collection(simple_freq_list,
         kh._("sorting Named Entities ..........................."))
     collection = tc.Collection(simple_freq_list)
     len_before = len(simple_freq_list)
-    (collection.names, still_unk) = dbc.filter_names_out(names,
-                                                         simple_freq_list)
+    (collection.names, still_unk) = dbc.collect_names(names, simple_freq_list)
     kh.OBSERVER.notify(
         kh._("\nNamed Entities      : ")
         + f"\t{len_before-len(still_unk)}\t\t({len(still_unk)})")

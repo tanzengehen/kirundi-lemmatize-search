@@ -181,6 +181,19 @@ class NounPrepositions:
             + f"qu_ca_konsonant = {self.qu_ca_konsonant}"
 
 
+class PrnRgx:
+    """regex for building pronouns by combination"""
+    c_a = r"(([bkrt]w|[rv]?y|[bchkwz]))"
+    c_o = r"([bkrt]?w|[rv]?y|[bchkz])"
+    ic_o = r"(a[bhky]|i([cz]|([rv]?)y)|u(([bkrt]?w?)|y))"
+    gi = r"([bghm]a|[bgmirz]i|n|[bdgmr]u)"
+    i_ki = r"((a?[bhk]a|i?[bkrz]i|u?[bkrt]u)|[aiu])"
+    kiw = r"(([bhky]a|[bkryz]i|[bkrtw]u))"
+    poss = r"((u|kub)|(" + ic_o + "|" + c_o + ")?i)w"
+    igki = r"(a[bhgkmy]a|i(v?y|[bgkmrz])i|u[bgkmrdtwy]u)"
+    je = r"(([jw]|[mt]w)e)"
+
+
 def column_names_lemmafreq():
     """headline for lemmafreq.csv
     """

@@ -42,7 +42,7 @@ def load_dbkirundi():
                         verb = kv.Verb(row_a)
                         verbs.append(verb)
                         row[0] = str(row[0]) + "_0"  # 0 id
-                        row[13] = ""                  # alternatives
+                        row[13] = ""                 # alternatives
                     verb = kv.Verb(row)
                     verbs.append(verb)
                 elif row[8] == "1":
@@ -256,7 +256,8 @@ def set_person_language_out_of_location(loc, per, lng):
     based on PROPN_LOC
     """
     for i in loc:
-        # only countries which start with ubu need ubu also in their variants
+        # only countries with a name that starts with ubu
+        #   need ubu also in their variants
         if i.lemma[:3] == "ubu":
             for location in i.alternatives:
                 i.questions += [
@@ -563,9 +564,6 @@ class Pronoun(kv.Lemma):
 
     def __init__(self, row):
         super().__init__(row)
-        if self.alternatives:
-            for i in self.alternatives:
-                self.questions.append(i.strip())
 
     def __str__(self):
         return f"lemma= {self.lemma}, ID={ self.dbid}, stem={self.stem}, "\
@@ -584,139 +582,155 @@ def put_same_ids_together(collection):
     because some of them are made with regex and not listed in db"""
     collection.sort(key=lambda x: int(x[1]))
     coll = []
-    run_next = True
-    for i in enumerate(collection):
-        if run_next is True:
-            if int(collection[i][1]) == int(collection[i-1][1]):
-                collection[i][3] += collection[i-1][3]
-                collection[i][4] += collection[i-1][4]
-                coll.append(collection[i]+collection[i-1][5:])
-                run_next = False
-            else:
-                coll.append(collection[i])
+    for i in range(1, len(collection)):
+        if int(collection[i][1]) == int(collection[i-1][1]):
+            collection[i][3] += collection[i-1][3]
+            collection[i][4] += collection[i-1][4]
+            coll.append(collection[i] + collection[i-1][5:])
         else:
-            # skip only one
-            run_next = True
+            coll.append(collection[i])
     coll.sort(key=lambda x: x[3], reverse=True)
     coll.sort(key=lambda x: x[4], reverse=True)
     return coll
 
 
+def build_pronouns():
+    """make pronouns out of combinations"""
+
+    prns_made_here = []
+    # lemma, question, db_id (or new id given here)
+    # one lemma, one question
+    one_lemma_one_question = [
+        ["nk-o", [r"^nk"+sd.PrnRgx.ic_o+"o$",], 3281],
+        ["-rtyo", [r"^"+sd.PrnRgx.gi+r"(r?tyo)$",], 7145],
+        ["-a-o", [r"^"+sd.PrnRgx.c_a+"a"+sd.PrnRgx.c_o+"o$", ], 40000],
+        ["_-o", [r"^"+sd.PrnRgx.ic_o+"o?$",], 40001],
+        ["-a", [r"^"+sd.PrnRgx.c_a+"a?$",], 7778],
+        ["-o", [r"^"+sd.PrnRgx.c_o+"o?$",], 40002],
+        ["n_", [r"^((n[ai]t?we)|n)$",], 40003]
+        ]
+    for prn in one_lemma_one_question:
+        build_p = kv.Word()
+        build_p.lemma = prn[0]
+        build_p.dbid = prn[2]
+        build_p.pos = "PRON"
+        build_p.questions = prn[1]
+        prns_made_here.append(build_p)
+
+    # one lemma, list of questions
+    lem_loq = [
+            ["-ari-o",
+                ["uwariwo", "iyariyo", "iryariryo", "ayariyo", "icarico",
+                 "ivyarivyo", "izarizo", "urwarirwo", "akariko", "utwaritwo",
+                 "ubwaribwo", "ukwarikwo", "ihariho"],
+                40015],
+            ["-o-o",
+                ["wowo", "bobo", "yoyo", "ryoryo", "coco", "vyovyo", "zozo",
+                 "rworwo", "koko", "twotwo", "bwobwo", "kwokwo", "hoho"],
+                40016],
+            ["nyene",
+                [r"^(na)?("+sd.PrnRgx.je+"|"+sd.PrnRgx.c_o+"o)nyene$",
+                 r"^nyene"+sd.PrnRgx.c_o+"o$",
+                 r"^"+sd.PrnRgx.ic_o+"onyene$",
+                 r"^"+sd.PrnRgx.igki+"nyene$",
+                 ],
+                3402],
+            ["ndi",
+                [r"^([an]ta|[km]u|nka)"+sd.PrnRgx.kiw+"ndi$",
+                 r"^n?"+sd.PrnRgx.igki+"ndi$",
+                 r"^wawundi$", r"^a?babandi$", r"^yiyindi$", r"^ryarindi$",
+                 r"^yayandi$", r"^cakindi$", r"^vyabindi$", r"^zazindi$",
+                 r"^kakandi$", r"^twatundi$", r"^rwarundi$", r"^bwabundi$",
+                 r"^kwakundi$", r"^hahandi$",
+                 ],
+                3218]
+            ]
+    for i in lem_loq:
+        build_p = kv.Word()
+        build_p.lemma = i[0]
+        build_p.dbid = i[2]
+        build_p.pos = "PRON"
+        build_p.questions = i[1]
+        prns_made_here.append(build_p)
+
+    # list of lemmata, same question, at start of lemma: ?+x
+    lol_q_start = [
+            ["riya", "rya", "ryo", "no"],
+            [r"^"+sd.PrnRgx.i_ki+"%s$"],
+            [7320, 6510, 40014, 1458],
+            ]
+    for i in range(len(lol_q_start[0])):
+        build_p = kv.Word()
+        build_p.lemma = "-" + lol_q_start[0][i]
+        build_p.dbid = lol_q_start[2][i]
+        build_p.pos = "PRON"
+        build_p.questions = [r"^" + sd.PrnRgx.i_ki + lol_q_start[0][i] + "$",]
+        prns_made_here.append(build_p)
+
+    # list of lemmata, same question at end of lemma: x+?
+    lol_q_end = [
+            ["ni", "nki", "na", "nka", "nta", "atari", "ari",
+                "ukwa", "si", "hari"],
+            [r"^%s" + sd.PrnRgx.c_o + "o?$",],
+            [40004, 40005, 40005, 40007, 40008, 40009, 40010, 40011,
+                40012, 40013],
+            ]
+    for i in range(len(lol_q_end[0])):
+        build_p = kv.Word()
+        build_p.lemma = lol_q_end[0][i] + "-"
+        build_p.dbid = lol_q_end[2][i]
+        build_p.pos = "PRON"
+        build_p.alternatives = []
+        build_p.questions = [r"^" + lol_q_end[0][i] + sd.PrnRgx.c_o + "o?$",]
+        prns_made_here.append(build_p)
+
+    # list_of_lemmata, list_of_questions at start of lemma: ?+x
+    lol_loq = [
+            ["anje", "awe", "iwe", "acu", "anyu", "abo"],
+            [r"^" + sd.PrnRgx.poss + "%s$",  r"^" + sd.PrnRgx.c_o + "%s$"],
+            [112, 174, 2326, 7490, 133, 8098]
+            ]
+    for i in range(len(lol_loq[0])):
+        build_p = kv.Word()
+        build_p.lemma = "-" + lol_loq[0][i]
+        build_p.dbid = lol_loq[2][i]
+        build_p.pos = "PRON"
+        build_p.alternatives = []
+        build_p.questions = [r"^" + sd.PrnRgx.poss + lol_loq[0][i]+"$",
+                             r"^" + sd.PrnRgx.c_o + lol_loq[0][i]+"$"]
+        prns_made_here.append(build_p)
+
+    return prns_made_here
+
+
 def collect_pronouns(db_pronouns, freq_d):
-    """maps pronouns to lemmata of db and also builds other combinations
+    """maps pronouns to lemmata of db and also builds pronouns with
+    combinations
     takes frequency-dictionary and list of pronouns
     returns list with columns:
                 lemma, id, PoS, sum of frequency of all forms, counted forms,
                 all forms found ([form, frequency] per column)
-            and changed frequency-dictionary {'found_pronouns':0}
+            and changed frequency-dictionary {found pronouns are removed}
     """
     collection = []
-    #freq_prn = {x: y for x, y in freq_d.items() if y != 0}
     freq_prn = freq_d
-    regex_prn_c_a = r"(([bkrt]w|[rv]?y|[bchkwz]))"
-    regex_prn_c_o = r"([bkrt]?w|[rv]?y|[bchkz])"
-    regex_prn_ic_o = r"(a[bhky]|i([cz]|([rv]?)y)|u(([bkrt]?w?)|y))"
-    regex_prn_gi = r"([bghm]a|[bgmirz]i|n|[bdgmr]u)"
-    regex_prn_i_ki = r"((a?[bhk]a|i?[bkrz]i|u?[bkrt]u)|[aiu])"
-    regex_prn_kiw = r"(([bhky]a|[bkryz]i|[bkrtw]u))"
-    regex_prn_poss = r"((u|kub)|("+regex_prn_ic_o+"|"+regex_prn_c_o+")?i)w"
-    regex_prn_igki = r"(a[bhgkmy]a|i(v?y|[bgkmrz])i|u[bgkmrdtwy]u)"
-    regex_prn_je = r"(([jw]|[mt]w)e)"
-
-    # lemma, question, marker if regex needs Variable,
-    #                                 db_id (or new id given here), -lemma-
-    prns_made_here = [  # one lemma, one question
-            [["nk-o",], [r"nk"+regex_prn_ic_o+"o",], 0, 3281, ""],
-            [["-rtyo",], [regex_prn_gi+r"(r?tyo)",], 0, 7145, ""],
-            [["-a-o",], [regex_prn_c_a+"a"+regex_prn_c_o+"o", ], 0, 40000, ""],
-            [["_-o",], [regex_prn_ic_o+"o?",], 0, 40001, ""],
-            [["-a",], [regex_prn_c_a+"a?",], 0, 7778, ""],
-            [["-o",], [regex_prn_c_o+"o?",], 0, 40002, ""],
-            [["n_",], [r"((n[ai]t?we)|n)",], 0, 40003, ""],
-            # list of lemmata, list of questions
-            [["anje", "awe", "iwe", "acu", "anyu", "abo"],
-                [r"^" + regex_prn_poss + "%s$",
-                 r"^" + regex_prn_c_o + "%s$"],
-                1, [112, 174, 2326, 7490, 133, 8098], "-x"],
-            # list of lemmata, one question
-            [["ni", "nki", "na", "nka", "nta", "atari", "ari",
-              "ukwa", "si", "hari"],
-                [r"^%s" + regex_prn_c_o + "o?$",],
-                1,
-                [40004, 40005, 40005, 40007, 40008, 40009, 40010, 40011,
-                 40012, 40013],
-                "x-"
-             ],
-            [["riya", "rya", "ryo", "no"],
-                [r"^"+regex_prn_i_ki+"%s$"],
-                1, [7320, 6510, 40014, 1458], "-x"],
-            # one lemma, list of questions
-            [["-ari-o",],
-                ["uwariwo", "iyariyo", "iryariryo", "ayariyo", "icarico",
-                 "ivyarivyo", "izarizo", "urwarirwo", "akariko", "utwaritwo",
-                 "ubwaribwo", "ukwarikwo", "ihariho"],
-                0, 40015, ""
-             ],
-            [["-o-o",],
-                ["wowo", "bobo", "yoyo", "ryoryo", "coco", "vyovyo", "zozo",
-                 "rworwo", "koko", "twotwo", "bwobwo", "kwokwo", "hoho"],
-                0, 40016, ""],
-            [["nyene",],
-                [r"^(na)?("+regex_prn_je+"|"+regex_prn_c_o+"o)%s$",
-                 r"^%s"+regex_prn_c_o+"o$",
-                 r"^"+regex_prn_ic_o+"o%s$",
-                 r"^"+regex_prn_igki+"%s$",
-                 ],
-                1, [3402,], "-x"],
-            [["ndi",],
-                [r"^([an]ta|[km]u|nka)"+regex_prn_kiw+"%s$",
-                 r"^n?"+regex_prn_igki+"%s$",
-                 r"^wawu%s$", r"^a?baba%s$", r"^yiyi%s$", r"^ryari%s$",
-                 r"^yaya%s$", r"^caki%s$", r"^vyabi%s$", r"^zazi%s$",
-                 r"^kaka%s$", r"^twatu%s$", r"^rwaru%s$", r"^bwabu%s$",
-                 r"^kwaku%s$", r"^haha%s$",
-                 ],
-                1, [3218,], "-x"]
-            ]
-    for quest in prns_made_here:
-        # list of lemma
-        for i in range(len(quest[0])):
-            freqsum = 0
-            found = []
-            # set lemma
-            if quest[4] == "-x":
-                qu4 = "-"+quest[0][i]
-            elif quest[4] == "x-":
-                qu4 = quest[0][i]+"-"
-            else:
-                qu4 = quest[0][i]
-            # set list of questions
-            for qu1 in quest[1]:
-                if quest[2] == 0:
-                    question = r"^"+qu1+"$"
-                    qu3 = quest[3]
-                elif quest[2] == 1:
-                    question = qu1 % quest[0][i]
-                    qu3 = quest[3][i]
-                # search
-                for freqs, num in freq_prn.items():
-                    if num != 0 and re.search(question, freqs) is not None:
-                        freqsum += num
-                        found.append([freqs, num])
-                        freq_prn.update({freqs: 0})
-                        continue  # next qu1
-            if freqsum > 0:
-                found.sort()
-                found = [qu4, qu3, "PRON", freqsum, len(found)] + found
-                collection.append(found)
-
-    # for all other pronouns we didn't made here
+    # for all pronouns with entry in db
     for lemma in db_pronouns:
+        # print("lemma quest:", lemma)
         found = string_search(lemma, freq_prn)
         if found:
             collection.append(found)
-
     if collection:
+        freq_prn = {x: y for x, y in freq_prn.items() if y != 0}
+    # pronouns made out of regex
+    prns_made_here = build_pronouns()
+    for prn in prns_made_here:
+        found = regex_search(prn, freq_prn)
+        if found:
+            collection.append(found)
+    if collection:
+        collection.sort(key=lambda x: x[0])
+        print(collection)
         collection = put_same_ids_together(collection)
         freq_prn = {x: y for x, y in freq_prn.items() if y != 0}
 
@@ -726,13 +740,13 @@ def collect_pronouns(db_pronouns, freq_d):
     return (collection, freq_prn)
 
 
-def filter_names_out(names_and_foreign_words, freq_list):
-    """maps named entities and foreign words
-    takes frequency-list and NE-object list
+def collect_names(names_and_foreign_words, freq_list):
+    """maps named entities and foreign words;
+    takes frequency-list and NE-object list;
     returns list with columns:
                 lemma, id, frequency, counted form =1,
                 [form, frequency]
-            and a frequency-dictionary {'found_word':0}
+            and a frequency-dictionary {found words are removed}
     """
     collection = []
     freq_names = dict(freq_list)

@@ -10,9 +10,30 @@ import re
 from unidecode import unidecode
 import kir_string_depot as sd
 import kir_helper2 as kh
-
+from abc import abstractmethod
 
 REGEX_SUFFIX = r"((([hyk]|mw)o)?$)"
+
+
+class Word:
+    @abstractmethod
+    def __init__(self):
+        self.dbid = ''
+        self.lemma = ''
+        self.pos = ''
+        self.stem = ''
+        self.alternatives = []
+        self.questions = []
+
+    def __str__(self):
+        return f"lemma= {self.lemma}, ID={ self.dbid}, PoS= {self.pos}, "\
+                + f"stem= {self.stem}, alternatives= {self.alternatives} "\
+                + f"questions: {self.questions}"
+
+    def __repr__(self):
+        return f"lemma={self.lemma}, dbid={self.dbid}, PoS= {self.pos}, "\
+                    + f"stem= {self.stem}, alternatives={self.alternatives}, "\
+                    + f"len(questions)={len(self.questions)}"
 
 
 class Lemma:
