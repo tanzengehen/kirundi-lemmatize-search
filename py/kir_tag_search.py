@@ -33,68 +33,77 @@ def reduce_simplefreq_to_lemma_collection(simple_freq_list,
     dict_nouns1 = data_rundi.get("nouns1")
     dict_nouns2 = data_rundi.get("nouns2")
 
+    collection = tc.Collection(simple_freq_list)
     # Translators: fill points up to 50 letters
     kh.OBSERVER.notify(
         kh._("sorting Named Entities ..........................."))
-    collection = tc.Collection(simple_freq_list)
-    len_before = len(simple_freq_list)
-    (collection.names, still_unk) = dbc.collect_names(names, simple_freq_list)
+    # names
+    unk_before = len(collection.unk)
+    collection.collect_names(names)
+    unk_still = len(collection.unk)
     kh.OBSERVER.notify(
         kh._("\nNamed Entities      : ")
-        + f"\t{len_before-len(still_unk)}\t\t({len(still_unk)})")
-    len_before = len(still_unk)
-    (collection.advs, still_unk) = dbc.collect_adv_plus(dict_adv, still_unk)
+        + f"\t{unk_before-unk_still}\t\t({unk_still})")
+    # adverbs
+    unk_before = len(collection.unk)
+    collection.collect_adverbs(dict_adv)
+    unk_still = len(collection.unk)
     kh.OBSERVER.notify(
         kh._("adverbs etc         : ")
-        + f"{len_before-len(still_unk)} >> "
-        + f"{len(collection.advs)-1}\t({len(still_unk)})")
-    len_before = len(still_unk)
-    (collection.pronouns,
-     still_unk) = dbc.collect_pronouns(dict_prns, still_unk)
+        + f"{unk_before-unk_still} >> "
+        + f"{len(collection.advs)-1}\t({unk_still})")
+    # pronouns
+    unk_before = len(collection.unk)
+    collection.collect_pronouns(dict_prns)
+    unk_still = len(collection.unk)
     kh.OBSERVER.notify(
-        kh._("pronouns            : ") + f"{len_before-len(still_unk)} >> "
-        f"{len(collection.pronouns)-1}\t({len(still_unk)})")
+        kh._("pronouns            : ") + f"{unk_before - unk_still} >> "
+        f"{len(collection.pronouns)-1}\t({unk_still})")
+    # nouns part1
     # Translators: fill points up to 50 letters
     kh.OBSERVER.notify(
         kh._("sorting nouns ...................................."))
-    len_before = len(still_unk)
-    (collection.nouns,
-     still_unk) = dbc.collect_nouns(dict_nouns1, still_unk)
+    unk_before = len(collection.unk)
+    collection.collect_nouns(dict_nouns1)
+    unk_still = len(collection.unk)
     kh.OBSERVER.notify(
         kh._("\nnouns               : ")
-        + f"{len_before-len(still_unk)} >> "
-        + f"{len(collection.nouns)-1}\t({len(still_unk)})")
-    len_before = len(still_unk)
-    (collection.adjs, still_unk) = dbc.collect_adjs(dict_adj, still_unk)
+        + f"{unk_before - unk_still} >> "
+        + f"{len(collection.nouns)-1}\t({unk_still})")
+    # adjectives
+    unk_before = len(collection.unk)
+    collection.collect_adjectives(dict_adj)
+    unk_still = len(collection.unk)
     kh.OBSERVER.notify(
         kh._("adjektives          : ")
-        + f"{len_before-len(still_unk)} >> "
-        + f"{len(collection.adjs)-1}\t({len(still_unk)})")
+        + f"{unk_before - unk_still} >> "
+        + f"{len(collection.adjs)-1}\t({unk_still})")
+    # verbs
     kh.OBSERVER.notify(
         kh._("sorting verbs ...................................."))
-    len_before = len(still_unk)
-    (collection.verbs, still_unk) = kv.sammle_verben(dict_verbs, still_unk)
+    unk_before = len(collection.unk)
+    collection.collect_verbs(dict_verbs)
+    unk_still = len(collection.unk)
     kh.OBSERVER.notify(
         kh._("\nverbs               : ")
-        + f"{len_before-len(still_unk)} >> "
-        + f"{len(collection.verbs)-1}\t({len(still_unk)})")
-    # now we search for the nouns we skipped before verbs (uku...)
-    len_before = len(still_unk)
-    (found_here,
-     still_unk) = dbc.collect_nouns(dict_nouns2, still_unk)
-    collection.nouns += found_here
-    (exclams,
-     still_unk) = dbc.collect_exclamations(dict_rests, still_unk)
-    collection.advs += exclams
-    collection.advs = dbc.put_same_ids_together(collection.advs)
+        + f"{unk_before - unk_still} >> "
+        + f"{len(collection.verbs)-1}\t({unk_still})")
+    # nouns part2: the nouns we skipped before verbs (uku...)
+    unk_before = len(collection.unk)
+    collection.collect_nouns(dict_nouns2)
+    # exclamations
+    collection.collect_exclamations(dict_rests)
+    unk_still = len(collection.unk)
     kh.OBSERVER.notify(
         kh._("\nexclamations        : ")
-        + f"\t\t{len_before-len(still_unk)}"
-        + f"\nunknown             :\t\t\t\t({len(still_unk)})")
-    # collection.unk=[]
-    for key, value in still_unk.items():
-        if value != 0:
-            collection.unk.append((key, "", "UNK", value, 1, [key, value]))
+        + f"\t\t{unk_before - unk_still}"
+        + f"\nunknown             :\t\t\t\t({unk_still})")
+    # for key, value in collection.unk.items():
+    #     if value != 0:
+    #         collection.unk.append((key, "", "UNK", value, 1, [key, value]))
+    unk = [(key, "", "UNK", value, 1, [key, value]) for key, value in collection.unk.items()]
+    unk.sort(key=lambda x: x[3], reverse=True)
+    collection.unk = unk
     return collection
 
 
@@ -138,7 +147,6 @@ def split_in_sentences(mytext, para=" #|* "):
     # # delete headline flags
     # all_sents = [i.strip("#|*") for i in all_sents if i != "#|*"]
     return all_sents
-
 
 
 def tag_word_nrmailweb(myword):

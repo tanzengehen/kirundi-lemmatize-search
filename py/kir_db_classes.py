@@ -50,7 +50,7 @@ def load_dbkirundi():
                 elif row[8] == "2":
                     adjectivs.append(Adjectiv(row))
                 elif row[8] == "5":
-                    pronouns.append(Pronoun(row))
+                    pronouns.append(kv.Lemma(row))
                 # prepositions, adverbs, conjunctions, interjections
                 elif row[8] == "3" or row[8] == "6" or row[8] == "7" \
                         or row[8] == "8":
@@ -164,11 +164,14 @@ class NamedEntities:
         self.dbid = ""
         self.lemma = entry[0].strip()
         self.pos = entry[1].strip().upper()
+        print("in NE entry", entry)
         if entry[2]:
             self.alternatives = [i.strip() for i in entry[2].split(";")]
         else:
             self.alternatives = []
         self.alternatives.insert(0, self.lemma)
+        # sometimes an alternative is after unidecode() the same word as lemma
+        self.alternatives = list(set(self.alternatives))
         self.persons = []
         self.lang = []
         self.questions = []
@@ -557,36 +560,21 @@ def collect_adjs(db_adjektive, freq_d):
     return (collection, freq_adj)
 
 
-class Pronoun(kv.Lemma):
-    """sets db-ID, lemma, stem, PoS, alternative spellings and
-    questions for string-search
-    """
-
-    def __init__(self, row):
-        super().__init__(row)
-
-    def __str__(self):
-        return f"lemma= {self.lemma}, ID={ self.dbid}, stem={self.stem}, "\
-                + f"alternatives= {self.alternatives}, PoS={self.pos}, "\
-                + f"questions={self.questions}"
-
-    def __repr__(self):
-        return f"lemma={self.lemma}, dbid={self.dbid}, stem={self.stem}, "\
-                + f"alternatives={self.alternatives}, PoS= {self.pos} "\
-                + f"questions={self.questions}"
-
-
 def put_same_ids_together(collection):
     """sums up and adds found types of same ID,
     for interjections + adverbs and pronouns
     because some of them are made with regex and not listed in db"""
+    # print("put davor:", collection[:5])
     collection.sort(key=lambda x: int(x[1]))
+    collection.insert(0, ["some data", "-1", "to compare with first element"])
     coll = []
     for i in range(1, len(collection)):
         if int(collection[i][1]) == int(collection[i-1][1]):
-            collection[i][3] += collection[i-1][3]
-            collection[i][4] += collection[i-1][4]
-            coll.append(collection[i] + collection[i-1][5:])
+            collection[i-1][3] += collection[i][3]
+            collection[i-1][4] += collection[i][4]
+            # assumed that there are at most only two types with same id
+            coll.pop(-1)
+            coll.append(collection[i-1] + collection[i][5:])
         else:
             coll.append(collection[i])
     coll.sort(key=lambda x: x[3], reverse=True)
@@ -707,21 +695,13 @@ def collect_pronouns(db_pronouns, freq_d):
     """maps pronouns to lemmata of db and also builds pronouns with
     combinations
     takes frequency-dictionary and list of pronouns
-    returns list with columns:
+    returns * list with columns:
                 lemma, id, PoS, sum of frequency of all forms, counted forms,
                 all forms found ([form, frequency] per column)
-            and changed frequency-dictionary {found pronouns are removed}
+            * and changed frequency-dictionary {found pronouns are removed}
     """
     collection = []
     freq_prn = freq_d
-    # for all pronouns with entry in db
-    for lemma in db_pronouns:
-        # print("lemma quest:", lemma)
-        found = string_search(lemma, freq_prn)
-        if found:
-            collection.append(found)
-    if collection:
-        freq_prn = {x: y for x, y in freq_prn.items() if y != 0}
     # pronouns made out of regex
     prns_made_here = build_pronouns()
     for prn in prns_made_here:
@@ -729,8 +709,16 @@ def collect_pronouns(db_pronouns, freq_d):
         if found:
             collection.append(found)
     if collection:
+        freq_prn = {x: y for x, y in freq_prn.items() if y != 0}
+
+    # for all pronouns with entry in db
+    for lemma in db_pronouns:
+        found = string_search(lemma, freq_prn)
+        if found:
+            collection.append(found)
+    if collection:
+        # sort to make sure that lemma is: '-no' and not: 'hano' or 'buno'
         collection.sort(key=lambda x: x[0])
-        print(collection)
         collection = put_same_ids_together(collection)
         freq_prn = {x: y for x, y in freq_prn.items() if y != 0}
 
@@ -750,7 +738,10 @@ def collect_names(names_and_foreign_words, freq_list):
     """
     collection = []
     freq_names = dict(freq_list)
-    points = int(len(names_and_foreign_words)/50)
+    if len(names_and_foreign_words) < 50:
+        points = 1
+    else:
+        points = int(len(names_and_foreign_words)/50)
     lemma_count = 0
     for name in names_and_foreign_words:
         if name.pos in ["PROPN_PER", "PROPN_LOC"]:
@@ -760,10 +751,8 @@ def collect_names(names_and_foreign_words, freq_list):
         if found:
             collection.append(found)
         lemma_count += 1
-        # kh.progress(int(lemma_count/maxi)*100)
         # progress bar
         if lemma_count % points == 0:
-            # print('.', end="")
             kh.OBSERVER.notify_cont('.')
     if collection:
         collection.sort(key=lambda x: x[3], reverse=True)
@@ -795,23 +784,6 @@ def collect_adv_plus(db_advplus, freq_d):
     # kh.save_list(collection,"found2_div.csv",";")
 
     return (collection, freq_unchangable)
-
-
-# #TODO
-# class Exclamations:
-#     def __init__(self, row):
-#         super().__init__(row)
-#         if self.alternatives:
-#             for i in self.alternatives:
-#                 self.questions.append(i.strip())
-#     def __str__(self):
-#         return f"lemma={self.lemma}, ID={self.dbid}, "\
-#                +f"alternatives={self.alternatives}, "\
-#                #+f"all alternatives {self.coll}: {self.questions}"
-#     def __repr__(self):
-#         return f"lemma={self.lemma}, dbid={self.dbid}, "\
-#                    +f"alternatives={self.alternatives}, "\
-#                    +f"coll={self.coll}, len(questions)={len(self.questions)}"
 
 
 def collect_exclamations(db_rest, freq_d):

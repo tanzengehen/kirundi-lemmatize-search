@@ -12,6 +12,7 @@ from nltk.corpus import PlaintextCorpusReader
 from unidecode import unidecode
 import kir_string_depot as sd
 import kir_db_classes as dbc
+import kir_prepare_verbs as kv
 # import kir_helper2 as kh
 
 
@@ -339,7 +340,7 @@ class Collection:
         self.nouns = []
         self.adjs = []
         self.verbs = []
-        self.unk = simple_freq_list
+        self.unk = dict(simple_freq_list)
         self.known = []
 
     def put_known(self):
@@ -380,6 +381,39 @@ class Collection:
                 + f"prn={len(self.pronouns)}, nouns={len(self.nouns)}, "\
                 + f"adj={len(self.adjs)}, verbs={len(self.verbs)}, "\
                 + f"unk={len(self.unk)}, known={len(self.known)}"
+
+    def collect_names(self, names):
+        """collects names"""
+        self.names, self.unk = dbc.collect_names(names, self.unk)
+
+    def collect_adverbs(self, db_adverbs):
+        """collects adverbs"""
+        self.advs, self.unk = dbc.collect_adv_plus(db_adverbs, self.unk)
+
+    def collect_pronouns(self, db_pronouns):
+        """collects pronouns"""
+        self.pronouns, self.unk = dbc.collect_pronouns(db_pronouns, self.unk)
+
+    def collect_nouns(self, db_nouns):
+        """collect nouns"""
+        # attention: adds found nouns because we do it twice
+        found_here, self.unk = dbc.collect_nouns(db_nouns, self.unk)
+        self.nouns += found_here
+
+    def collect_verbs(self, db_verbs):
+        """collects verbs"""
+        self.verbs, self.unk = kv.sammle_verben(db_verbs, self.unk)
+
+    def collect_adjectives(self, db_adjectives):
+        """collects adjectives"""
+        self.adjs, self.unk = dbc.collect_adjs(db_adjectives, self.unk)
+
+    def collect_exclamations(self, db_rest):
+        """collects exclamations and put together with adverbs"""
+        # attention: adds found exclamations because some are mapped to adverbs
+        found_here, self.unk = dbc.collect_exclamations(db_rest, self.unk)
+        self.advs += found_here
+        self.adv = dbc.put_same_ids_together(self.advs)
 
 
 class FreqMeta:

@@ -9,17 +9,19 @@ Created on Sat Sep 30 14:01:20 2023
 import csv  # json
 from unittest import TestCase
 import kir_db_classes as dbc
+import kir_prepare_verbs as kv
 
 
 # nosetests --with-spec --spec-color --with-coverage --cover-erase
 # coverage report -m
 
 DB_DATA = []
+NE_DATA = []
 FREQ_SIM = {}
 
 
 ###############################################################
-#       T E S T   NOUNS                                       #
+#       TEST   N O U N S                                   #
 ###############################################################
 class TestNoun(TestCase):
     """Test cases for Noun
@@ -30,7 +32,6 @@ class TestNoun(TestCase):
     def setUpClass(cls):
         """ Connect and load data needed by tests """
         global DB_DATA
-        # DB_DATA
         global FREQ_SIM
         # with open("bsp.csv") as csv_data:
         #     DB_DATA = csv.reader(csv_data, delimiter=";")
@@ -196,7 +197,7 @@ class TestNoun(TestCase):
 
 
 ###############################################################
-#       T E S T   ADJECTIVES                                  #
+#       TEST   A D J E C T I V E S                            #
 ###############################################################
 class TestAdjectives(TestCase):
     """Test cases for Adjective
@@ -264,7 +265,9 @@ class TestAdjectives(TestCase):
     def tearDownClass(cls):
         """Disconnect from database"""
         global DB_DATA
+        global FREQ_SIM
         DB_DATA = None
+        FREQ_SIM = None
 
     # def setUp(self):
     #     """Setup before each test"""
@@ -307,7 +310,7 @@ class TestAdjectives(TestCase):
 
 
 ###############################################################
-#       T E S T   PRONOUNS                                    #
+#       TEST   P R O N O U N S                                #
 ###############################################################
 class TestPronouns(TestCase):
     """Test cases for Pronouns
@@ -322,26 +325,26 @@ class TestPronouns(TestCase):
         #     DB_DATA = csv.reader(csv_data, delimiter=";")
 
         DB_DATA = [
-            dbc.Pronoun(['8274', 'iki', 'iki',
-                         '', 'iki', '', '', '', '5',
-                         '', '', '', '', '', '', '', '', '',
-                         '0', '', '1', '', 'NULL']),
-            dbc.Pronoun(['8098', '-abo', '-abo',
-                         '-', 'abo', '', '', '', '5',
-                         '', '', '', '', '', '', '', '', '',
-                         '0', '', '0', '', 'NULL']),
-            dbc.Pronoun(['1458', 'hano', 'háno',
-                         'ha', 'no', '', '', '', '5',
-                         '', '', '', '', '', '', '', '', '',
-                         '0', '', '0', '', 'NULL']),
-            dbc.Pronoun(['5447', 'twebwe', 'tweebwé',
-                         '', 'twebwe', '', '', '', '5',
-                         '', '', '', '', 'twebge;tweho', '', '', '', '',
-                         '0', '', '0', '', 'NULL']),
-            dbc.Pronoun(['7863', 'igihe?', 'ígihe?',
-                         'igi', 'he?', '', '', '', '5',
-                         '', '', '', '', '', '', '', '', '',
-                         '0', '', '0', '', 'NULL'])
+            kv.Lemma(['8274', 'iki', 'iki',
+                      '', 'iki', '', '', '', '5',
+                      '', '', '', '', '', '', '', '', '',
+                      '0', '', '1', '', 'NULL']),
+            kv.Lemma(['8098', '-abo', '-abo',
+                      '-', 'abo', '', '', '', '5',
+                      '', '', '', '', '', '', '', '', '',
+                      '0', '', '0', '', 'NULL']),
+            kv.Lemma(['1458', 'hano', 'háno',
+                      'ha', 'no', '', '', '', '5',
+                      '', '', '', '', '', '', '', '', '',
+                      '0', '', '0', '', 'NULL']),
+            kv.Lemma(['5447', 'twebwe', 'tweebwé',
+                      '', 'twebwe', '', '', '', '5',
+                      '', '', '', '', 'twebge;tweho', '', '', '', '',
+                      '0', '', '0', '', 'NULL']),
+            kv.Lemma(['7863', 'igihe?', 'ígihe?',
+                      'igi', 'he?', '', '', '', '5',
+                      '', '', '', '', '', '', '', '', '',
+                      '0', '', '0', '', 'NULL'])
         ]
         FREQ_SIM = {
             'iki': 6373, 'igi': 3,
@@ -359,6 +362,14 @@ class TestPronouns(TestCase):
             'catwo': 2, 'cavyo': 49, 'cawo': 21, 'cayo': 134, 'cazo': 13,
             'habo': 4, 'haho': 4, 'haryo': 2
             }
+
+    @classmethod
+    def tearDownClass(cls):
+        """Disconnect from database"""
+        global DB_DATA
+        global FREQ_SIM
+        DB_DATA = None
+        FREQ_SIM = None
 
     def test_build_pronouns(self):
         """Test some composed pronouns"""
@@ -405,23 +416,154 @@ class TestPronouns(TestCase):
                            'ivyabo', 'iyabo', 'izabo', 'mwabo', 'nyabo',
                            'ubwabo', 'urwabo', 'utwabo']:
             self.assertIn(no_pronoun, freq_no_prn)
+        # right lemma for merged types
+        self.assertEqual(collection[0][0], '-no')
 
 
 ###############################################################
-#       T E S T   FOREIGN WORDS                               #
+#       TEST   A D V E R B S   etc.                           #
+###############################################################
+class TestAdverbsEtc(TestCase):
+    """Test cases for unchanging words: Adverbs, Prepositions,
+    conjunctions, interjections
+    lemmata, alternatives"""
+
+    @classmethod
+    def setUpClass(cls):
+        """ Connect and load data needed by tests """
+        global DB_DATA
+        global FREQ_SIM
+        DB_DATA = [
+            kv.Lemma(['7121', 'ubu nyene', 'ubu nyéne',
+                      '', 'ubu nyene', '', '', '', '6',
+                      '', '', '', '', 'ubunyene', '', '', '', '',
+                      '0', '', '0', '', 'NULL']),
+            kv.Lemma(['5519', 'inyuma', 'inyuma	',
+                      'i', 'nyuma', '', '', '', '7',
+                      '', '', '', '', '', '', '', '', '',
+                      '0', '', '0', '', 'NULL']),
+            kv.Lemma(['5525', 'umengo', 'umeengo',
+                      '', 'umengo', '', '', '', '8',
+                      '', '', '', '', '', '', '', '', '',
+                      '0', '', '0', '', 'NULL']),
+            kv.Lemma(['6121', 'i ruhande', 'i ruhánde',
+                      'i ru', 'hande', '', '', '', '3',
+                      '', '', '', '', 'iruhande', '', '', '', '',
+                      '0', '', '0', '', 'NULL']),
+            ]
+        FREQ_SIM = {
+            'ku': 32042, 'kw': 7422, 'kuri': 6535, 'kur': 371,
+            'mirongwitatu': 19, 'mirongoitatu': 1, 'mirongitatu': 3,
+            'samunani': 13, 'iruhande': 56,
+            }
+        print("db", DB_DATA)
+
+    @classmethod
+    def tearDownClass(cls):
+        """Disconnect from database"""
+        global DB_DATA
+        global FREQ_SIM
+        DB_DATA = None
+        FREQ_SIM = None
+
+    def test_init(self):
+        """Test direct initializations"""
+        print("test", DB_DATA)
+        self.assertEqual(len(DB_DATA), 4)
+        self.assertEqual(DB_DATA[0].lemma, "ubu nyene")
+        self.assertEqual(DB_DATA[0].dbid, "7121")
+        self.assertEqual(DB_DATA[0].pos, "ADV")
+        self.assertEqual(DB_DATA[0].questions, ["ubu nyene", "ubunyene"])
+        self.assertEqual(DB_DATA[1].pos, "CONJ")
+        self.assertEqual(DB_DATA[2].pos, "INTJ")
+        self.assertEqual(DB_DATA[3].pos, "PREP")
+
+
+
+###############################################################
+#       TEST   F O R E I G N words and N A M E S              #
 ###############################################################
 class TestForeign(TestCase):
     """Test case for collecting foreign words"""
 
-    DB_DATA = [
-        dbc.Pronoun(['8274', 'iki', 'iki',
-                     '', 'iki', '', '', '', '5',
-                     '', '', '', '', '', '', '', '', '',
-                     '0', '', '1', '', 'NULL'])]
+    @classmethod
+    def setUpClass(cls):
+        """ Connect and load data needed by tests """
+        global NE_DATA
+        global FREQ_SIM
+        NE_DATA = [
+            dbc.Foreign(['blé ', '', 'f', '', '']),
+            dbc.Foreign(['Gärten', '', 'F', '', '']),
+            dbc.Foreign([' Noël', '', 'F', '', '']),
+            dbc.NamedEntities(['euro', '', 'PROPN_CUR', '', 'EUR; euros']),
+            dbc.NamedEntities(['barça', '', 'PROPN_ORG', '', 'barca']),
+            dbc.NamedEntities(['dmn-tre', '', 'PROPN_SCI', '', 'dmn;tre']),
+            dbc.NamedEntities(['Nsengiyumva', '', 'PROPN_NAM', '', '']),
+            ]
+        FREQ_SIM = {
+            'ble': 2, 'garten': 7, 'noel': 33, 'euro': 12, 'euros': 12,
+            'eur': 6, 'barca': 8, 'dmn': 6, 'tre': 6, 'nsengiyumva': 15
+            }
+
+    @classmethod
+    def tearDownClass(cls):
+        """Disconnect from database"""
+        global NE_DATA
+        global FREQ_SIM
+        NE_DATA = None
+        FREQ_SIM = None
+
+    def test_initialization_foreign(self):
+        """Test direct initialization foreign words"""
+        self.assertEqual(len(NE_DATA), 7)
+        self.assertEqual(NE_DATA[0].lemma, "ble")
+        self.assertEqual(NE_DATA[0].dbid, "")
+        self.assertEqual(NE_DATA[0].pos, "F")
+        self.assertEqual(NE_DATA[0].questions, ["ble",])
+        self.assertEqual(NE_DATA[1].lemma, "garten")
+        self.assertEqual(NE_DATA[2].lemma, "noel")
+
+    def test_initialization_names(self):
+        """Test direct initialization names"""
+        self.assertEqual(
+            NE_DATA[3].row, ['euro', '', 'PROPN_CUR', '', 'EUR; euros'])
+        self.assertEqual(NE_DATA[3].lemma, "euro")
+        self.assertEqual(len(NE_DATA[3].alternatives), 3)
+        for i in NE_DATA[3].alternatives:
+            self.assertIn(i, ['euro', 'eur', 'euros'])
+        self.assertEqual(NE_DATA[3].pos, "PROPN_CUR")
+        self.assertEqual(NE_DATA[4].lemma, "barca")
+        self.assertEqual(NE_DATA[4].pos, "PROPN_ORG")
+        self.assertEqual(NE_DATA[4].alternatives, ["barca"])
+        self.assertEqual(NE_DATA[5].lemma, "dmn-tre")
+        self.assertEqual(NE_DATA[5].pos, "PROPN_SCI")
+        for i in NE_DATA[5].alternatives:
+            self.assertIn(i, ['dmn-tre', 'dmn', 'tre'])
+        self.assertEqual(NE_DATA[6].lemma, "nsengiyumva")
+
+    def test_collect_names(self):
+        """Test collect names and foreign words"""
+        data = NE_DATA[:3]
+        for i in NE_DATA[3:]:
+            i.questions = i.alternatives
+            data.append(i)
+        collection, freq_no_names = dbc.collect_names(data, FREQ_SIM)
+        self.assertEqual(len(collection), 7)
+        types_num = 0
+        for i in collection:
+            types_num += i[4]
+            print(i[0])
+        self.assertEqual(types_num, 10)
+        self.assertEqual(len(freq_no_names), 0)
+        self.assertEqual(collection[1][0], 'euro')
+        self.assertEqual(collection[1][3], 30)
+        self.assertEqual(collection[1][4], 3)
+        for i in collection[1][5:]:
+            self.assertIn(i[0], ['euro', 'eur', 'euros'])
 
 
 ###############################################################
-#       T E S T   HELPER                                      #
+#       TEST   HELPER                                         #
 ###############################################################
 class TestHelper(TestCase):
     """Test helper functions in db_classes"""
@@ -430,18 +572,19 @@ class TestHelper(TestCase):
         """Test merging found types of lemma from db-entry with
         composed types"""
         collection = [
+            ['hano', '1458', 'PRON', 1048, 1,
+                ['hano', 1048]],
+            ['iki', '8274', 'PRON', 6373, 1, ['iki', 6373]],
             ['-no', '1458', 'PRON', 4918, 18,
                 ['ahano', 4], ['akano', 5], ['ano', 139], ['bano', 290],
                 ['bino', 111], ['buno', 481], ['ino', 1193],
                 ['irino', 5], ['kano', 155], ['kino', 657], ['kuno', 59],
                 ['rino', 77], ['runo', 55], ['tuno', 8], ['ubuno', 1],
-                ['uno', 1611], ['utuno', 1], ['zino', 66]],
-            ['iki', '8274', 'PRON', 6373, 1, ['iki', 6373]],
-            ['hano', '1458', 'PRON', 1048, 1,
-                ['hano', 1048]]
+                ['uno', 1611], ['utuno', 1], ['zino', 66]]
         ]
         collection = dbc.put_same_ids_together(collection)
         self.assertEqual(len(collection), 2)
+        # self.assertEqual(collection[0][0], '-no')
         self.assertIn(['hano', 1048], collection[0])
         self.assertIn(['rino', 77], collection[0])
         self.assertEqual(collection[0][3], 5966)
