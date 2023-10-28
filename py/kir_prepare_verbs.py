@@ -15,7 +15,7 @@ from abc import abstractmethod
 REGEX_SUFFIX = r"((([hyk]|mw)o)?$)"
 
 
-class Word:
+class WordBuild:
     @abstractmethod
     def __init__(self):
         self.dbid = ''
@@ -34,6 +34,13 @@ class Word:
         return f"lemma={self.lemma}, dbid={self.dbid}, PoS= {self.pos}, "\
                     + f"stem= {self.stem}, alternatives={self.alternatives}, "\
                     + f"len(questions)={len(self.questions)}"
+
+    def set_questions_simple(self, row):
+        """set questions"""
+        self.lemma = row[0]
+        self.questions = row[1]
+        self.dbid = row[2]
+        self.pos = row[3]
 
 
 class Lemma:

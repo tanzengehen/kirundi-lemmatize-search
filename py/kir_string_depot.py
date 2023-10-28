@@ -194,6 +194,22 @@ class PrnRgx:
     je = r"(([jw]|[mt]w)e)"
 
 
+class ExclRgx:
+    """regex for building exclamation"""
+    ego = r"^(y?e+go+|e+h?|y?ee+)$"
+    oya = r"^(oya+)$"
+    ha = r"^(ha)+$"
+    la = r"^(la)+$"
+    ah = r"^([au]+h|aa+|y?uu+|ah[ao]+|hu+)$"
+    yo = r"^(y?o+h?|o+ho+|oh+)$"
+    mh = r"^(m+h+|hu+m+|hm+|mm+|uu+m)$"
+    he = r"^(e?(he+)+)$"
+    kye = r"^(kye+)+$"
+    luya = r"^(h?al+e+l+u+[iy]a+)$"
+    alo = r"^(alo+)$"
+    euh = r"^(e+uh)$"
+
+
 def column_names_lemmafreq():
     """headline for lemmafreq.csv
     """

@@ -589,21 +589,18 @@ def build_pronouns():
     # lemma, question, db_id (or new id given here)
     # one lemma, one question
     one_lemma_one_question = [
-        ["nk-o", [r"^nk"+sd.PrnRgx.ic_o+"o$",], 3281],
-        ["-rtyo", [r"^"+sd.PrnRgx.gi+r"(r?tyo)$",], 7145],
-        ["-a-o", [r"^"+sd.PrnRgx.c_a+"a"+sd.PrnRgx.c_o+"o$", ], 40000],
-        ["_-o", [r"^"+sd.PrnRgx.ic_o+"o?$",], 40001],
-        ["-a", [r"^"+sd.PrnRgx.c_a+"a?$",], 7778],
-        ["-o", [r"^"+sd.PrnRgx.c_o+"o?$",], 40002],
-        ["n_", [r"^((n[ai]t?we)|n)$",], 40003]
+        ["nk-o", [r"^nk"+sd.PrnRgx.ic_o+"o$",], 3281, "PRON"],
+        ["-rtyo", [r"^"+sd.PrnRgx.gi+r"(r?tyo)$",], 7145, "PRON"],
+        ["-a-o", [r"^"+sd.PrnRgx.c_a+"a"+sd.PrnRgx.c_o+"o$", ], 40000, "PRON"],
+        ["_-o", [r"^"+sd.PrnRgx.ic_o+"o?$",], 40001, "PRON"],
+        ["-a", [r"^"+sd.PrnRgx.c_a+"a?$",], 7778, "PRON"],
+        ["-o", [r"^"+sd.PrnRgx.c_o+"o?$",], 40002, "PRON"],
+        ["n_", [r"^((n[ai]t?we)|n)$",], 40003, "PRON"]
         ]
-    for prn in one_lemma_one_question:
-        build_p = kv.Word()
-        build_p.lemma = prn[0]
-        build_p.dbid = prn[2]
-        build_p.pos = "PRON"
-        build_p.questions = prn[1]
-        prns_made_here.append(build_p)
+    for row in one_lemma_one_question:
+        prn = kv.WordBuild()
+        prn.set_questions_simple(row)
+        prns_made_here.append(prn)
 
     # one lemma, list of questions
     lem_loq = [
@@ -611,18 +608,18 @@ def build_pronouns():
                 ["uwariwo", "iyariyo", "iryariryo", "ayariyo", "icarico",
                  "ivyarivyo", "izarizo", "urwarirwo", "akariko", "utwaritwo",
                  "ubwaribwo", "ukwarikwo", "ihariho"],
-                40015],
+                40015, "PRON"],
             ["-o-o",
                 ["wowo", "bobo", "yoyo", "ryoryo", "coco", "vyovyo", "zozo",
                  "rworwo", "koko", "twotwo", "bwobwo", "kwokwo", "hoho"],
-                40016],
+                40016, "PRON"],
             ["nyene",
                 [r"^(na)?("+sd.PrnRgx.je+"|"+sd.PrnRgx.c_o+"o)nyene$",
                  r"^nyene"+sd.PrnRgx.c_o+"o$",
                  r"^"+sd.PrnRgx.ic_o+"onyene$",
                  r"^"+sd.PrnRgx.igki+"nyene$",
                  ],
-                3402],
+                3402, "PRON"],
             ["ndi",
                 [r"^([an]ta|[km]u|nka)"+sd.PrnRgx.kiw+"ndi$",
                  r"^n?"+sd.PrnRgx.igki+"ndi$",
@@ -631,15 +628,12 @@ def build_pronouns():
                  r"^kakandi$", r"^twatundi$", r"^rwarundi$", r"^bwabundi$",
                  r"^kwakundi$", r"^hahandi$",
                  ],
-                3218]
+                3218, "PRON"]
             ]
-    for i in lem_loq:
-        build_p = kv.Word()
-        build_p.lemma = i[0]
-        build_p.dbid = i[2]
-        build_p.pos = "PRON"
-        build_p.questions = i[1]
-        prns_made_here.append(build_p)
+    for row in lem_loq:
+        prn = kv.WordBuild()
+        prn.set_questions_simple(row)
+        prns_made_here.append(prn)
 
     # list of lemmata, same question, at start of lemma: ?+x
     lol_q_start = [
@@ -648,7 +642,7 @@ def build_pronouns():
             [7320, 6510, 40014, 1458],
             ]
     for i in range(len(lol_q_start[0])):
-        build_p = kv.Word()
+        build_p = kv.WordBuild()
         build_p.lemma = "-" + lol_q_start[0][i]
         build_p.dbid = lol_q_start[2][i]
         build_p.pos = "PRON"
@@ -664,7 +658,7 @@ def build_pronouns():
                 40012, 40013],
             ]
     for i in range(len(lol_q_end[0])):
-        build_p = kv.Word()
+        build_p = kv.WordBuild()
         build_p.lemma = lol_q_end[0][i] + "-"
         build_p.dbid = lol_q_end[2][i]
         build_p.pos = "PRON"
@@ -679,7 +673,7 @@ def build_pronouns():
             [112, 174, 2326, 7490, 133, 8098]
             ]
     for i in range(len(lol_loq[0])):
-        build_p = kv.Word()
+        build_p = kv.WordBuild()
         build_p.lemma = "-" + lol_loq[0][i]
         build_p.dbid = lol_loq[2][i]
         build_p.pos = "PRON"
@@ -702,7 +696,8 @@ def collect_pronouns(db_pronouns, freq_d):
     """
     collection = []
     freq_prn = freq_d
-    # pronouns made out of regex
+
+    # pronouns made with regex
     prns_made_here = build_pronouns()
     for prn in prns_made_here:
         found = regex_search(prn, freq_prn)
@@ -711,13 +706,13 @@ def collect_pronouns(db_pronouns, freq_d):
     if collection:
         freq_prn = {x: y for x, y in freq_prn.items() if y != 0}
 
-    # for all pronouns with entry in db
+    # pronouns with entry in db
     for lemma in db_pronouns:
         found = string_search(lemma, freq_prn)
         if found:
             collection.append(found)
     if collection:
-        # sort to make sure that lemma is: '-no' and not: 'hano' or 'buno'
+        # sort to make sure that lemma is: '-no' and not: 'hano'
         collection.sort(key=lambda x: x[0])
         collection = put_same_ids_together(collection)
         freq_prn = {x: y for x, y in freq_prn.items() if y != 0}
@@ -767,7 +762,7 @@ def collect_adv_plus(db_advplus, freq_d):
     returns list with columns:
                 lemma, id, sum of frequency of all forms, counted forms,
                 all forms found ([form, frequency] per column)
-            and a frequency-dictionary {'found_word':0}
+            and a frequency-dictionary {found words are removed}
     """
     collection = []
     freq_unchangable = freq_d
@@ -778,12 +773,32 @@ def collect_adv_plus(db_advplus, freq_d):
     if collection:
         collection.sort(key=lambda x: x[3], reverse=True)
         freq_unchangable = {x: y for x, y in freq_unchangable.items() if y != 0}
-    # # Wörter, die zum Wörterbuch gemappt wurden, sind jetzt auf 0
-    # save_dict(freq_unchangable,"keine2_div.csv")
-    # # Wörter, die im Korpus vorkommen
-    # kh.save_list(collection,"found2_div.csv",";")
-
     return (collection, freq_unchangable)
+
+
+def build_exclamations():
+    """make exclamation lemmata with regex questions"""
+    excl_made_here = []
+    # exclamations not in the original db get IDs from 30000
+    one_lemma_one_question = [
+        ["ego", [sd.ExclRgx.ego,], 818, "INTJ"],
+        ["oya", [sd.ExclRgx.oya,], 3556, "INTJ"],
+        ["ha", [sd.ExclRgx.ha,], 30000, "INTJ"],
+        ["la", [sd.ExclRgx.la,], 30001, "INTJ"],
+        ["aah", [sd.ExclRgx.ah,], 30002, "INTJ"],
+        ["ooh", [sd.ExclRgx.yo,], 30003, "INTJ"],
+        ["mh", [sd.ExclRgx.mh,], 30004, "INTJ"],
+        ["hee", [sd.ExclRgx.he,], 30005, "INTJ"],
+        ["kyee", [sd.ExclRgx.kye,], 30006, "INTJ"],
+        ["alleluia", [sd.ExclRgx.luya,], 30007, "INTJ"],
+        ["alo", [sd.ExclRgx.alo,], 3008, "INTJ"],
+        ["euh", [sd.ExclRgx.euh,], 3009, "INTJ"]
+    ]
+    for row in one_lemma_one_question:
+        excl = kv.WordBuild()
+        excl.set_questions_simple(row)
+        excl_made_here.append(excl)
+    return excl_made_here
 
 
 def collect_exclamations(db_rest, freq_d):
@@ -793,81 +808,28 @@ def collect_exclamations(db_rest, freq_d):
     returns list with columns:
                 lemma, id, sum of frequency of all forms, counted forms,
                 all forms found ([form, frequency] per column)
-            and a frequency-dictionary {'found_word':0}
+            and a frequency-dictionary {found words are removed}
     """
     collection = []
     freq_exc = freq_d
-    regex_exc_ego = r"^(y?e+go+|e+h?|y?ee+)$"
-    regex_exc_oya = r"^(oya+)$"
-    regex_exc_ha = r"^(ha)+$"
-    regex_exc_la = r"^(la)+$"
-    regex_exc_ah = r"^([au]+h|aa+|y?uu+|ah[ao]+|hu+)$"
-    regex_exc_yo = r"^(y?o+h?|o+ho+|oh+)$"
-    regex_exc_mh = r"^(m+h+|hu+m+|hm+|mm+|uu+m)$"
-    regex_exc_he = r"^(e?(he+)+)$"
-    regex_exc_kye = r"^(kye+)+$"
-    regex_exc_luya = r"^(h?al+e+l+u+[iy]a+)$"
-    regex_exec_alo = r"^(alo+)$"
-    regex_exec_euh = r"^(e+uh)$"
-    # exclamations not in the original db get IDs from 30000
-    ecxl_made_here = [["ego", regex_exc_ego, 818],  # db_id
-                      ["oya", regex_exc_oya, 3556],
-                      ["ha", regex_exc_ha, 30000],
-                      ["la", regex_exc_la, 30001],
-                      ["aah", regex_exc_ah, 30002],
-                      ["ooh", regex_exc_yo, 30003],
-                      ["mh", regex_exc_mh, 30004],
-                      ["hee", regex_exc_he, 30005],
-                      ["kyee", regex_exc_kye, 30006],
-                      ["alleluia", regex_exc_luya, 30007],
-                      ["alo", regex_exec_alo, 3008],
-                      ["euh", regex_exec_euh, 3009]
-                      ]
-    for excl in ecxl_made_here:
-        freqsum = 0
-        found = []
-        db_id = excl[2]
-        for freqs, num in freq_exc.items():
-            if num != 0 and re.search(excl[1], freqs) is not None:
-                freqsum += num
-                found.append([freqs, num])
-                freq_exc.update({freqs: 0})
-                continue  # next qu1
-        if freqsum > 0:
-            found.sort()
-            found = [excl[0], db_id, "INTJ", freqsum, len(found)] + found
-            collection.append(found)
 
-    # for all exclamation we didn't made here and the rest of db_dict
-    for lemma in db_rest:
-        freqsum = 0
-        found = []
-        for variant in lemma.alternatives:
-            variant = variant.strip("-")
-            for freqs, num in freq_exc.items():
-                if num != 0 and variant == freqs:
-                    freqsum += num
-                    found.append([freqs, num])
-                    freq_exc.update({freqs: 0})
-        if freqsum > 0:
-            found.sort()
-            # entry, id, PoS, frequency lemma, number of variants,
-            #   list(variante, frequency)
-            found = [lemma.lemma, lemma.dbid, "INTJ", freqsum,
-                     len(found)] + found
+    # exclamations made with regex
+    excl_made_here = build_exclamations()
+    for excl in excl_made_here:
+        found = regex_search(excl, freq_exc)
+        if found:
             collection.append(found)
-            freq_exc.update({freqs: 0})
-
     if collection:
         freq_exc = {x: y for x, y in freq_exc.items() if y != 0}
-        collection = put_same_ids_together(collection)
-        # collection.sort(key=lambda x: x[3], reverse=True)
-        # collection.sort(key=lambda x: x[4], reverse=True)
 
-    # # Wörter, die zum Wörterbuch gemappt wurden, sind jetzt auf 0
-    # save_dict(freq_exc,"keine8_excl_div2.csv")
-    # # Wörter, die im Korpus vorkommen
-    # kh.save_list(collection,"found8_excl_div2.csv",";")
+    # exclamations with entry in db
+    for lemma in db_rest:
+        found = string_search(lemma, freq_exc)
+        if found:
+            collection.append(found)
+    if collection:
+        collection = put_same_ids_together(collection)
+        freq_exc = {x: y for x, y in freq_exc.items() if y != 0}
     return (collection, freq_exc)
 
 

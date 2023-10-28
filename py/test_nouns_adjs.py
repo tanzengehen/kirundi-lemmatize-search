@@ -275,7 +275,7 @@ class TestAdjectives(TestCase):
     # def tearDown(self):
     #     """Clean up after test"""
 
-    def test_init_simple(self):
+    def test_init(self):
         """Test direct initializations"""
         self.assertEqual(DB_DATA[0].lemma, "-re-re")
         self.assertEqual(DB_DATA[0].dbid, "3943")
@@ -371,8 +371,15 @@ class TestPronouns(TestCase):
         DB_DATA = None
         FREQ_SIM = None
 
+    def test_init(self):
+        """Test direct initializations"""
+        self.assertEqual(DB_DATA[0].lemma, "iki")
+        self.assertEqual(DB_DATA[0].dbid, "8274")
+        self.assertEqual(DB_DATA[0].pos, "PRON")
+        self.assertEqual(DB_DATA[0].questions, ["iki",])
+
     def test_build_pronouns(self):
-        """Test some composed pronouns"""
+        """Test composed pronouns"""
         pronouns = dbc.build_pronouns()
         self.assertEqual(len(pronouns), 31)
         self.assertEqual(pronouns[5].lemma, '-o')
@@ -401,7 +408,7 @@ class TestPronouns(TestCase):
             '^([bkrt]?w|[rv]?y|[bchkz])abo$')
 
     def test_collect_pronouns(self):
-        """Test collecting pronouns from db and composed ones """
+        """Test collect pronouns from db and composed ones """
         collection, freq_no_prn = dbc.collect_pronouns(DB_DATA, FREQ_SIM)
         types_num = 0
         for i in collection:
@@ -450,13 +457,16 @@ class TestAdverbsEtc(TestCase):
                       'i ru', 'hande', '', '', '', '3',
                       '', '', '', '', 'iruhande', '', '', '', '',
                       '0', '', '0', '', 'NULL']),
+            kv.Lemma(['7505', 'mirongwitatu', 'miroongwitaatu',
+                      '', 'mirongwitatu', '', '', '', '6',
+                      '', '', '', '', 'mirongo itatu;mirongitatu', '', '', '',
+                      '', '0', '', '0', '', 'NULL']),
             ]
         FREQ_SIM = {
-            'ku': 32042, 'kw': 7422, 'kuri': 6535, 'kur': 371,
             'mirongwitatu': 19, 'mirongoitatu': 1, 'mirongitatu': 3,
-            'samunani': 13, 'iruhande': 56,
+            'samunani': 13, 'iruhande': 56, 'ubu': 2927, 'nyene': 1544,
+            'mirongo': 202,
             }
-        print("db", DB_DATA)
 
     @classmethod
     def tearDownClass(cls):
@@ -469,7 +479,7 @@ class TestAdverbsEtc(TestCase):
     def test_init(self):
         """Test direct initializations"""
         print("test", DB_DATA)
-        self.assertEqual(len(DB_DATA), 4)
+        self.assertEqual(len(DB_DATA), 5)
         self.assertEqual(DB_DATA[0].lemma, "ubu nyene")
         self.assertEqual(DB_DATA[0].dbid, "7121")
         self.assertEqual(DB_DATA[0].pos, "ADV")
@@ -478,13 +488,106 @@ class TestAdverbsEtc(TestCase):
         self.assertEqual(DB_DATA[2].pos, "INTJ")
         self.assertEqual(DB_DATA[3].pos, "PREP")
 
+    def test_collect_adverbs_plus(self):
+        """Test collection unchanging words"""
+        collection, freq_no_advbs = dbc.collect_adv_plus(DB_DATA, FREQ_SIM)
+        types_num = 0
+        for i in collection:
+            types_num += i[4]
+            print(i)
+        # found types
+        self.assertEqual(types_num, 3)
+        # found lemmata
+        self.assertEqual(len(collection), 2)
+        # unknown types
+        self.assertEqual(len(freq_no_advbs), 5)
+
+
+###############################################################
+#       TEST   E X C L A M A T I O N S                        #
+###############################################################
+class TestExclamations(TestCase):
+    """Test cases for Exclamations
+    from db and built"""
+
+    @classmethod
+    def setUpClass(cls):
+        """ Connect and load data needed by tests """
+        global DB_DATA
+        global FREQ_SIM
+        DB_DATA = [
+            kv.Lemma(['818', 'ego', '',
+                      '', 'ego', '', '', '', '8',
+                      '', '', '', '', '', '', '', '', '',
+                      '0', '', '0', '', 'NULL']),
+            kv.Lemma(['3556', 'oya', 'oya',
+                      '', 'oya', '', '', '', '8',
+                      '', '', '', '', '', '', '', '', '6570',
+                      '0', '', '0', '', 'NULL']),
+            kv.Lemma(['7307', 'karibu', 'ikaribú',
+                      '', 'karibu', '', '', '', '8',
+                      '', '', '', '', '', '', '', '', '',
+                      '0', '', '0', '', 'sw']),
+            kv.Lemma(['7196', 'egome', 'eegóme',
+                      '', 'egome', '', '', '', '8',
+                      '', '', '', '', 'ego me', '', '', '', '',
+                      '0', '', '0', '', 'NULL'])
+            ]
+        FREQ_SIM = {'karibu': 5, 'egome': 1, 'ego': 38, 'eeeego': 11,
+                    'eeeeh': 191, 'eeego': 15, 'eeegoo': 2, 'oyaa': 117,
+                    'oyaaa': 99, 'oya': 2785, 'oyayeeeee': 1, 'oyaye': 128,
+                    'oyaha': 27, 'oyaaaah': 2, 'oyaah': 2
+                    }
+
+    @classmethod
+    def tearDownClass(cls):
+        """Disconnect from database"""
+        global DB_DATA
+        global FREQ_SIM
+        DB_DATA = None
+        FREQ_SIM = None
+
+    def test_init(self):
+        """Test direct initializations"""
+        self.assertEqual(len(DB_DATA), 4)
+        self.assertEqual(DB_DATA[0].lemma, "ego")
+        self.assertEqual(DB_DATA[0].dbid, "818")
+        self.assertEqual(DB_DATA[0].pos, "INTJ")
+        self.assertEqual(DB_DATA[0].questions, ["ego",])
+
+    def test_build_exclamations(self):
+        """Test build exclamations"""
+        exclamations = dbc.build_exclamations()
+        self.assertEqual(len(exclamations), 12)
+        for i in exclamations:
+            self.assertIn(
+                i.lemma, ["ego", "oya", "ha", "la", "aah", "ooh", "mh", "hee",
+                          "kyee", "alleluia", "alo", "euh"])
+        self.assertEqual(exclamations[3].dbid, 30001)
+        self.assertEqual(exclamations[3].pos, "INTJ")
+        self.assertEqual(exclamations[3].questions, [r"^(la)+$",])
+
+    def test_collect_exclamations(self):
+        """Test collect exclamations
+        from db and built with regex"""
+        collection, freq_no_excl = dbc.collect_exclamations(DB_DATA, FREQ_SIM)
+        types_num = 0
+        for i in collection:
+            types_num += i[4]
+        self.assertEqual(types_num + len(freq_no_excl), len(FREQ_SIM))
+        # found types
+        self.assertEqual(types_num, 10)
+        # found lemmata
+        self.assertEqual(len(collection), 4)
+        # unknown types
+        self.assertEqual(len(freq_no_excl), 5)
 
 
 ###############################################################
 #       TEST   F O R E I G N words and N A M E S              #
 ###############################################################
 class TestForeign(TestCase):
-    """Test case for collecting foreign words"""
+    """Test case for collecting Foreign words"""
 
     @classmethod
     def setUpClass(cls):
