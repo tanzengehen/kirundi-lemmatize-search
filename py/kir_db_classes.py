@@ -79,7 +79,7 @@ def load_dbkirundi():
     return dbrundi
 
 
-def load_ne():
+def load_ne(filename=sd.ResourceNames.fn_namedentities):
     """reads file Named Entites and foreign words
     returns list of objects"""
     namedentities = []
@@ -87,7 +87,7 @@ def load_ne():
     per = []
     lng = []
     foreign = []
-    with open(sd.ResourceNames.fn_namedentities, encoding="utf-8") as csv_file:
+    with open(filename, encoding="utf-8") as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=";")
         for row in csv_reader:
             if row[2] == "F":
@@ -103,13 +103,37 @@ def load_ne():
                 enti.questions = enti.alternatives
                 namedentities.append(enti)
     csv_file.close()
-    # build and sort more locations, languages, persons
-    for i in loc:
-        if i.alternatives[0][:3] == "ubu":
-            i.alternatives.pop(0)
-    check_entries_location_person_language(lng, per)
-    check_entries_location_person_language(loc, lng, "lang")
+    # remove column names
+    if namedentities[0].lemma == "entry":
+        namedentities.pop(0)
+    ne_dict = {"names": namedentities,
+               'loc': loc,
+               'per': per,
+               'lng': lng,
+               'foreign': foreign}
+    return ne_dict
+
+
+def complete_location_language_person(ne_dict):
+    """add constructed languages, persons to ne_dict"""
+    loc = ne_dict.get('loc')
+    per = ne_dict.get('per')
+    lng = ne_dict.get('lng')
+    # assumed that alternative-list contains also stem of lemma
+    for local in loc:
+        local.alternatives = [i for i in local.alternatives
+                              if i[:3] != "ubu"]
+    for person in per:
+        person.alternatives = [i for i in person.alternatives
+                               if i[:3] not in ["umu", "umw"]]
+    for language in lng:
+        language.alternatives = [i for i in language.alternatives
+                                 if i[:3] not in ["iki", "igi"]]
+
+    # collect and share all alternative-spellings to all three lists
     check_entries_location_person_language(loc, per)
+    check_entries_location_person_language(loc, lng, "lang")
+    check_entries_location_person_language(lng, per)
 
     # set questions for existing language entries
     for i in lng:
@@ -121,13 +145,18 @@ def load_ne():
         i.set_persons()
         i.questions = i.persons
         del i.row
+
     # set questions for location entries and
-    # make language and person entries if doesn't exist yet
-    set_person_language_out_of_location(loc, per, lng)
+    # create language and person entries if doesn't exist yet
     for i in loc:
+        new_lang, new_per = i.set_location_and_create_person_language_out_of_it()
+        if new_lang:
+            lng.append(new_lang)
+        if new_per:
+            per.append(new_per)
         del i.row
     # TODO check if first line is head or entry
-    return namedentities+foreign+lng+loc+per
+    return ne_dict.get('names') + ne_dict.get('foreign') + loc + per + lng
 
 
 class Foreign:
@@ -164,7 +193,6 @@ class NamedEntities:
         self.dbid = ""
         self.lemma = entry[0].strip()
         self.pos = entry[1].strip().upper()
-        print("in NE entry", entry)
         if entry[2]:
             self.alternatives = [i.strip() for i in entry[2].split(";")]
         else:
@@ -190,16 +218,29 @@ class NamedEntities:
     def set_persons(self):
         """set regex for persons
         """
-        # if self.lemma[:5] == "umuny" :
-        #     for alt in self.alternatives:
-        #         self.persons += [r"umuny[ae]"+alt,r"abany[ae]"+alt]
-        if self.lemma[:3] == "umw":
+        if not self.alternatives:
+            if self.lemma[:3] == "umu":
+                self.persons += [self.lemma, "aba"+self.lemma[3:]]
+            else:
+                self.persons += [r"(umuny[ae]?)?"+self.lemma,
+                                 r"(abany[ae]?)?"+self.lemma]
+        else:  # if self.alternatives:
+            pref = "u"
+            if self.lemma[:5] == "umuny":
+                pref = "nya"
+
             for alt in self.alternatives:
-                self.persons += ["umw"+alt, "ab"+alt,
-                                 "umuny"+alt, "abany"+alt]
-        elif self.lemma[:3] == "umu":
-            for alt in self.alternatives:
-                self.persons += [r"umu(ny[ae])?"+alt, r"aba(ny[ae])?"+alt]
+                if pref == "u":
+                    if alt[0] in sd.Letter.vowel:
+                        self.persons += ["umw"+alt, "ab"+alt]
+                    else:
+                        self.persons += ["umu"+alt, "aba"+alt]
+                else:
+                    if alt[0] in sd.Letter.vowel:
+                        self.persons += ["umuny"+alt, "abany"+alt]
+                    else:
+                        self.persons += ["umuny[ae]"+alt, "abany[ae]"+alt]
+
         for i in self.persons:
             self.questions += [
                 r"^"+sd.NounPrepositions.qu_nta+"?"+i[1:]+"(kazi)?$",
@@ -207,28 +248,132 @@ class NamedEntities:
                 ]
 
     def set_languages(self):
-        """set regex for languages
+        """set questios for languages
         """
-        if self.lemma[:5] == "ikiny":
-            for i in self.alternatives:
-                self.lang.append("ikiny"+i)
-        elif self.lemma[:3] == "iki":
-            for i in self.alternatives:
-                self.lang.append("iki"+i)
-        elif self.lemma[:3] == "igi":
-            for i in self.alternatives:
-                self.lang.append("igi"+i)
-        if self.lemma[:2] == "ic":
-            for i in self.alternatives:
-                self.lang.append("ic"+i)
-        for i in self.lang:
-            self.questions += [r"^"+i+"$", r"^"+i[1:]+"$"]
+        if not self.alternatives:
+            if self.lemma[:2] in ["ik", "ig", "ic"]:
+                self.questions = [self.lemma, self.lemma[1:]]
+            else:
+                self.questions = [self.lemma, ]
+                self.alternatives = [self.lemma, ]
+                pref = "nya"
+
+        if self.alternatives:
+            pref = "i"
+            if self.lemma[:5] == "ikiny":
+                pref = "nya"
+
+            for alt in self.alternatives:
+                if pref == "i":
+                    if alt[0] in sd.Letter.hard_consonant:
+                        self.questions += ["gi"+alt, "igi"+alt]
+                    elif alt[0] in sd.Letter.weak_consonant:
+                        self.questions += ["ki"+alt, "iki"+alt]
+                    else:
+                        self.questions += ["c"+alt, "ic"+alt]
+                else:
+                    if alt[0] in sd.Letter.vowel:
+                        self.questions += ["kiny"+alt, "ikiny"+alt]
+                    else:
+                        self.questions += ["kinya"+alt, "ikinya"+alt]
+
+    def perla_from_ub(self):
+        """creates lemma-names for related language and person
+        of locations which start with ubu/ubw"""
+        pername, langname = "", ""
+        if self.pos == "PROPN_LOC":
+            # if self.lemma[2] == "u":
+                # ubu
+                pername = "umu"+self.lemma[3:]
+                if self.lemma[3] in sd.Letter.weak_consonant:
+                    langname = "iki"+self.lemma[3:]
+                else:
+                    langname = "igi"+self.lemma[3:]
+            # else:
+            #     # ubw   only ubwongereza
+            #     pername = "umw"+self.lemma[3:]
+            #     langname = "ic"+self.lemma[2:]
+        return pername, langname
+
+    def create_new_lang(self, langname):
+        """creates new language instance from location-data
+        takes lemma_name"""
+        new = None
+        if self.pos == "PROPN_LOC":
+            self.row[0] = langname
+            new = NamedEntities(self.row)
+            new.pos = "PROPN_LNG"
+            new.alternatives = self.alternatives
+            new.set_languages()
+        return new
+
+    def create_new_person(self, pername):
+        """creates new language instance from location-data
+        takes lemma_name"""
+        new = None
+        if self.pos == "PROPN_LOC":
+            self.row[0] = pername
+            new = NamedEntities(self.row)
+            new.pos = "PROPN_PER"
+            new.alternatives = self.alternatives
+            new.set_persons()
+        return new
+
+    def set_location_and_create_person_language_out_of_it(self):
+        """sets location and returns not yet existing entries
+        of PROPN_PER and PROPN_LANG based on that PROPN_LOC
+        """
+        new_lang = None
+        new_per = None
+        if self.pos == "PROPN_LOC":
+            if self.lemma[:2] == "ub":
+                # language- and person-lemma for locations with ubu/ubw
+                pername, langname = self.perla_from_ub()
+
+                # only countries with a name that starts with ubu/ubw
+                #   get also in their variants ubu/ubw
+                for location in self.alternatives:
+                    if location[0] in sd.Letter.vowel:
+                        self.questions += [
+                            r"^"+sd.NounPrepositions.qu_nta+"?bw"+location+"$",
+                            r"^"+sd.NounPrepositions.qu_ca_vowel+"?ubw"+location+"$"
+                            ]
+                    else:
+                        self.questions += [
+                            r"^"+sd.NounPrepositions.qu_nta+"?bu"+location+"$",
+                            r"^"+sd.NounPrepositions.qu_ca_vowel+"?ubu"+location+"$"
+                            ]
+            # names for locations without ubu/ubw
+            else:
+                langname = "ikinya_"+self.lemma
+                pername = "umunya_"+self.lemma
+
+            # all locations (and their variants) get questions without ubu/ubw
+            for location in self.alternatives:
+                # location name starts with vowel
+                if self.lemma[0] in sd.Letter.vowel:
+                    self.questions += [
+                        # ??? r"^"+sd.NounPrepositions.qu_nta+"?"+location+"$",
+                        r"^"+sd.NounPrepositions.qu_ca_vowel+"?"+location+"$"
+                        ]
+                # location name starts with consonant
+                else:
+                    self.questions += [
+                        r"^"+sd.NounPrepositions.qu_nta+"?"+location+"$",
+                        r"^"+sd.NounPrepositions.qu_ca_konsonant+"?"+location+"$"
+                        ]
+            if self.lang != "done":
+                new_lang = self.create_new_lang(langname)
+            if self.persons != "done":
+                new_per = self.create_new_person(pername)
+        return new_lang, new_per
 
 
 def check_entries_location_person_language(
         propn_list1, propn_list2, lang_or_per="per"):
-    """check if there are extra entries for location, person, language,
-    if so, we put together all alternativ spellings
+    """check if there are different alternatives of stems in
+    location, person, language;
+    if so, we collect all alternativ spellings
     """
     for propn1 in propn_list1:
         done = False
@@ -236,93 +381,17 @@ def check_entries_location_person_language(
         for propn2 in propn_list2:
             set2 = set(propn2.alternatives)
             if set1.intersection(set2):
-                propn2.alternatives = set(
-                    propn2.alternatives+propn1.alternatives)
-                propn1.alternatives = set(
-                    propn2.alternatives+propn1.alternatives)
-                done = True
-                break
-            if propn1.lemma[:3] == "ubu" \
-                    and propn1.lemma[3:] == \
-                    propn2.lemma[3:][-(len(propn1.lemma)-3):]:
+                propn2.alternatives = set(list(set2)+list(set1))
+                propn1.alternatives = set(list(set2)+list(set1))
                 done = True
                 break
         if done:
             if lang_or_per == "lang":
                 propn1.lang = "done"
             else:
+                # lang_or_per is "per"
                 propn1.persons = "done"
-
-
-def set_person_language_out_of_location(loc, per, lng):
-    """appends not yet existing entries to PROPN_PER and PROPN_LANG lists
-    based on PROPN_LOC
-    """
-    for i in loc:
-        # only countries with a name that starts with ubu
-        #   need ubu also in their variants
-        if i.lemma[:3] == "ubu":
-            for location in i.alternatives:
-                i.questions += [
-                    r"^"+sd.NounPrepositions.qu_nta+"?bu"+location+"$",
-                    r"^"+sd.NounPrepositions.qu_ca_vowel+"?ubu"+location+"$"
-                    ]
-                # if sd.sortletter(i.lemma[4]) == "weak_consonant":
-                if i.lemma[4] in sd.Letter.weak_consonant:
-                    langname = "iki"+i.lemma[3:]
-                elif i.lemma[4] in sd.Letter.hard_consonant:
-                    langname = "igi"+i.lemma[3:]
-                # add alternative forms without ubu
-                i.questions += [
-                    r"^"+sd.NounPrepositions.qu_nta+"?"+location+"$",
-                    r"^"+sd.NounPrepositions.qu_ca_konsonant+"?"+location+"$"
-                    ]
-                pername = "umu"+i.lemma[3:]
-        elif i.lemma[:3] in "ubw":
-            for location in i.alternatives:
-                i.questions += [
-                    r"^"+sd.NounPrepositions.qu_nta+"?bw"+location+"$",
-                    r"^"+sd.NounPrepositions.qu_ca_vowel+"?ubw"+location+"$"
-                    ]
-                langname = "ic"+i.lemma[3:]
-                pername = "umw"+i.lemma[3:]
-        # locations without ubu/ubw
-        else:
-            langname = "ikinya_"+i.lemma
-            pername = "umunya_"+i.lemma
-            # location name starts with vowel
-            if i.lemma[0] in sd.Letter.vowel:
-                for location in i.alternatives:
-                    i.questions += [
-                        r"^"+sd.NounPrepositions.qu_nta+"?"+location+"$",
-                        r"^"+sd.NounPrepositions.qu_ca_vowel+"?"+location+"$"
-                        ]
-            # location name starts with consonant
-            else:
-                for location in i.alternatives:
-                    i.questions += [
-                        r"^"+sd.NounPrepositions.qu_nta+"?"+location+"$",
-                        r"^"+sd.NounPrepositions.qu_ca_konsonant+"?"+location+"$"
-                        ]
-
-        if i.lang != "done":
-            i.row[0] = langname
-            new = NamedEntities(i.row)
-            new.pos = "PROPN_LNG"
-            new.alternatives = i.alternatives
-            new.set_languages()
-            if new.lang:
-                new.questions = new.lang
-                lng.append(new)
-
-        if i.persons != "done":
-            i.row[0] = pername
-            new = NamedEntities(i.row)
-            new.pos = "PROPN_PER"
-            new.alternatives = i.alternatives
-            new.set_persons()
-            if new.questions:
-                per.append(new)
+    return propn_list1, propn_list2
 
 
 class Noun(kv.Lemma):
@@ -560,13 +629,14 @@ def collect_adjs(db_adjektive, freq_d):
     return (collection, freq_adj)
 
 
-def put_same_ids_together(collection):
+def put_same_ids_together(collection_in):
     """sums up and adds found types of same ID,
     for interjections + adverbs and pronouns
     because some of them are made with regex and not listed in db"""
-    # print("put davor:", collection[:5])
-    collection.sort(key=lambda x: int(x[1]))
-    collection.insert(0, ["some data", "-1", "to compare with first element"])
+
+    collection_in.sort(key=lambda x: int(x[1]))
+    collection = [["some data", "-1", "to compare with first element"],]
+    collection += collection_in
     coll = []
     for i in range(1, len(collection)):
         if int(collection[i][1]) == int(collection[i-1][1]):
@@ -577,6 +647,7 @@ def put_same_ids_together(collection):
             coll.append(collection[i-1] + collection[i][5:])
         else:
             coll.append(collection[i])
+
     coll.sort(key=lambda x: x[3], reverse=True)
     coll.sort(key=lambda x: x[4], reverse=True)
     return coll

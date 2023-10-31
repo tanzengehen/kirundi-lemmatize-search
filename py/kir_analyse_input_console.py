@@ -169,7 +169,8 @@ def getresources():
     """load Named Entities and db_kirundi
     """
     dbrundi = dbc.load_dbkirundi()
-    dbrundi.update({"names": dbc.load_ne()})
+    dbrundi.update(
+        {"names": dbc.complete_location_language_person(dbc.load_ne())})
     return dbrundi
 
 

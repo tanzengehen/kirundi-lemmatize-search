@@ -348,14 +348,23 @@ class Collection:
         sorted by lemma frequency
         """
         known = self.names \
-            + self.advs \
             + self.pronouns \
             + self.nouns \
             + self.adjs \
-            + self.verbs
+            + self.verbs \
+            + self.advs
+        print("in put_known:",  len(known))
+        
+        
         for i in known:
-            # lemma,id,PoS,count,n-wordforms,found forms: count should be int
-            # f  or debugging only
+        #     # lemma,id,PoS,count,n-wordforms,found forms: count should be int
+        #     # for debugging only
+            
+            if len(i) < 4:
+                print(i)
+                # known.remove(i)
+        ########        
+        for i in known:
             if isinstance((i[3]), int) is False:
                 print(f"{i[0]}, {i[3]} type of 'count': {type(i[3])}")
         # sort by count of lemma
