@@ -14,7 +14,7 @@ import kir_string_depot as sd
 import kir_helper2 as kh
 
 
-def load_dbkirundi():
+def load_dbkirundi(filename=sd.ResourceNames.fn_db):
     """returns lists sorted more or less by part of speech:
     verbs, nouns, adjectives, pronouns,
     (prepositions, adverbs, conjunctions and interjections) together,
@@ -28,7 +28,7 @@ def load_dbkirundi():
     rests = []
     stems = []
     stems = set(stems)
-    with open(sd.ResourceNames.fn_db, encoding="utf-8") as csv_file:
+    with open(filename, encoding="utf-8") as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=";")
         line_count = 0
         for row in csv_reader:
@@ -64,8 +64,15 @@ def load_dbkirundi():
     # kh.OBSERVER.notify(
     #     kh._('{} entries of the dictionary prepared.\n').format(line_count))
     csv_file.close()
+
+    # set questions only for verbs we will use
+    # skip proverbs and lemma with passiv
     verbs = kv.filter_proverbs_out(verbs)
     verbs = kv.filter_passiv_out(verbs)
+    for verb in verbs:
+        verb.set_qu()
+
+    # divide nouns: to be searched before or after verbs
     nouns_one, nouns_two = noun_partition(nouns)
     stems = list(stems)
     dbrundi = {"verbs": verbs,
@@ -282,17 +289,17 @@ class NamedEntities:
         of locations which start with ubu/ubw"""
         pername, langname = "", ""
         if self.pos == "PROPN_LOC":
-            # if self.lemma[2] == "u":
+            if self.lemma[2] == "u":
                 # ubu
                 pername = "umu"+self.lemma[3:]
                 if self.lemma[3] in sd.Letter.weak_consonant:
                     langname = "iki"+self.lemma[3:]
                 else:
                     langname = "igi"+self.lemma[3:]
-            # else:
-            #     # ubw   only ubwongereza
-            #     pername = "umw"+self.lemma[3:]
-            #     langname = "ic"+self.lemma[2:]
+            else:
+                # ubw   only ubwongereza
+                pername = "umw"+self.lemma[3:]
+                langname = "ic"+self.lemma[2:]
         return pername, langname
 
     def create_new_lang(self, langname):

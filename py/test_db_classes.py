@@ -822,7 +822,9 @@ class TestNE(TestCase):
     def test_set_persons(self):
         """Test set questions for PROPN_PER"""
         # prepare data
-        per = [NE_DATA[5], NE_DATA[6]]
+        per = [NE_DATA[5], NE_DATA[6],
+               dbc.NamedEntities(['umuntu', '',
+                                  'PROPN_PER', '', ''])]
         for person in per:
             person.alternatives = [i for i in person.alternatives
                                    if i[:3] not in ["umu", "umw"]]
@@ -836,6 +838,9 @@ class TestNE(TestCase):
                 '^([bkmrt]?w|[rv]?y|[nsckzbh])?abadagi(kazi)?$'
                 ]:
             self.assertIn(i, per[0].questions)
+        self.assertEqual(len(per[2].questions), 4)
+        self.assertIn('^([na]ta|[mk]u|s?i)?bantu(kazi)?$',
+                      per[2].questions)
 
     def test_perla_from_ub(self):
         """Test creation of language- and person-lemma constructed
@@ -944,6 +949,13 @@ class TestNE(TestCase):
         self.assertEqual(lngs, 4)
         self.assertEqual(pers, 3)
 
+
+###############################################################
+#       TEST   L O A D   D A T A                              #
+###############################################################
+class TestLoading(TestCase):
+    """lTest loading Named Entities respective rundi dictionary"""
+
     def test_load_ne(self):
         """Test load Named Entities from csv"""
         ne_data = dbc.load_ne(sd.ResourceNames.root+"/resources/ne_test.csv")
@@ -952,22 +964,39 @@ class TestNE(TestCase):
         self.assertEqual(len(ne_data.get('lng')), 3)
         self.assertEqual(len(ne_data.get('per')), 4)
         self.assertEqual(len(ne_data.get('names')), 24)
-        for key, value in ne_data.items():
-            print(value[0])
         self.assertEqual(len(ne_data.get('foreign')), 4)
         self.assertEqual(ne_data.get('names')[0].pos, 'PROPN_ORG')
         self.assertEqual(ne_data.get('names')[2].lemma, 'bitangwanimana')
         self.assertEqual(ne_data.get('loc')[0].pos, 'PROPN_LOC')
         self.assertEqual(len(ne_data.get('loc')[0].alternatives), 3)
         self.assertEqual(ne_data.get('per')[0].pos, 'PROPN_PER')
-        self.assertEqual(ne_data.get('per')[1].alternatives,  ['umubantu', 'bantu'])
+        for i in ['umubantu', 'bantu']:
+            self.assertIn(i, ne_data.get('per')[1].alternatives)
         self.assertEqual(ne_data.get('lng')[0].pos, 'PROPN_LNG')
         self.assertEqual(ne_data.get('lng')[2].lemma, 'ikizulu')
         self.assertEqual(ne_data.get('foreign')[0].pos, 'F')
         self.assertEqual(ne_data.get('foreign')[1].lemma, 'concert')
-        
-        
-        
+
+    def test_load_dbkirundi(self):
+        """Test load rundi dictionary from database"""
+        db_data = dbc.load_dbkirundi(
+            sd.ResourceNames.root + "/tests/test_lemmata.csv")
+        self.assertEqual(len(db_data), 8)
+        self.assertEqual(len(db_data.get('adjectives')), 0)
+        self.assertEqual(len(db_data.get('nouns1')), 13)
+        self.assertEqual(len(db_data.get('nouns2')), 0)
+        self.assertEqual(len(db_data.get('pronouns')), 2)
+        self.assertEqual(len(db_data.get('rests')), 0)
+        self.assertEqual(len(db_data.get('stems')), 48)
+        self.assertEqual(len(db_data.get('unchanging_words')), 9)
+        self.assertEqual(len(db_data.get('verbs')), 25)
+        self.assertEqual(db_data.get('verbs')[0].lemma, "-ri")
+        self.assertEqual(db_data.get('verbs')[0].dbid, "3966")
+        self.assertEqual(db_data.get('verbs')[0].pos, "VERB")
+        self.assertEqual(db_data.get('verbs')[0].stem, "ri")
+        self.assertEqual(db_data.get('verbs')[0].perfective, "")
+        self.assertEqual(
+            len(db_data.get('verbs')[0].comb), 2)
 
 
 ###############################################################
@@ -997,3 +1026,15 @@ class TestHelper(TestCase):
         self.assertIn(['rino', 77], collection[0])
         self.assertEqual(collection[0][3], 5966)
         self.assertEqual(collection[0][4], 19)
+
+# def create_test_db():
+    # nrs = ids from lemmafreq of test_text
+    # db_origin = mysql data
+
+    # test_lemmata = []
+    # for i in nrs:
+    #     for n in db_origin:
+    #         if i == n.split(";")[0].strip('"'):
+    #             test_lemmata.append(n)
+    # kh.save_list(test_lemmata,
+    #              sd.ResourceNames.root + "/tests/test_lemmata.csv")

@@ -494,7 +494,6 @@ class Verb(Lemma):
         self.proverb = False
         self.passiv = False
         self.perfective = unidecode(row[5].strip().lower())
-        self.set_qu()
 
     def __str__(self):
         return f"lemma={self.lemma}, ID={self.dbid}, POS= {self.pos}, "\
@@ -660,7 +659,7 @@ perfective but unknown letter before y"""))
             self._n_end_y = r"ny?"+self._end_y
 
     def set_qu(self):
-        """ combines beginnning-possibilities to it's equivalent end
+        """ combines beginning-possibilities to it's equivalent end
         subject/object/time/negation/... with Indikativ/Subjunctiv/Perfectiv
         inkl. first letter of stem differences
         only the last part before end_aey has to decide kgw
@@ -782,7 +781,7 @@ def prepare_verb_alternativ(row):
                 if stem_a[count_back] in "aeiouu":
                     perfective_a = stem_a[:count_back+1]+perf_a
                     break
-            # stem_a has only 2 vocals: the very first letter and the ending a
+            # stem_a has only 2 vowels: the very first letter and the ending a
             if perfective_a == "" and stem_a[0] in "aeiou":
                 perfective_a = stem_a[:1]+perf_a
         else:
