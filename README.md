@@ -52,17 +52,17 @@ When you're ready to make this README your own, just edit this file and use the 
 Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
 
 ## Name
-Ingenzura-ikirundi
+kirundi-nlp
 
 ## Description
 Ingenzura-kirundi is a tool to analyse rundi texts by lemmatizing.  
 That way NLP statistic tasks are more efficient, because it reduces tokens not only to types but to lemmata. This is important because in bantu languages the verbform contains in itself also subject, up to three objects, time, negation, perfektiv and other features ... combined with 16 classes of nouns there is a huge number of forms possible.  
-Ingenzura-kirundi takes a text and returns it's tokens tagged with lemma and PoS. 
+kirundi-nlp takes a text and returns it's tokens tagged with lemma and PoS. 
 With this it's also possible:
 - search N-grams by combinations of token, lemma or Part-of-Speech
 - frequency distribution of types
 - frequency distribution of lemmata
-- the text with tokens replaced by lemma
+- version of the text with tokens replaced by lemma
 The tag will be "UNK" if it doesn't find an appropriate lemma or Named-entity in the underlying database.
 
 
@@ -88,12 +88,13 @@ If you have ideas for releases in the future, it is a good idea to list them in 
 ## Contributing
 There are different ways to contribute:  
 1.  
+This project needs a user-interface.  
+2.  
 You can check your tagged text for "UNK" and propose to identify these words as Named-entity or as a new entry for the dictionary. Please provide in this case also grammar features (Singular and Plural of nouns, respectively Infinitiv and Perfektiv of verbs, in best case also pronounciation, for Named-entites the special tag).  
 Mail your proposals to deki.kazinduzi(at)gmail.com  
-2.  
-You can check your tagged text for wrong tags and report them.  
 3.  
-You can write tests and documentation ;-)  
+You can check your tagged text for wrong tags and report them.  
+
 
 State if you are open to contributions and what your requirements are for accepting them.
 
