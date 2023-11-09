@@ -1,4 +1,4 @@
-# rundi-lemmatize-search
+# KIRUNDI lemmatize and search
 
 
 
