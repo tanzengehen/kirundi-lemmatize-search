@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Ingenzura-ikirundi 1.0\n"
 "Report-Msgid-Bugs-To: deki.kazinduzi@gmail.com\n"
-"POT-Creation-Date: 2023-09-16 16:33+0200\n"
+"POT-Creation-Date: 2023-11-07 22:16+0100\n"
 "PO-Revision-Date: 2023-09-09 21:37+0200\n"
 "Last-Translator: Sebastian Lisken <EMAIL@ADDRESS>\n"
 "Language: en_GB\n"
@@ -19,91 +19,91 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.12.1\n"
 
-#: py/kir_analyse_input_console.py:33
+#: py/kir_analyse_input_console.py:35
 msgid "txt or json file or 'q' for 'quit'"
 msgstr ""
 
-#: py/kir_analyse_input_console.py:36
+#: py/kir_analyse_input_console.py:38
 msgid ""
-"This file doesn't exist.\n"
+"This file doesn't exist. {}\n"
 "Try again"
 msgstr ""
 
-#: py/kir_analyse_input_console.py:53
+#: py/kir_analyse_input_console.py:55
 msgid "please give me a searchterm"
 msgstr ""
 
-#: py/kir_analyse_input_console.py:59
+#: py/kir_analyse_input_console.py:61
 msgid ""
 "'*' only for words, not for letters.\n"
 "Write searchterm again please"
 msgstr ""
 
-#: py/kir_analyse_input_console.py:80
+#: py/kir_analyse_input_console.py:82
 msgid ""
 "please enter the 'wtl' combination for your\n"
 "searchterms or 'q' for 'quit'"
 msgstr ""
 
-#: py/kir_analyse_input_console.py:89
+#: py/kir_analyse_input_console.py:91
 msgid "\tonly 'w', '!w', 't', '!t', 'l', '!l' or '?'"
 msgstr ""
 
-#: py/kir_analyse_input_console.py:98
+#: py/kir_analyse_input_console.py:100
 msgid "Hm, not as many as searchterms... Please again."
 msgstr ""
 
-#: py/kir_analyse_input_console.py:119
+#: py/kir_analyse_input_console.py:121
 msgid "all + "
 msgstr ""
 
-#: py/kir_analyse_input_console.py:123
+#: py/kir_analyse_input_console.py:125
 msgid "mismatch: wildcard {}."
 msgstr ""
 
-#: py/kir_analyse_input_console.py:125
+#: py/kir_analyse_input_console.py:127
 msgid "I go with the wildcard. Y/N : "
 msgstr ""
 
-#: py/kir_analyse_input_console.py:127
+#: py/kir_analyse_input_console.py:129
 msgid "yY"
 msgstr ""
 
-#: py/kir_analyse_input_console.py:129
+#: py/kir_analyse_input_console.py:131
 msgid "Start again"
 msgstr ""
 
-#: py/kir_analyse_input_console.py:136
+#: py/kir_analyse_input_console.py:138
 msgid "all except "
 msgstr ""
 
-#: py/kir_analyse_input_console.py:150
+#: py/kir_analyse_input_console.py:152
 msgid "Invalid tag: {}. There will be no result."
 msgstr ""
 
-#: py/kir_analyse_input_console.py:162
+#: py/kir_analyse_input_console.py:164
 msgid "Query = {}\n"
 msgstr ""
 
-#: py/kir_analyse_input_console.py:185
+#: py/kir_analyse_input_console.py:197
 msgid ""
 "\n"
 "Select the Rundi text you want to inspect:"
 msgstr ""
 
-#: py/kir_analyse_input_console.py:187
+#: py/kir_analyse_input_console.py:199
 msgid "\tc\t\t\t\t= whole tagged corpus"
 msgstr ""
 
-#: py/kir_analyse_input_console.py:189
+#: py/kir_analyse_input_console.py:201
 msgid "\tpath/to/file\t\t= a single file (txt or json)"
 msgstr ""
 
-#: py/kir_analyse_input_console.py:190
+#: py/kir_analyse_input_console.py:202
 msgid "Prefer the tagged file, if there is one already.\n"
 msgstr ""
 
-#: py/kir_analyse_input_console.py:196
+#: py/kir_analyse_input_console.py:215
 msgid ""
 "\n"
 "What are you looking for?\n"
@@ -122,17 +122,17 @@ msgid ""
 "Your searchterm"
 msgstr ""
 
-#: py/kir_analyse_input_console.py:212
+#: py/kir_analyse_input_console.py:231
 msgid "\tOK, you are looking for a {}-gram.\n"
 msgstr ""
 
-#: py/kir_analyse_input_console.py:214
+#: py/kir_analyse_input_console.py:233
 msgid ""
 "For distinction between type, tag and lemma\n"
 "chose for each part of the searchterm a letter..."
 msgstr ""
 
-#: py/kir_analyse_input_console.py:217
+#: py/kir_analyse_input_console.py:236
 msgid ""
 "\t\tW = this type\n"
 "\t\tL = all types of this lemma\n"
@@ -140,11 +140,7 @@ msgid ""
 "\t\t? = wildcard"
 msgstr ""
 
-#: py/kir_db_classes.py:65
-msgid "{} entries of the dictionary prepared."
-msgstr ""
-
-#: py/kir_helper2.py:268
+#: py/kir_helper2.py:285
 msgid ""
 "Sorry, I didn't save the list that starts with:\n"
 "{}\n"
@@ -152,164 +148,186 @@ msgid ""
 "as list elements."
 msgstr ""
 
-#: py/kir_prepare_verbs.py:40
+#: py/kir_prepare_verbs.py:68
 msgid "lemma has no stem in database: ID{}"
 msgstr ""
 
-#: py/kir_prepare_verbs.py:501
+#: py/kir_prepare_verbs.py:528
 msgid "perfective is lost: {}"
 msgstr ""
 
-#: py/kir_prepare_verbs.py:509
+#: py/kir_prepare_verbs.py:536
 msgid "{}: perfective? -{}"
 msgstr ""
 
-#: py/kir_prepare_verbs.py:551
+#: py/kir_prepare_verbs.py:578
 msgid ""
 "\n"
 "\t\ttried to add passiv to\n"
 "perfective but unknown letter before y"
 msgstr ""
 
-#: py/kir_prepare_verbs.py:799
+#: py/kir_prepare_verbs.py:826
 msgid "filter proverbs out doesn't work': {}"
 msgstr ""
 
-#: py/kir_prepare_verbs.py:831
+#: py/kir_prepare_verbs.py:858
 msgid "filter passiv out doesn't work': {}"
 msgstr ""
 
-#: py/kir_tag_classes.py:324
-msgid ""
-"\tvocabulary: {ntokens} tokens\n"
-"                {ntypes} types\n"
-msgstr ""
-
-#: py/kir_tag_search.py:27
-msgid ""
-"\n"
-"Preparing dictionary, just a moment ..."
-msgstr ""
-
-#: py/kir_tag_search.py:32
+#: py/kir_tag_search.py:39
 msgid "sorting Named Entities ..........................."
 msgstr ""
 
-#: py/kir_tag_search.py:38
+#: py/kir_tag_search.py:45
 msgid ""
 "\n"
 "Named Entities      : "
 msgstr ""
 
-#: py/kir_tag_search.py:43
+#: py/kir_tag_search.py:52
 msgid "adverbs etc         : "
 msgstr ""
 
-#: py/kir_tag_search.py:48
+#: py/kir_tag_search.py:60
+msgid "pronouns            : "
+msgstr ""
+
+#: py/kir_tag_search.py:65
 msgid "sorting nouns ...................................."
 msgstr ""
 
-#: py/kir_tag_search.py:53
+#: py/kir_tag_search.py:70
 msgid ""
 "\n"
-"pronouns            : "
+"nouns               : "
 msgstr ""
 
-#: py/kir_tag_search.py:57
-msgid "nouns               : "
+#: py/kir_tag_search.py:78
+msgid "adjektives          : "
 msgstr ""
 
-#: py/kir_tag_search.py:61
+#: py/kir_tag_search.py:83
 msgid "sorting verbs ...................................."
 msgstr ""
 
-#: py/kir_tag_search.py:64
+#: py/kir_tag_search.py:88
 msgid ""
 "\n"
-"adjektives          : "
+"verbs               : "
 msgstr ""
 
-#: py/kir_tag_search.py:73
-msgid "verbs               : "
-msgstr ""
-
-#: py/kir_tag_search.py:201
+#: py/kir_tag_search.py:98
 msgid ""
 "\n"
-"lemmata of text: {}"
+"exclamations        : "
 msgstr ""
 
-#: py/kir_tag_search.py:202
-msgid "unknown types  : {}"
+#: py/kir_tag_search.py:115
+msgid ""
+"\n"
+"Vocabulary\n"
+"characters         : {nchar}\n"
+"tokens             : {ntokens}\n"
+"types              : {ntypes} "
 msgstr ""
 
-#: py/kir_tag_search.py:221
+#: py/kir_tag_search.py:231
+msgid "unknown types      : {} ({}%)"
+msgstr ""
+
+#: py/kir_tag_search.py:233
+msgid "recognized lemmata : {}"
+msgstr ""
+
+#: py/kir_tag_search.py:253
 msgid ""
 "\n"
 "tagging text, this may take some moments ........."
 msgstr ""
 
-#: py/kir_tag_search.py:411
+#: py/kir_tag_search.py:436
 msgid "Error: missing tag"
 msgstr ""
 
-#: py/kir_tag_search.py:427
-msgid "OK, cool environment down, less work, it's a tagged text!"
+#: py/kir_tag_search.py:479 py/kir_tag_search.py:543
+msgid ""
+"\n"
+"\n"
+"All tagged files saved in: \n"
 msgstr ""
 
-#: py/kir_tag_search.py:431
+#: py/kir_tag_search.py:481 py/kir_tag_search.py:545
+msgid ""
+"\n"
+"We can use them again later."
+msgstr ""
+
+#: py/kir_tag_search.py:488
+msgid "Wir wühlen uns durch die Dateien..."
+msgstr ""
+
+#: py/kir_tag_search.py:553
+msgid ""
+"\n"
+"Statistics\n"
+"characters               {char}\t(broken char from bad OCR: {odds})\n"
+"tokens                   {tokensbond}\n"
+"tokens (split by ')      {tokens_split}\n"
+"types                    {types}\n"
+"recognized lemmata       {lemmata}\n"
+"unknown types            {unk}"
+msgstr ""
+
+#: py/kir_tag_search.py:574
+msgid "Preparing file ..."
+msgstr ""
+
+#: py/kir_tag_search.py:581
 msgid "Are you sure, that this is a tagged file?"
 msgstr ""
 
-#: py/kir_tag_search.py:443
+#: py/kir_tag_search.py:596
 msgid "There is already a tagged file: (made {})"
 msgstr ""
 
-#: py/kir_tag_search.py:445
+#: py/kir_tag_search.py:598
 msgid ""
 "\n"
 "We use this instead of tagging again.\n"
 msgstr ""
 
-#: py/kir_tag_search.py:456
+#: py/kir_tag_search.py:613
 msgid "Sorry, can't use the file: {}"
 msgstr ""
 
-#: py/kir_tag_search.py:464
-msgid "Preparing file ..."
-msgstr ""
-
-#: py/kir_tag_search.py:480
+#: py/kir_tag_search.py:646
 msgid ""
 "\n"
 "\n"
 "Tagged file saved as: \n"
 msgstr ""
 
-#: py/kir_tag_search.py:482
+#: py/kir_tag_search.py:648
 msgid ""
 "\n"
 "We can use it again later."
 msgstr ""
 
-#: py/kir_tag_search.py:496
+#: py/kir_tag_search.py:662
 msgid "You searched this already"
 msgstr ""
 
-#: py/kir_tag_search.py:521
+#: py/kir_tag_search.py:689
 msgid ""
 "\n"
 "Hit 1-20 (out of {}). All results are saved in file:"
 msgstr ""
 
-#: py/kir_tag_search.py:530
+#: py/kir_tag_search.py:698
 msgid ""
 "\n"
 "No results for this query."
-msgstr ""
-
-#: py/kir_tag_search.py:556
-msgid "Sorry, unknown format."
 msgstr ""
 
 #~ msgid "Kubera ko ataco watoye nahejeje."
@@ -899,5 +917,53 @@ msgstr ""
 #~ "{}\n"
 #~ "I was expecting str, int, tuple or list\n"
 #~ "as list elements."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "This file doesn't exist.\n"
+#~ "Try again"
+#~ msgstr ""
+
+#~ msgid "{} entries of the dictionary prepared."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "\tvocabulary: {ntokens} tokens\n"
+#~ "                {ntypes} types\n"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "\n"
+#~ "Preparing dictionary, just a moment ..."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "\n"
+#~ "pronouns            : "
+#~ msgstr ""
+
+#~ msgid "nouns               : "
+#~ msgstr ""
+
+#~ msgid ""
+#~ "\n"
+#~ "adjektives          : "
+#~ msgstr ""
+
+#~ msgid "verbs               : "
+#~ msgstr ""
+
+#~ msgid ""
+#~ "\n"
+#~ "lemmata of text: {}"
+#~ msgstr ""
+
+#~ msgid "unknown types  : {}"
+#~ msgstr ""
+
+#~ msgid "OK, cool environment down, less work, it's a tagged text!"
+#~ msgstr ""
+
+#~ msgid "Sorry, unknown format."
 #~ msgstr ""
 
