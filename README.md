@@ -52,17 +52,17 @@ When you're ready to make this README your own, just edit this file and use the 
 Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
 
 ## Name
-kirundi-nlp
+KIRUNDI-nlp
 
 ## Description
-Ingenzura-kirundi is a tool to analyse rundi texts by lemmatizing.  
+KIRUNDI-nlp is a tool to analyse rundi texts by lemmatizing.  
 That way NLP statistic tasks are more efficient, because it reduces tokens not only to types but to lemmata. This is important because in bantu languages the verbform contains in itself also subject, up to three objects, time, negation, perfektiv and other features ... combined with 16 classes of nouns there is a huge number of forms possible.  
-kirundi-nlp takes a text and returns it's tokens tagged with lemma and PoS. 
+KIRUNDI-nlp takes a text and returns it's tokens tagged with lemma and PoS. 
 With this it's also possible:
-- search N-grams by combinations of token, lemma or Part-of-Speech
-- frequency distribution of types
-- frequency distribution of lemmata
-- version of the text with tokens replaced by lemma
+- to search N-grams by combinations of token, lemma or Part-of-Speech
+- view the frequency distribution of types
+- view the frequency distribution of lemmata
+- recieve a version of the text with lemmata replacing the tokens
 The tag will be "UNK" if it doesn't find an appropriate lemma or Named-entity in the underlying database.
 
 
