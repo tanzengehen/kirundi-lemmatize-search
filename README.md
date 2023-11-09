@@ -1,4 +1,4 @@
-# ingenzura kirundi
+# rundi-lemmatize-search
 
 
 
