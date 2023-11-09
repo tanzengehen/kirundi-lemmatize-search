@@ -62,7 +62,7 @@ With this it's also possible:
 - to search N-grams by combinations of token, lemma or Part-of-Speech
 - view the frequency distribution of types
 - view the frequency distribution of lemmata
-- recieve a version of the text with lemmata replacing the tokens
+- recieve a version of the text with lemmata replacing the tokens  
 The tag will be "UNK" if it doesn't find an appropriate lemma or Named-entity in the underlying database.
 
 
