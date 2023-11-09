@@ -867,7 +867,10 @@ def sammle_verben(db_verben, freq_d):
     collect_unclear_things = ["things that didn't match\n",]
     # sort by length of stem, for better hits
     verben = sorted(db_verben, key=lambda x: len(x.stem), reverse=True)
-    points = int(len(verben)/50)
+    if len(db_verben) < 50:
+        points = False
+    else:
+        points = int(len(db_verben)/50)
     collection = []
     collection_a = []
 
@@ -991,10 +994,10 @@ def sammle_verben(db_verben, freq_d):
             else:
                 collection.append(found)
         # progress bar ;-)
-        if lemma_count % points == 0:
+        if points and lemma_count % points == 0:
             kh.OBSERVER.notify_cont('.')
         lemma_count += 1
-    
+
     # map both variants of verbs to one id and add this to the big collection
     # sort by id, so the variants become neighbours with id_0 before id_a
     collection_b = sorted(collection_a, key=lambda x: x[3])

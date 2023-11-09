@@ -12,10 +12,10 @@ import json
 from operator import itemgetter
 from sys import exit as sysexit
 from unidecode import unidecode
-import kir_prepare_verbs as kv
+# import kir_prepare_verbs as kv
 import kir_helper2 as kh
 import kir_tag_classes as tc
-import kir_db_classes as dbc
+# import kir_db_classes as dbc
 import kir_string_depot as sd
 
 
@@ -469,9 +469,10 @@ def tag_multogether(fn_in, dbrundi):
                  "n_lemmata": len(lemma_lists.known())
                  }
     jtokens = [dict(x.__dict__) for x in text_tagged.tokens]
-    kh.save_json({"meta_data": meta_data,
+    kh.save_json([{"meta_data": meta_data,
                   "Token": jtokens
-                  }, whattext.fn_tag)
+                   }
+                  ], whattext.fn_tag)
     kh.OBSERVER.notify_tagging(whattext.fn_in,
                                whattext.fn_tag.split("/")[-1],
                                kh.Dates.database)
@@ -529,9 +530,10 @@ def tag_multiple(fn_in, dbrundi):
                      "n_lemmata": len(lemma_lists.known())
                      }
         jtokens = [dict(x.__dict__) for x in text_tagged.tokens]
-        kh.save_json({"meta_data": meta_data,
+        kh.save_json([{"meta_data": meta_data,
                       "Token": jtokens
-                      }, whattext.fn_tag)
+                       }
+                      ], whattext.fn_tag)
         kh.OBSERVER.notify_tagging(whattext.fn_in,
                                    whattext.fn_tag.split("/")[-1],
                                    kh.Dates.database)
@@ -596,7 +598,7 @@ def tag_or_load_tags(fn_in, dbrundi):
                 kh._("There is already a tagged file: (made {})").format(good_old)
                 + "\n\t" + '/'.join(whattext.fn_tag.split('/')[-4:])
                 + kh._("\nWe use this instead of tagging again.\n"))
-            fromjson = load_json(whattext.fn_in)
+            fromjson = load_json(whattext.fn_tag)
             text_tagged = tc.TokenMeta(fromjson.get("TokenList"))
             show_meta(fromjson)
             return text_tagged
@@ -636,9 +638,9 @@ def tag_or_load_tags(fn_in, dbrundi):
                  "n_lemmata": len(lemma_lists.known)
                  }
     jtokens = [dict(x.__dict__) for x in text_tagged.tokens]
-    kh.save_json({"meta_data": meta_data,
-                  "Token": jtokens
-                  }, whattext.fn_tag)
+    kh.save_json([{"meta_data": meta_data, "Token": jtokens}],
+                 whattext.fn_tag
+                 )
     kh.OBSERVER.notify_tagging(whattext.fn_in.split("/")[-1],
                                whattext.fn_tag.split("/")[-1],
                                kh.Dates.database)
@@ -707,12 +709,12 @@ def load_json(filename):
     with open(filename, encoding='utf-8') as file:
         raw = json.load(file)
     data = {}
-    for num in range(len(list(raw.keys()))):
-        class_name = list(raw.keys())[num]
+    for num in range(len(list(raw[0].keys()))):
+        class_name = list(raw[0].keys())[num]
         objects = []
         # tagged text as list of objects Token
         if class_name == "Token":
-            for i in raw.get(class_name):
+            for i in raw[0].get(class_name):
                 tag = tc.Token(i.get('token'), i.get('pos'), i.get('lemma'))
                 tag.set_nrs(i.get('id_sentence'), i.get('id_tokin_sen'),
                             i.get('id_token'), i.get('id_char'),
@@ -721,6 +723,6 @@ def load_json(filename):
             data.update({"TokenList": objects})
         # meta data as dict
         if class_name == "meta_data":
-            meta_data = raw.get(class_name)
+            meta_data = raw[0].get(class_name)
             data.update({"meta_data": meta_data})
     return data
