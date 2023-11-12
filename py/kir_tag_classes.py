@@ -408,7 +408,7 @@ class Collection:
 
     def collect_verbs(self, db_verbs):
         """collects verbs"""
-        self.verbs, self.unk = kv.sammle_verben(db_verbs, self.unk)
+        self.verbs, self.unk = kv.collect_verbs(db_verbs, self.unk)
 
     def collect_adjectives(self, db_adjectives):
         """collects adjectives"""

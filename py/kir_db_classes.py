@@ -636,28 +636,32 @@ def collect_adjs(db_adjektive, freq_d):
     return (collection, freq_adj)
 
 
-def put_same_ids_together(collection_in):
-    """sums up and adds found types of same ID,
-    for interjections + adverbs and pronouns
-    because some of them are made with regex and not listed in db"""
+# def put_same_ids_together(collection_in):
+#     """sums up and adds found types of same ID,
+#     for interjections + adverbs and pronouns
+#     because some of them are made with regex and not listed in db"""
 
-    collection_in.sort(key=lambda x: int(x[1]))
-    collection = [["some data", "-1", "to compare with first element"],]
-    collection += collection_in
-    coll = []
-    for i in range(1, len(collection)):
-        if int(collection[i][1]) == int(collection[i-1][1]):
-            collection[i-1][3] += collection[i][3]
-            collection[i-1][4] += collection[i][4]
-            # assumed that there are at most only two types with same id
-            coll.pop(-1)
-            coll.append(collection[i-1] + collection[i][5:])
-        else:
-            coll.append(collection[i])
+#     collection_in.sort(key=lambda x: int(x[1]))
+#     #collection = [["some data", "-1", "to compare with first element"],]
+#     #collection += collection_in
+#     collection_in.insert(0,["some data", "-1", "to compare with first element"])
+#     collection = collection_in
+#     coll = []
+#     for i in range(1, len(collection)):
+#         if int(collection[i][1]) == int(collection[i-1][1]):
+#             collection[i-1][3] += collection[i][3]
+#             collection[i-1][4] += collection[i][4]
+#             # assumed that there are at most only two types with same id
+#             # first of same id-entries  was already added in last loop,
+#             # but we don't want to have it twice
+#             coll.pop(-1)
+#             coll.append(collection[i-1] + collection[i][5:])
+#         else:
+#             coll.append(collection[i])
 
-    coll.sort(key=lambda x: x[3], reverse=True)
-    coll.sort(key=lambda x: x[4], reverse=True)
-    return coll
+#     coll.sort(key=lambda x: x[3], reverse=True)
+#     coll.sort(key=lambda x: x[4], reverse=True)
+#     return coll
 
 
 def build_pronouns():
@@ -792,7 +796,8 @@ def collect_pronouns(db_pronouns, freq_d):
     if collection:
         # sort to make sure that lemma is: '-no' and not: 'hano'
         collection.sort(key=lambda x: x[0])
-        collection = put_same_ids_together(collection)
+        collection.sort(key=lambda x: str(x[1]))
+        collection = kv.add_same_ids_up(collection)
         freq_prn = {x: y for x, y in freq_prn.items() if y != 0}
 
     # save_dict(freq_prn,"keine3_pron.csv")
@@ -906,7 +911,8 @@ def collect_exclamations(db_rest, freq_d):
         if found:
             collection.append(found)
     if collection:
-        collection = put_same_ids_together(collection)
+        collection.sort(key=lambda x: int(x[1]))
+        collection = kv.add_same_ids_up(collection)
         freq_exc = {x: y for x, y in freq_exc.items() if y != 0}
     return (collection, freq_exc)
 

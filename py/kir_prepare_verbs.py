@@ -7,10 +7,11 @@ Created on Sat Jul 29 10:13:10 2023
 """
 
 import re
+from abc import abstractmethod
 from unidecode import unidecode
 import kir_string_depot as sd
 import kir_helper2 as kh
-from abc import abstractmethod
+
 
 REGEX_SUFFIX = r"((([hyk]|mw)o)?$)"
 
@@ -107,7 +108,7 @@ def regex_prfx_autonom_subjects_verbs():
     # abo, aba, abara, abata, abatara, abataki, abaki, abato, abazo
     # ivyo, ivya, ivyara, ibita, ibitara, ibitaki, ibiki, ibito, ibizo
     # uwandika, ubwandika, ivyiruka, iryiruka, abandika, iciruka
-    #       +stem or perfektive
+    #       +stem or +perfektive
     regex_ibi_ku = r"((a[bkhy]a)|(i[bkryz]i)|(u[bkrtw]u))"
     regex_ibi_gu = r"((a[bhgy]a)|(i[bgryz]i)|(u[bgrdw]u))"
     regex_ivy_kw = r"((a[bkhy])|(i([cz]|([vr]?y)))|(u[bkrt]?w))"
@@ -205,7 +206,7 @@ def regex_prfx_subj_times_verbs():
     # (for all ab n-) sinzomira, sinomira tse,
 
     # ndagira ze / ndakagira (ze not)
-    # naragira tse / sinagira ze
+    # naragira ze / sinagira ze
     # ngira ze / nagira ze
     # nogira ze / nzogira  nzogize
     # sinzogira, sinogira ze
@@ -267,7 +268,7 @@ def regex_prfx_subj_times_verbs():
     # for stem-ends aey:    (nti)bi, (nti)bizo, (nti)vya
     # aey_ku
     for i in [subj_ku_a, subj_ku_e, subj_ku_y]:
-        i.append(r"((nti)?"+regex_bi_ku+"(zo)?|("+regex_bi_kw+"a))")
+        i.append(r"((nti)?("+regex_bi_ku+"(zo)?|("+regex_bi_kw+"a)))")
     # aey_gu
     for i in [subj_gu_a, subj_gu_e, subj_gu_y]:
         i.append(r"((nti)?("+regex_bi_gu+"|"+regex_bi_ku+"zo|" +
@@ -859,18 +860,18 @@ def filter_passiv_out(verb_list):
     return new_list
 
 
-def sammle_verben(db_verben, freq_d):
+def collect_verbs(db_verbs, freq_d):
     """sorts verbforms to their stem
     takes fdist as a dict and returns also dict"""
 
     freq_verb = freq_d
     collect_unclear_things = ["things that didn't match\n",]
     # sort by length of stem, for better hits
-    verben = sorted(db_verben, key=lambda x: len(x.stem), reverse=True)
-    if len(db_verben) < 50:
+    verben = sorted(db_verbs, key=lambda x: len(x.stem), reverse=True)
+    if len(db_verbs) < 50:
         points = False
     else:
-        points = int(len(db_verben)/50)
+        points = int(len(db_verbs)/50)
     collection = []
     collection_a = []
 
@@ -917,7 +918,7 @@ def sammle_verben(db_verben, freq_d):
         freqsum = 0
         found = []
 
-        # ((%zeit1+subj|%subj+zeit2) %obj? (%stem[:-1]wae, %perfw) | %stem_only))(ho yo ko mwo))
+        # ((%time1+subj|%subj+time2) %obj? (%stem[:-1]wae, %perfw) | %stem_only))(ho yo ko mwo))
         '''
         1. ends with end_aey or n_end_aey ?
         2. if yes: analyse all before
@@ -925,65 +926,68 @@ def sammle_verben(db_verben, freq_d):
             collect for later analysis
         '''
         # for short verbs
-        # for including kuba, -ri but excluding hari, kuhaba
-        if len(verb.stem) == 2 \
-           and verb.lemma[0] in "gk-" \
-           and len(verb.lemma) < 5:
-            qu_list_for_short_freqs = \
-                [sd.breakdown_consonants(x + verb.stem) for x in ["naiu"]]
-            if len(verb.lemma) == 4:
-                qu_list_for_short_freqs.append(verb.stem)
-        # coll_comb = [x for x in coll_comb if x[0] not in [n_end_a, n_end_e]]
-        else:
-            qu_list_for_short_freqs = []
+        # to include kuba, -ri
+        # but excluding hari ('h' not in 'gk-'), kuhaba (len 6)
 
-        for freqs, num in freq_verb.items():
-            # for short freqs
-            if num != 0 and len(freqs) < 4 and qu_list_for_short_freqs:
-                for i in qu_list_for_short_freqs:
-                    if freqs == i:
+        # if len(verb.stem) == 2 \
+        #    and verb.lemma[0] != 'h' \
+        #    and len(verb.lemma) < 5:
+        #     qu_list_for_short_freqs = \
+        #         [sd.breakdown_consonants(x + verb.stem) for x in "naiu"]
+        #     if len(verb.lemma) == 4:
+        #         qu_list_for_short_freqs.append(verb.stem)
+        # # coll_comb = [x for x in coll_comb if x[0] not in [n_end_a, n_end_e]]
+        # else:
+        #     qu_list_for_short_freqs = []
+
+        for freqtype, num in freq_verb.items():
+            # for short freqtypes
+            if num != 0 and len(freqtype) < 4 and qu_list_for_short_freqs:
+                for quest in qu_list_for_short_freqs:
+                    if freqtype == quest:
                         freqsum += num
-                        found.append([freqs, num])
-                        freq_verb.update({freqs: 0})
+                        found.append([freqtype, num])
+                        freq_verb.update({freqtype: 0})
                         num = 0
-                        break  # next freq
+                        break  # next freqtype
             # for n/end_a, n/end_e, n/end_y
             ask_begin = False
-            # comb is list of 6 elements [end, questions for this end]
+            # comb is list of 6 elements, each: [end, questions for this end]
             for end_aey in verb.comb:
                 if num == 0:
-                    break  # next freq
+                    break  # next freqtype
                 end = end_aey[0]
-                # freq ends like verb
-                if re.search(end, freqs) is not None:
+                # freq ends like verb ends?
+                if re.search(end, freqtype) is not None:
                     ask_begin = True
                     # check begin
-                    part1 = re.sub(re.search(end, freqs).group(), "", freqs)
-                    # there is nothing else
+                    part1 = re.sub(re.search(end, freqtype).group(), "", freqtype)
+                    # is there nothing else?
                     if part1 == "":
-                        # is pure Imperativ
+                        # is pure Imperative
                         freqsum += num
-                        found.append([freqs, num])
-                        freq_verb.update({freqs: 0})
+                        found.append([freqtype, num])
+                        freq_verb.update({freqtype: 0})
                         num = 0
-                        ask_begin = False  # no break here, die end_Schlaufe
-                        # muss weitergehen, wird oben bei num==0 abgebrochen
+                        ask_begin = False  # no break here, the end_loop
+                        # has to go on, it will break above with num==0
+                    # there is at least one letter before the end
                     else:
-                        # check each question
+                        # check each question of this end
                         for qu in end_aey[1]:
                             if re.search(qu, part1) is not None:
                                 freqsum += num
-                                found.append([freqs, num])
-                                freq_verb.update({freqs: 0})
+                                found.append([freqtype, num])
+                                freq_verb.update({freqtype: 0})
                                 num = 0
                                 ask_begin = False
-                                break  # next end/ dann oben gleich break >> next freq
+                                break  # next end/ loop breaks above >> next freqtype
                 if ask_begin is True:
-                    collect_unclear_things.append([verb.lemma, end, freqs])
+                    collect_unclear_things.append([verb.lemma, end, freqtype])
                     ask_begin = False
 
         if freqsum > 0:
-            # alphabetisch
+            # alphabetical
             found.sort()
             # head of line
             found = [verb.lemma, verb.dbid, "VERB", freqsum, len(found)]+found
@@ -998,45 +1002,20 @@ def sammle_verben(db_verben, freq_d):
             kh.OBSERVER.notify_cont('.')
         lemma_count += 1
 
-    # map both variants of verbs to one id and add this to the big collection
-    # sort by id, so the variants become neighbours with id_0 before id_a
-    collection_b = sorted(collection_a, key=lambda x: x[3])
-    if len(collection_b) > 1:
-        # also the last element needs a next element to compare with
-        collection_b.append([";", ""])
-        i = 0
-        head_0 = collection_b[i][:5]
-        while i < len(collection_b)-1:
-            if collection_b[i][0] != ";":
-                head_a = collection_b[i+1][:5]
-                if str(head_0[1])[:-2] == str(head_a[1])[:-2]:
-                    # same id but: id_0 bzw id_a
-                    forms = collection_b[i][5:]+collection_b[i+1][5:]
-                    forms.sort()
-                    # the head for the sum of both variants of this id
-                    forms = [head_0[0], head_0[1][:-2], "VERB",
-                             int(head_0[3])+int(head_a[3]),
-                             int(head_0[4])+int(head_a[4])
-                             ] + forms
-                    collection.append(forms)
-                    # next element is used already, we can skip it
-                    i += 2
-                    head_0 = collection_b[i]
-                else:
-                    # cut _0/_a from id
-                    # head_0[1] = head_0[1][:-2]
-                    collection_b[i][1] = str(collection_b[i][1])[:-2]
-                    collection.append(collection_b[i])
-                    head_0 = head_a
-                    i += 1
+    collection_a.sort(key=lambda x: x[1])
+    for i in collection_a:
+        # cut _0/_a from id for comparing
+        i[1] = i[1].strip("_a").strip("_0")
+    collection_a = add_same_ids_up(collection_a)
+    collection += collection_a
 
-    # Eintrag,id,Anzahl verschiedener Formen,Summe aller Formen,
-    #      nach Variantenreichtum sortiert (Form,Anzahl - hier alphabetisch)
+    # lemma, id, PoS, sum of all ocurrences, number of different types, types
+    #     collection sorted: 1. sum of types 2. by numbers of different types
+    #     per lemma: types sorted alphabetically
     if collection:
         collection.sort(key=lambda x: x[3], reverse=True)
         collection.sort(key=lambda x: x[4], reverse=True)
         freq_verb = {x: y for x, y in freq_verb.items() if y != 0}
-    # else : sammlung1 = []
 
     # kh.save_list(collection, "found6_verbs.csv", ";")
     # save_dict(freqVerb, "keine6_verbs.csv")
@@ -1044,3 +1023,32 @@ def sammle_verben(db_verben, freq_d):
     # kh.save_list(unk_verbform, "unk_verbform.csv")
     # kh.save_list(unk_perf, "unk_perfective.csv")
     return (collection, freq_verb)
+
+
+def add_same_ids_up(collection):
+    """sums up and adds found types of variants of same ID
+    attention: list has to be sorted before to make same IDs neighbours
+    we can't sort it here because verb-IDs differ in xxx_a and xxx_0,
+    other PoS don't"""
+    # put both variants of verbs together and add this to the big collection
+    # sort by id, so the variants become neighbours with id_0 before id_a
+    coll = []
+    # for i in collection_a:
+    #     print("a", i)
+    # collection.sort(key=lambda x: x[1])
+    # also the first element needs a next element to compare with
+    collection.insert(0, ["some data", "-1", "to compare with first element"])
+    for i in range(1, len(collection)):
+        if collection[i][1] == collection[i-1][1]:
+            # add sums (or should we count them again?)
+            collection[i-1][3] += collection[i][3]
+            # add numbers of types
+            collection[i-1][4] += collection[i][4]
+            # discard i-1
+            coll.pop(-1)
+            # replace it with sum of both
+            coll.append(collection[i-1] + collection[i][5:])
+        # only one of id_0 or its id_a found something
+        else:
+            coll.append(collection[i])
+    return coll

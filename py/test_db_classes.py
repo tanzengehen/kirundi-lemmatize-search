@@ -27,7 +27,7 @@ FREQ_SIM = {}
 class TestNoun(TestCase):
     """Test cases for Noun
     alternatives, plurals, questions
-    with and without augment and breakdownrules"""
+    with and without augment, also breakdownrules"""
 
     @classmethod
     def setUpClass(cls):
@@ -187,11 +187,13 @@ class TestNoun(TestCase):
     def test_collect_nouns(self):
         """Test collecting all variants of nouns"""
         collection, freq_subs = dbc.collect_nouns(DB_DATA, FREQ_SIM)
+        # collected
         types_num = 0
         for i in collection:
             types_num += i[4]
         self.assertEqual(len(freq_subs), 7)
         self.assertEqual(types_num, 62)
+        # not collected
         for i in ['nticahama', 'guhamagara', 'ikintuma', 'nkikintu',
                   'atanikintu', 'ikikintu']:
             self.assertIn(i, freq_subs)
@@ -298,11 +300,13 @@ class TestAdjectives(TestCase):
     def test_collect_adjs(self):
         """Test collecting adjectives for all classes"""
         collection, freq_no_adj = dbc.collect_adjs(DB_DATA, FREQ_SIM)
+        # collected
         types_num = 0
         for i in collection:
             types_num += i[4]
         self.assertEqual(len(freq_no_adj), 17)
         self.assertEqual(types_num, 76)
+        # not collected
         for i in ['barekure', 'arekure', 'barekure', 'biregure', 'birekure',
                   'buregure', 'burekure', 'burezire', 'irekure', 'kirerire',
                   'murekure', 'turekure', 'turerure', 'uburegare', 'umurekure',
@@ -417,11 +421,11 @@ class TestPronouns(TestCase):
         types_num = 0
         for i in collection:
             types_num += i[4]
-        # found types
+        # collected types
         self.assertEqual(types_num, 42)
-        # found lemmata
+        # collected lemmata
         self.assertEqual(len(collection), 5)
-        # unknown types
+        # not collected
         self.assertEqual(len(freq_no_prn), 13)
         for no_pronoun in ['igi', 'ahabo', 'akabo', 'icabo', 'iryabo',
                            'ivyabo', 'iyabo', 'izabo', 'mwabo', 'nyabo',
@@ -511,7 +515,7 @@ class TestAdverbsEtc(TestCase):
         self.assertEqual(types_num, 3)
         # found lemmata
         self.assertEqual(len(collection), 2)
-        # unknown types
+        # not collected
         self.assertEqual(len(freq_no_advbs), 5)
 
 
@@ -591,7 +595,7 @@ class TestExclamations(TestCase):
         self.assertEqual(types_num, 10)
         # found lemmata
         self.assertEqual(len(collection), 4)
-        # unknown types
+        # not colllected
         self.assertEqual(len(freq_no_excl), 5)
 
 
@@ -617,7 +621,8 @@ class TestForeign(TestCase):
             ]
         FREQ_SIM = {
             'ble': 2, 'garten': 7, 'noel': 33, 'euro': 12, 'euros': 12,
-            'eur': 6, 'barca': 8, 'dmn': 6, 'tre': 6, 'nsengiyumva': 15
+            'nyumva': 14, 'eur': 6, 'barca': 8, 'dmn': 6, 'tre': 6,
+            'nsengiyumva': 15
             }
 
     @classmethod
@@ -673,19 +678,20 @@ class TestForeign(TestCase):
             types_num += i[4]
             print(i[0])
         self.assertEqual(types_num, 10)
-        self.assertEqual(len(freq_no_names), 0)
         self.assertEqual(collection[1][0], 'euro')
         self.assertEqual(collection[1][3], 30)
         self.assertEqual(collection[1][4], 3)
         for i in collection[1][5:]:
             self.assertIn(i[0], ['euro', 'eur', 'euros'])
+        # not collected
+        self.assertEqual(len(freq_no_names), 1)
 
 
 ###############################################################
 #       TEST   N A M E D  E N T I T I E S                     #
 ###############################################################
 class TestNE(TestCase):
-    """Test cases for Named Entities"""
+    """Test cases for related loacation-person-language Named Entities"""
 
     @classmethod
     def setUpClass(cls):
@@ -923,7 +929,7 @@ class TestNE(TestCase):
         self.assertEqual(len(lang.questions), 6)
 
     def test_complete_location_language_person(self):
-        """Test add constructed languages, persons to named-entity-list"""
+        """Test add constructed languages and persons to named-entity-list"""
         # prepare
         ne_dict = {'loc': NE_DATA[:2],
                    'lng': NE_DATA[2:5],
@@ -954,7 +960,7 @@ class TestNE(TestCase):
 #       TEST   L O A D   D A T A                              #
 ###############################################################
 class TestLoading(TestCase):
-    """lTest loading Named Entities respective rundi dictionary"""
+    """Test loading Named Entities respective rundi dictionary"""
 
     def test_load_ne(self):
         """Test load Named Entities from csv"""
@@ -978,18 +984,18 @@ class TestLoading(TestCase):
         self.assertEqual(ne_data.get('foreign')[1].lemma, 'concert')
 
     def test_load_dbkirundi(self):
-        """Test load rundi dictionary from database"""
+        """Test load rundi dictionary from csv"""
         db_data = dbc.load_dbkirundi(
             sd.ResourceNames.root + "/tests/test_lemmata.csv")
         self.assertEqual(len(db_data), 8)
         self.assertEqual(len(db_data.get('adjectives')), 0)
-        self.assertEqual(len(db_data.get('nouns1')), 13)
+        self.assertEqual(len(db_data.get('nouns1')), 17)
         self.assertEqual(len(db_data.get('nouns2')), 0)
         self.assertEqual(len(db_data.get('pronouns')), 2)
-        self.assertEqual(len(db_data.get('rests')), 0)
-        self.assertEqual(len(db_data.get('stems')), 48)
+        self.assertEqual(len(db_data.get('rests')), 1)
+        self.assertEqual(len(db_data.get('stems')), 55)
         self.assertEqual(len(db_data.get('unchanging_words')), 9)
-        self.assertEqual(len(db_data.get('verbs')), 25)
+        self.assertEqual(len(db_data.get('verbs')), 27)
         self.assertEqual(db_data.get('verbs')[0].lemma, "-ri")
         self.assertEqual(db_data.get('verbs')[0].dbid, "3966")
         self.assertEqual(db_data.get('verbs')[0].pos, "VERB")
@@ -999,33 +1005,7 @@ class TestLoading(TestCase):
             len(db_data.get('verbs')[0].comb), 2)
 
 
-###############################################################
-#       TEST   HELPER                                         #
-###############################################################
-class TestHelper(TestCase):
-    """Test helper functions in db_classes"""
 
-    def test_put_same_ids_together(self):
-        """Test merging found types of lemma from db-entry with
-        composed types"""
-        collection = [
-            ['hano', '1458', 'PRON', 1048, 1,
-                ['hano', 1048]],
-            ['iki', '8274', 'PRON', 6373, 1, ['iki', 6373]],
-            ['-no', '1458', 'PRON', 4918, 18,
-                ['ahano', 4], ['akano', 5], ['ano', 139], ['bano', 290],
-                ['bino', 111], ['buno', 481], ['ino', 1193],
-                ['irino', 5], ['kano', 155], ['kino', 657], ['kuno', 59],
-                ['rino', 77], ['runo', 55], ['tuno', 8], ['ubuno', 1],
-                ['uno', 1611], ['utuno', 1], ['zino', 66]]
-        ]
-        collection = dbc.put_same_ids_together(collection)
-        self.assertEqual(len(collection), 2)
-        # self.assertEqual(collection[0][0], '-no')
-        self.assertIn(['hano', 1048], collection[0])
-        self.assertIn(['rino', 77], collection[0])
-        self.assertEqual(collection[0][3], 5966)
-        self.assertEqual(collection[0][4], 19)
 
 # def create_test_db():
     # nrs = ids from lemmafreq of test_text
