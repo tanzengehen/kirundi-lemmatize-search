@@ -6,12 +6,8 @@ Created on Mon Nov  6 13:12:22 2023
 @author: doreen
 """
 
-# import csv  # json
 from unittest import TestCase
-# import kir_db_classes as dbc
 import kir_prepare_verbs as kv
-# import kir_string_depot as sd
-
 
 # nosetests --with-spec --spec-color --with-coverage --cover-erase
 # coverage report -m
@@ -77,12 +73,12 @@ class TestNoun(TestCase):
                      'ku', 'nanirana', 'naniranye', 'nye',
                      '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
                      '', '', '', '', '', '0', '', '0', '', 'NULL']),
-            # 7 ku
+            # 7 gu
             kv.Verb(['2795', 'gukora', '',
                      'gu', 'kora', 'koze', 'ze',
                      '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
                      '', '', '', '', '', '0', '', '0', '', 'NULL']),
-            # 8 same lemma, different perfective/meaning like no7
+            # 8 same lemma, different perfective to no7
             kv.Verb(['2796', 'gukora', 'gukoora',
                      'gu', 'kora', 'koye', 'ye',
                      '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
@@ -159,7 +155,7 @@ class TestNoun(TestCase):
                      'ku', 'gēnda', 'giye', 'giye',
                      '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
                      '', '', '', '', '', '0', '', '0', '', 'NULL']),
-            # 23 short stem
+            # 23 short stem, gu, h-stem
             kv.Verb(['1406', 'guha', '',
                      'gu', 'ha', 'haye', 'haye',
                      '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
@@ -318,7 +314,8 @@ class TestNoun(TestCase):
              '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
              'guhuhuta', '', 'huhuta', 'hūhūshe',
              '', '', '0', '', '0', '', 'NULL'])
-        self.assertEqual(row_alt[0], '1814_a')
+        # self.assertEqual(row_alt[0], '1814_a')
+        self.assertEqual(row_alt[0], '1814')
         self.assertEqual(row_alt[1], 'guhuhuta')
         self.assertEqual(row_alt[4], 'huhuta')
         self.assertEqual(row_alt[5], 'hūhūshe')
@@ -329,10 +326,11 @@ class TestNoun(TestCase):
              '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
              'gusabga', '', 'sabga', 'bge',
              '', '0', '', '0', '', 'NULL'])
-        self.assertEqual(row_alt[0], '4229_a')
+        #self.assertEqual(row_alt[0], '4229_a')
+        self.assertEqual(row_alt[0], '4229')
         self.assertEqual(row_alt[4], 'sabga')
         self.assertEqual(row_alt[5], 'sabge')
-        self.assertEqual(row_alt[13], '')
+        self.assertEqual(row_alt[13], 'x')
 
     def test_mark_proverb(self):
         """Test mark proverb
@@ -517,21 +515,23 @@ class TestNoun(TestCase):
         # skip proverbs, passives, incorrects
         data = DB_DATA[0:10]+DB_DATA[15:18]+DB_DATA[20:]
         # add alternative
-        data[9].dbid = "1814_0"
-        data.append(kv.Verb(['1814_a', 'guhuhuta', '',
+        #data[9].dbid = "1814_0"
+        #data.append(kv.Verb(['1814_a', 'guhuhuta', '',
+        data.append(kv.Verb(['1814', 'guhuhuta', '',
                              'gu', 'hūhūta', 'hūhūshe', '',
                              '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                             '', '', '', '',
+                             'x', '', '', '',
                              '', '0', '', '0', '', 'NULL']))
+        data[9].alternatives = ["x"]
         for i in data:
             i.set_qu()
+            print(i.lemma, i.alternatives)
         freq = FREQ_SIM
         collection, freq_verbs = kv.collect_verbs(data, freq)
         for i in freq_verbs:
             print(i)
         # TODO check if they should be collected:
         # ukwoza, namize, nomize, nuwandika
-        # TODO should not be collected: ndakagize
         self.assertEqual(len(freq_verbs), 4)
         for i in collection:
             print(i)
@@ -585,7 +585,7 @@ class TestNoun(TestCase):
 class TestHelper(TestCase):
     """Test helper functions for PoS classes"""
 
-    def test_put_same_ids_together(self):
+    def test_put_alternatives_of_same_id_together(self):
         """Test merging variants of lemmata with same ID
         (spelling variants or built with RegEx)"""
         collection = [
@@ -601,7 +601,7 @@ class TestHelper(TestCase):
         ]
         collection.sort(key=lambda x: x[0])
         collection.sort(key=lambda x: x[1])
-        collection = kv.add_same_ids_up(collection)
+        collection = kv.put_alternatives_of_same_id_together(collection)
         self.assertEqual(len(collection), 2)
         self.assertEqual(collection[0][0], '-no')
         self.assertIn(['hano', 1048], collection[0])

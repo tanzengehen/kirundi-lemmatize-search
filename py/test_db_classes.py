@@ -22,7 +22,7 @@ FREQ_SIM = {}
 
 
 ###############################################################
-#       TEST   N O U N S                                   #
+#       TEST   N O U N S                                      #
 ###############################################################
 class TestNoun(TestCase):
     """Test cases for Noun
@@ -599,11 +599,11 @@ class TestExclamations(TestCase):
         self.assertEqual(len(freq_no_excl), 5)
 
 
-###############################################################
-#       TEST   F O R E I G N words and N A M E S (Persons)    #
-###############################################################
+############################################################################
+#  TEST   F O R E I G N words and N A M E S (Persons, Organisations, ...)  #
+############################################################################
 class TestForeign(TestCase):
-    """Test case for collecting Foreign words"""
+    """Test case for collecting Foreign words and personal Names """
 
     @classmethod
     def setUpClass(cls):
@@ -687,11 +687,11 @@ class TestForeign(TestCase):
         self.assertEqual(len(freq_no_names), 1)
 
 
-###############################################################
-#       TEST   N A M E D  E N T I T I E S                     #
-###############################################################
+############################################################################
+#   TEST   N A M E D  E N T I T I E S  (Locations, Languages, Inhabitants) #
+############################################################################
 class TestNE(TestCase):
-    """Test cases for related loacation-person-language Named Entities"""
+    """Test cases for related location-inhabitants-language Named Entities"""
 
     @classmethod
     def setUpClass(cls):
@@ -849,8 +849,8 @@ class TestNE(TestCase):
                       per[2].questions)
 
     def test_perla_from_ub(self):
-        """Test creation of language- and person-lemma constructed
-        from location with ubu/ubw"""
+        """Test creation of Name (.lemma) of new language and person
+        constructed from locations with ubu/ubw"""
         # prepare iki
         local = NE_DATA[1]
         local.alternatives = [i for i in local.alternatives if i[:3] != "ubu"]
@@ -869,7 +869,7 @@ class TestNE(TestCase):
         self.assertEqual(langname, "igihindi")
 
     def test_create_new_lang(self):
-        """Test create new language-lemma of location"""
+        """Test create new language-instance of location"""
         local = NE_DATA[1]
         local.alternatives = [i for i in local.alternatives if i[:3] != "ubu"]
         lang = local.create_new_lang("ikidagi")
@@ -880,7 +880,7 @@ class TestNE(TestCase):
             self.assertIn(i, lang.questions)
 
     def test_create_new_person(self):
-        """Test create new person-lemma of location"""
+        """Test create new person-instance of location"""
         local = NE_DATA[0]
         pers = local.create_new_person("umunya_misiri")
         self.assertEqual(pers.lemma, "umunya_misiri")
@@ -894,7 +894,8 @@ class TestNE(TestCase):
             self.assertIn(i, pers.questions)
 
     def test_set_location_and_create_person_language_out_of_location(self):
-        """Test set_location_and_create_person_language_out_of_location"""
+        """Test set_location_and_create_person_language_out_of_location.
+        questions for location; instances for related person and language"""
         # test consonant
         local = NE_DATA[0]
         lang, pers = local.set_location_and_create_person_language_out_of_it()
@@ -937,6 +938,9 @@ class TestNE(TestCase):
                    'names': [],
                    'foreign': []
                    }
+        loc_before = len(ne_dict.get('loc'))
+        per_before = len(ne_dict.get('per'))
+        lng_before = len(ne_dict.get('lng'))
         # test
         ne_list = dbc.complete_location_language_person(ne_dict)
         locs = 0
@@ -946,14 +950,14 @@ class TestNE(TestCase):
             # print("\nne:", i)
             if i.pos == "PROPN_LOC":
                 locs += 1
-            elif i.pos == "PROPN_LNG":
-                lngs += 1
             elif i.pos == "PROPN_PER":
                 pers += 1
+            elif i.pos == "PROPN_LNG":
+                lngs += 1
         self.assertEqual(len(ne_list), 9)
-        self.assertEqual(locs, 2)
-        self.assertEqual(lngs, 4)
-        self.assertEqual(pers, 3)
+        self.assertEqual(locs, loc_before)
+        self.assertEqual(pers, per_before+1)
+        self.assertEqual(lngs, lng_before+1)
 
 
 ###############################################################
@@ -1003,8 +1007,6 @@ class TestLoading(TestCase):
         self.assertEqual(db_data.get('verbs')[0].perfective, "")
         self.assertEqual(
             len(db_data.get('verbs')[0].comb), 2)
-
-
 
 
 # def create_test_db():

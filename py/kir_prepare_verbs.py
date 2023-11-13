@@ -66,7 +66,7 @@ class Lemma:
         else:
             # Translators: (debug) check dictionary new entry
             kh.OBSERVER.notify(
-                kh._("lemma has no stem in database: ID{}").format(self.dbid))
+                kh._("lemma has no stem in database: ID {}").format(self.dbid))
             self.stem = "xxx"
         # self.questions = [self.lemma,]
         if entry[4]:
@@ -779,7 +779,7 @@ def prepare_verb_alternativ(row):
             # only short version of perfective is given
             # find the last vowel before the ending a:
             for count_back in range(len(stem_a)-2, 0, -1):
-                if stem_a[count_back] in "aeiouu":
+                if stem_a[count_back] in "aeiou":
                     perfective_a = stem_a[:count_back+1]+perf_a
                     break
             # stem_a has only 2 vowels: the very first letter and the ending a
@@ -792,11 +792,10 @@ def prepare_verb_alternativ(row):
         perfective_a = ""
     # suppose the first letter of stem and stem_a is always the same:
     lemma_a = lemma[:2]+stem_a
-    row_a[0] = str(row[0])+"_a"     # 0  id
     row_a[1] = lemma_a              # 1  lemma
     row_a[4] = stem_a               # 4  stem
     row_a[5] = perfective_a         # 5  perfectiv
-    row_a[13] = ""                  # 13 alternatives
+    row_a[13] = "x"                 # 13 alternatives
     return row_a
 
 
@@ -868,12 +867,10 @@ def collect_verbs(db_verbs, freq_d):
     collect_unclear_things = ["things that didn't match\n",]
     # sort by length of stem, for better hits
     verben = sorted(db_verbs, key=lambda x: len(x.stem), reverse=True)
-    if len(db_verbs) < 50:
-        points = False
-    else:
-        points = int(len(db_verbs)/50)
+    points = 0
+    lemma_count = 0
     collection = []
-    collection_a = []
+    collection_x = []
 
     # to exclude faster:
     # check first the stem of verbs and afterwards the prefixes
@@ -913,7 +910,6 @@ def collect_verbs(db_verbs, freq_d):
     kureka:                                                    trunk   ndeka
     '''
 
-    lemma_count = 0
     for verb in verben:
         freqsum = 0
         found = []
@@ -929,16 +925,16 @@ def collect_verbs(db_verbs, freq_d):
         # to include kuba, -ri
         # but excluding hari ('h' not in 'gk-'), kuhaba (len 6)
 
-        # if len(verb.stem) == 2 \
-        #    and verb.lemma[0] != 'h' \
-        #    and len(verb.lemma) < 5:
-        #     qu_list_for_short_freqs = \
-        #         [sd.breakdown_consonants(x + verb.stem) for x in "naiu"]
-        #     if len(verb.lemma) == 4:
-        #         qu_list_for_short_freqs.append(verb.stem)
-        # # coll_comb = [x for x in coll_comb if x[0] not in [n_end_a, n_end_e]]
-        # else:
-        #     qu_list_for_short_freqs = []
+        if len(verb.stem) == 2 \
+            and verb.lemma[0] != 'h' \
+                and len(verb.lemma) < 5:
+            qu_list_for_short_freqs = \
+                [sd.breakdown_consonants(x + verb.stem) for x in "naiu"]
+            if len(verb.lemma) == 4:
+                qu_list_for_short_freqs.append(verb.stem)
+        # coll_comb = [x for x in coll_comb if x[0] not in [n_end_a, n_end_e]]
+        else:
+            qu_list_for_short_freqs = []
 
         for freqtype, num in freq_verb.items():
             # for short freqtypes
@@ -991,23 +987,19 @@ def collect_verbs(db_verbs, freq_d):
             found.sort()
             # head of line
             found = [verb.lemma, verb.dbid, "VERB", freqsum, len(found)]+found
-            if len(verb.dbid) > 2 and verb.dbid[-2] == "_":
+            if verb.alternatives == ["x"]:
                 # id has two variants of writing the verb,
                 # collect all of those verbs here
-                collection_a.append(found)
+                collection_x.append(found)
             else:
                 collection.append(found)
-        # progress bar ;-)
-        if points and lemma_count % points == 0:
-            kh.OBSERVER.notify_cont('.')
-        lemma_count += 1
 
-    collection_a.sort(key=lambda x: x[1])
-    for i in collection_a:
-        # cut _0/_a from id for comparing
-        i[1] = i[1].strip("_a").strip("_0")
-    collection_a = add_same_ids_up(collection_a)
-    collection += collection_a
+        # progress bar ;-)
+        points, lemma_count = kh.show_progress(points,
+                                               lemma_count, len(verben))
+
+    collection_x = put_alternatives_of_same_id_together(collection_x)
+    collection += collection_x
 
     # lemma, id, PoS, sum of all ocurrences, number of different types, types
     #     collection sorted: 1. sum of types 2. by numbers of different types
@@ -1025,18 +1017,14 @@ def collect_verbs(db_verbs, freq_d):
     return (collection, freq_verb)
 
 
-def add_same_ids_up(collection):
-    """sums up and adds found types of variants of same ID
-    attention: list has to be sorted before to make same IDs neighbours
-    we can't sort it here because verb-IDs differ in xxx_a and xxx_0,
-    other PoS don't"""
-    # put both variants of verbs together and add this to the big collection
-    # sort by id, so the variants become neighbours with id_0 before id_a
+def put_alternatives_of_same_id_together(collection):
+    """sums up and adds found types of variants to same ID
+    """
+    # put both variants of lemma together and add this to the big collection
     coll = []
-    # for i in collection_a:
-    #     print("a", i)
-    # collection.sort(key=lambda x: x[1])
-    # also the first element needs a next element to compare with
+    # sort by id, so the variants become neighbours
+    collection.sort(key=lambda x: str(x[1]))
+    # create an element to have something to compare the first element with
     collection.insert(0, ["some data", "-1", "to compare with first element"])
     for i in range(1, len(collection)):
         if collection[i][1] == collection[i-1][1]:

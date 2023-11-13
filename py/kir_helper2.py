@@ -319,14 +319,12 @@ def save_json(dict_list, filename):
         json.dump(dict_list, file, indent=4)
 
 
-def progress(percent=0):
-    """progress bar"""
-    # width = 50
-    left = 50 * percent // 100
-    right = 50 - left
-    print('\r[', '.'*left, ' '*right, ']',
-          f'{percent:.0f}%,',
-          sep='', end='', flush=True)
+def show_progress(points, n_now, n_max):
+    more = int(n_now * 50 / n_max) - points
+    OBSERVER.notify_cont(more * '.')
+    points += more
+    n_now += 1
+    return points, n_now
 
 
 lang = set_ui_language("de")

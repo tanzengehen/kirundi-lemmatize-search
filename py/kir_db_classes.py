@@ -36,13 +36,12 @@ def load_dbkirundi(filename=sd.ResourceNames.fn_db):
             # first row is column names
             if line_count > 0:
                 if row[8] == "0":
-                    if row[13] and row[15]:
+                    if row[13] or row[15]:
                         # there is also an alternative spelling
                         row_a = kv.prepare_verb_alternativ(row)
                         verb = kv.Verb(row_a)
                         verbs.append(verb)
-                        row[0] = str(row[0]) + "_0"  # 0 id
-                        row[13] = ""                 # alternatives
+                        row[13] = "x"                 # alternatives
                     verb = kv.Verb(row)
                     verbs.append(verb)
                 elif row[8] == "1":
@@ -164,6 +163,31 @@ def complete_location_language_person(ne_dict):
         del i.row
     # TODO check if first line is head or entry
     return ne_dict.get('names') + ne_dict.get('foreign') + loc + per + lng
+
+
+def check_entries_location_person_language(
+        propn_list1, propn_list2, lang_or_per="per"):
+    """check if there are different alternatives of stems in
+    location, person, language;
+    if so, we collect all alternativ spellings
+    """
+    for propn1 in propn_list1:
+        done = False
+        set1 = set(propn1.alternatives)
+        for propn2 in propn_list2:
+            set2 = set(propn2.alternatives)
+            if set1.intersection(set2):
+                propn2.alternatives = set(list(set2)+list(set1))
+                propn1.alternatives = set(list(set2)+list(set1))
+                done = True
+                break
+        if done:
+            if lang_or_per == "lang":
+                propn1.lang = "done"
+            else:
+                # lang_or_per is "per"
+                propn1.persons = "done"
+    return propn_list1, propn_list2
 
 
 class Foreign:
@@ -327,7 +351,7 @@ class NamedEntities:
         return new
 
     def set_location_and_create_person_language_out_of_it(self):
-        """sets location and returns not yet existing entries
+        """sets questions for location and returns not yet existing entries
         of PROPN_PER and PROPN_LANG based on that PROPN_LOC
         """
         new_lang = None
@@ -374,31 +398,6 @@ class NamedEntities:
             if self.persons != "done":
                 new_per = self.create_new_person(pername)
         return new_lang, new_per
-
-
-def check_entries_location_person_language(
-        propn_list1, propn_list2, lang_or_per="per"):
-    """check if there are different alternatives of stems in
-    location, person, language;
-    if so, we collect all alternativ spellings
-    """
-    for propn1 in propn_list1:
-        done = False
-        set1 = set(propn1.alternatives)
-        for propn2 in propn_list2:
-            set2 = set(propn2.alternatives)
-            if set1.intersection(set2):
-                propn2.alternatives = set(list(set2)+list(set1))
-                propn1.alternatives = set(list(set2)+list(set1))
-                done = True
-                break
-        if done:
-            if lang_or_per == "lang":
-                propn1.lang = "done"
-            else:
-                # lang_or_per is "per"
-                propn1.persons = "done"
-    return propn_list1, propn_list2
 
 
 class Noun(kv.Lemma):
@@ -496,19 +495,16 @@ def collect_nouns(db_substantive, freq_d):
     """
     freq_subs = freq_d
     collection = []
-    if len(db_substantive) < 50:
-        points = False
-    else:
-        points = int(len(db_substantive)/50)
+    points = 0
     lemma_count = 0
     for noun in db_substantive:
         # print("noun", noun.questions)
         found = regex_search(noun, freq_subs)
         if found:
             collection.append(found)
-        lemma_count += 1
-        if points and lemma_count % points == 0:
-            kh.OBSERVER.notify_cont('.')
+        points, lemma_count = kh.show_progress(points,
+                                               lemma_count,
+                                               len(db_substantive))
     if collection:
         freq_subs = {x: y for x, y in freq_subs.items() if y != 0}
         # result: most wordforms first, with high freq first
@@ -634,34 +630,6 @@ def collect_adjs(db_adjektive, freq_d):
     # all adjectives
     # kh.save_list(collection,"found5_adj.csv",";")
     return (collection, freq_adj)
-
-
-# def put_same_ids_together(collection_in):
-#     """sums up and adds found types of same ID,
-#     for interjections + adverbs and pronouns
-#     because some of them are made with regex and not listed in db"""
-
-#     collection_in.sort(key=lambda x: int(x[1]))
-#     #collection = [["some data", "-1", "to compare with first element"],]
-#     #collection += collection_in
-#     collection_in.insert(0,["some data", "-1", "to compare with first element"])
-#     collection = collection_in
-#     coll = []
-#     for i in range(1, len(collection)):
-#         if int(collection[i][1]) == int(collection[i-1][1]):
-#             collection[i-1][3] += collection[i][3]
-#             collection[i-1][4] += collection[i][4]
-#             # assumed that there are at most only two types with same id
-#             # first of same id-entries  was already added in last loop,
-#             # but we don't want to have it twice
-#             coll.pop(-1)
-#             coll.append(collection[i-1] + collection[i][5:])
-#         else:
-#             coll.append(collection[i])
-
-#     coll.sort(key=lambda x: x[3], reverse=True)
-#     coll.sort(key=lambda x: x[4], reverse=True)
-#     return coll
 
 
 def build_pronouns():
@@ -796,8 +764,7 @@ def collect_pronouns(db_pronouns, freq_d):
     if collection:
         # sort to make sure that lemma is: '-no' and not: 'hano'
         collection.sort(key=lambda x: x[0])
-        collection.sort(key=lambda x: str(x[1]))
-        collection = kv.add_same_ids_up(collection)
+        collection = kv.put_alternatives_of_same_id_together(collection)
         freq_prn = {x: y for x, y in freq_prn.items() if y != 0}
 
     # save_dict(freq_prn,"keine3_pron.csv")
@@ -816,22 +783,21 @@ def collect_names(names_and_foreign_words, freq_list):
     """
     collection = []
     freq_names = dict(freq_list)
-    if len(names_and_foreign_words) < 50:
-        points = 1
-    else:
-        points = int(len(names_and_foreign_words)/50)
+    points = 0
     lemma_count = 0
     for name in names_and_foreign_words:
         if name.pos in ["PROPN_PER", "PROPN_LOC"]:
+            # persons and locations have RegEx for their possibilities
             found = regex_search(name, freq_names)
         else:
+            # all possibilities are already collected
             found = string_search(name, freq_names)
         if found:
             collection.append(found)
-        lemma_count += 1
         # progress bar
-        if lemma_count % points == 0:
-            kh.OBSERVER.notify_cont('.')
+        points, lemma_count = kh.show_progress(points,
+                                               lemma_count,
+                                               len(names_and_foreign_words))
     if collection:
         collection.sort(key=lambda x: x[3], reverse=True)
         freq_names = {x: y for x, y in freq_names.items() if y != 0}
@@ -911,8 +877,7 @@ def collect_exclamations(db_rest, freq_d):
         if found:
             collection.append(found)
     if collection:
-        collection.sort(key=lambda x: int(x[1]))
-        collection = kv.add_same_ids_up(collection)
+        collection = kv.put_alternatives_of_same_id_together(collection)
         freq_exc = {x: y for x, y in freq_exc.items() if y != 0}
     return (collection, freq_exc)
 

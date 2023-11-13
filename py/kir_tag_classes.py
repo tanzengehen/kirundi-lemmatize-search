@@ -354,12 +354,12 @@ class Collection:
             + self.verbs \
             + self.advs
         # print("in put_known:",  len(known))
-        # for i in known:
-        #     # lemma,id,PoS,count,n-wordforms,found forms: count should be int
-        #     # for debugging only
-        #     if len(i) < 4:
-        #         print(i)
-        #         known.remove(i)
+        for i in known:
+            # lemma,id,PoS,count,n-wordforms,found forms: count should be int
+            # for debugging only
+            if len(i) < 4:
+                # print(i)
+                known.remove(i)
         ########
         for i in known:
             if isinstance((i[3]), int) is False:
@@ -419,7 +419,7 @@ class Collection:
         # attention: adds found exclamations because some are mapped to adverbs
         found_here, self.unk = dbc.collect_exclamations(db_rest, self.unk)
         self.advs += found_here
-        self.adv = dbc.put_same_ids_together(self.advs)
+        self.adv = kv.put_alternatives_of_same_id_together(self.advs)
 
 
 class FreqMeta:

@@ -229,7 +229,9 @@ def tag_text_with_db(mytext, dbrundi):
     percent = round(len(collection.unk) / (len(collection.unk)+n_lemmatypes)
                     * 100, 2)
     kh.OBSERVER.notify(kh._(
-        "unknown types      : {} ({}%)").format(len(collection.unk), percent))
+        "unknown types      : {} ({}% incl. broken words, mistakes, ...)")
+        .format(len(collection.unk), percent)
+        )
     kh.OBSERVER.notify(kh._(
         "recognized lemmata : {}").format(len(collection.known)))
     # split into sentences -- roughly
@@ -244,10 +246,7 @@ def tag_text_with_db(mytext, dbrundi):
     nr_token = -1
     nr_char = 0
     nr_para = 0
-    if len(sentences_list) > 50:
-        points = int(len(sentences_list)/50)
-    else:
-        points = 1
+    points = 0
     sent_count = 0
     kh.OBSERVER.notify(
         kh._("\ntagging text, this may take some moments ........."))
@@ -298,9 +297,9 @@ def tag_text_with_db(mytext, dbrundi):
                     tagged.append(tag3)
                     nr_char += len(tag3.token)+1
         # progress bar ;-)
-        if sent_count % points == 0:
-            kh.OBSERVER.notify_cont('.')
-        sent_count += 1
+        points, sent_count = kh.show_progress(points,
+                                              sent_count,
+                                              len(sentences_list))
         text_tagged = tc.TokenMeta(tagged)
         text_tagged.percent_unk = percent
     return (collection,
@@ -369,7 +368,7 @@ def find_thing(wordlist_tagged, wtl, questions):
 def find_ngrams(wordlist_tagged, wtl, nots, questions):
     """finds combinations of n words
     wordforms(w), tags(t), lexems(l) or jokerword(?)
-    returns all matches with text around the search result
+    returns all matches and text around the search result
     """
     missings = []
     ngram_length = len(questions)
