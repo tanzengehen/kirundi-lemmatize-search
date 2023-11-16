@@ -449,7 +449,7 @@ def tag_multogether(fn_in, dbrundi):
     whattext = tc.TextMeta("bbcall.txt")
     whattext.setfnbbc()
     whattext.raw = raw
-    whattext.replace_strangeletters(whattext.raw)
+    whattext.replace_strangeletters()
     lemma_lists, text_tagged = tag_text_with_db(whattext.text, dbrundi)
     lemmafreq = lemma_lists.all_in()
     # prepare data for csv
@@ -494,7 +494,7 @@ def tag_multiple(fn_in, dbrundi):
         whattext = tc.TextMeta(i[1])
         whattext.setfnbbc()
         whattext.raw += i[5] + "\n" + i[6] + "\n"
-        whattext.replace_strangeletters(whattext.raw)
+        whattext.replace_strangeletters()
         lemma_lists, text_tagged = tag_text_with_db(whattext.text, dbrundi)
         # allallall.append((whattext, lemma_lists, text_tagged))
         file_count += 1
@@ -615,9 +615,8 @@ def tag_or_load_tags(fn_in, dbrundi):
                 whattext.raw = ""
         if not whattext.raw:
             sysexit()
-    whattext.replace_strangeletters(whattext.raw)
+    whattext.replace_strangeletters()
     # start whole NLP task: read, clean, tag...
-    # freq_lemma_all = kh.load_freqfett()
     lemma_lists, text_tagged = tag_text_with_db(whattext.text, dbrundi)
     lemmafreq = lemma_lists.all_in()
 
