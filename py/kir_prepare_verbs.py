@@ -495,6 +495,7 @@ class Verb(Lemma):
         self.proverb = False
         self.passiv = False
         self.perfective = unidecode(row[5].strip().lower())
+        self.check_perfective()
 
     def __str__(self):
         return f"lemma={self.lemma}, ID={self.dbid}, POS= {self.pos}, "\
@@ -507,6 +508,17 @@ class Verb(Lemma):
                    + f"POS= {self.pos},\t-{self.stem} / -{self.perfective},\t"\
                    + f"alternatives={self.alternatives}, "\
                    + f"comb_set={self.comb is not None}"  # , len(comb)={len(self.comb)}"
+
+    def check_perfective(self):
+        """sort out unclear perfective"""
+        if self.perfective.find("?") > -1:
+            # (debug) check new entries of rundi dictionary
+            # Translators: for debugging only
+            kh.OBSERVER.notify(
+                kh._("{}: perfective? -{}").format(self.lemma, self.perfective))
+            self.unclear.append(
+                [self.lemma, "perfective unclear:", self.perfective])
+            self.perfective = ''
 
     def mark_proverb(self):
         """ mark verbs with ' ' in lemma as proverb
@@ -521,23 +533,7 @@ class Verb(Lemma):
                 self.stem = self.stem.split()[0]
             # cut also perfective
             if self.perfective.find(" "):
-                self.perfective = self.perfective.split()[0]
-        if self.perfective is None:
-            # (debug) check dictionary new entry
-            # Translators: for debugging only
-            kh.OBSERVER.notify(
-                kh._("perfective is lost: {}").format(self.lemma))
-        else:
-            self.perfective = self.perfective.strip()
-        # if perfective is unclear
-        if self.perfective.find("?") > -1:
-            # (debug) check dictionary new entry
-            # Translators: for debugging only
-            kh.OBSERVER.notify(
-                kh._("{}: perfective? -{}").format(self.lemma, self.perfective))
-            self.unclear.append(
-                [self.lemma, "perfective unclear:", self.perfective])
-            self.perfective = None
+                self.perfective = self.perfective.split()[0].strip()
 
     def mark_passiv(self):
         """marks passiv form of verb
@@ -547,7 +543,7 @@ class Verb(Lemma):
 
     def _set_end_of_ends(self):
         """sets regex-strings for three possible endforms of the
-        verb including passiv, subjunctiv, perfective, perfective passive and
+        verb including passiv, subjunctiv, perfective, perfective-passive and
         each with direction-suffixes these are:
         end_a, end_e, end_y (each is string)
         """
@@ -557,19 +553,19 @@ class Verb(Lemma):
         self._end_e = self.stem[:-1]+"e"+REGEX_SUFFIX
         # add passiv to perfective: end_y
         if self.perfective == "":
-            perfp = ""
+            perfective_passiv = ""
         else:
             if len(self.perfective) > 3 and self.perfective[-2] == "y":
                 if self.perfective[-3] in ["m", "n"]:
-                    perfp = self.perfective[:-1]+r"(w?e)"
+                    perfective_passiv = self.perfective[:-1]+r"(w?e)"
                 elif self.perfective[-3] in "aeio":
-                    perfp = self.perfective[:-2]+r"([yw]e)"
+                    perfective_passiv = self.perfective[:-2]+r"([yw]e)"
                 elif self.perfective[-3] == "u":
-                    perfp = self.perfective[:-2]+r"(ye|((ri)?we))"
+                    perfective_passiv = self.perfective[:-2]+r"(ye|((ri)?we))"
                 elif self.perfective[-3] == "v":
-                    perfp = self.perfective[:-3]+r"(vye|bwe)"
+                    perfective_passiv = self.perfective[:-3]+r"(vye|bwe)"
                 elif self.perfective[-3] == "f":
-                    perfp = self.perfective[:-3]+"puwe"
+                    perfective_passiv = self.perfective[:-3]+"puwe"
                 else:
                     self.unclear.append(
                         ["perfective: unexpected letter before [y] ",
@@ -578,18 +574,18 @@ class Verb(Lemma):
                     kh.OBSERVER.notify(f"\t{self.lemma} -{self.perfective}:"
                                        + kh._("""\n\t\ttried to add passiv to
 perfective but unknown letter before y"""))
-                    perfp = self.perfective
+                    perfective_passiv = self.perfective
             elif len(self.perfective) > 3 and self.perfective[-2] in "jzshw":
-                perfp = self.perfective[:-1]+r"((w)?e)"
+                perfective_passiv = self.perfective[:-1]+r"((w)?e)"
             else:
                 self.unclear.append(
                     ["perfective: unexpected letter before last letter:",
                      self.lemma, self.perfective])
-                perfp = self.perfective
-        if perfp == "":
+                perfective_passiv = self.perfective
+        if perfective_passiv == "":
             self._end_y = ""
         else:
-            self._end_y = perfp + REGEX_SUFFIX
+            self._end_y = perfective_passiv + REGEX_SUFFIX
 
         # special cases
         if self.stem == "ti":
@@ -659,7 +655,7 @@ perfective but unknown letter before y"""))
             self._n_end_e = r"ny?"+self._end_e
             self._n_end_y = r"ny?"+self._end_y
 
-    def set_qu(self):
+    def set_questions(self):
         """ combines beginning-possibilities to it's equivalent end
         subject/object/time/negation/... with Indikativ/Subjunctiv/Perfectiv
         inkl. first letter of stem differences
@@ -790,7 +786,7 @@ def prepare_verb_alternativ(row):
             perfective_a = perf_a
     else:
         perfective_a = ""
-    # suppose the first letter of stem and stem_a is always the same:
+    # suppose the first letter of stem and stem_alternative is always the same:
     lemma_a = lemma[:2]+stem_a
     row_a[1] = lemma_a              # 1  lemma
     row_a[4] = stem_a               # 4  stem
