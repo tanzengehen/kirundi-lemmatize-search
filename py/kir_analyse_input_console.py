@@ -165,10 +165,10 @@ def check_search_wtl(whichtags, whichwords):
     return notss, search
 
 
-def getresources():
+def get_resources():
     """load Named Entities and db_kirundi
     """
-    dbrundi = dbc.load_dbkirundi()
+    dbrundi = dbc.load_db_kirundi()
     dbrundi.update(
         {"names": dbc.complete_location_language_person(dbc.load_ne())})
     return dbrundi
@@ -177,7 +177,7 @@ def getresources():
 if __name__ == "__main__":
     kh.OBSERVER = kh.PrintConsole()
     # kh.SINGLE = True
-    db_rundi = getresources()
+    db_rundi = get_resources()
     kh.OBSERVER.notify("""Ubu nyene ururimi rw'igikoresho ni kirundi.
 Pfyonda ENTER canke andika 'de', 'en' canke 'fr' iyo urashaka ko turaganira mu
 rundi rurimi.
@@ -204,8 +204,8 @@ deutsch, english, français)
     f_in = input_fnin()
 
     if f_in == "c":
-        f_in = "/Users/doreen/Programmieren/Python/find_lemmata_in_corpus/results/tagged/bbc/tag__bbcall.json"
-        # f_in = "/Users/doreen/Programmieren/Python/find_lemmata_in_corpus/resources/meta_bbc.txt"
+        # f_in = sd.ResourceNames.root+"resources/meta_bbc.txt"
+        f_in = sd.ResourceNames.dir_tagged+"bbc/tag__bbcall.json"
         if f_in[-12:] == "meta_bbc.txt":
             ts.tag_multogether(f_in, db_rundi)
             sysexit()
