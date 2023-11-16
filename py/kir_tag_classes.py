@@ -32,7 +32,8 @@ class TextMeta:
         self.fn_short = ""
         self.fn_tag = ""
         self.fn_freqlemma = ""
-        self.setfn_tagandlemma()
+        if fn_in:
+            self.set_fn_tag_and_lemma()
 
     def __str__(self):
         textset = bool(self.text)
@@ -55,7 +56,7 @@ class TextMeta:
                 [x for x in elements if x in sd.CorpusCategories.cc]
 
     def update_pathslist(self, corpus_root):
-        """updates the filenames we have in this corpus
+        """updates the filenames we have ito a corpus
         """
         wordlists = PlaintextCorpusReader(corpus_root, '.*')
         paths_list = wordlists.fileids()
@@ -65,12 +66,12 @@ class TextMeta:
                 file.write(i+"\n")
         return paths_list
 
-    def replace_strangeletters(self, raw_text):
+    def replace_strangeletters(self):
         """replaces odd characters from bad OCR
         take: string
         set: text, nodds, nchars
         """
-        strangethings = str(raw_text.encode(encoding="utf-8",
+        strangethings = str(self.raw.encode(encoding="utf-8",
                                             errors="backslashreplace"))[2:-1]
         mistakes = re.findall(r"(\\x[a-f0-8]{2}){2}", strangethings)
         n_mistakes = len(mistakes)
@@ -123,7 +124,7 @@ class TextMeta:
                         ("\\xef\\xbf\\xbd", " "),  # diverse in Nr.369 replacement: ? im Rhombus
                     #    ("\\xc3\\xa"," "),      #
                         ("\\xc2\\x92", "'"),   # ' privat use (komma oben)
-                        ('\\xc2\\xa0', ' '),  # no break space
+                        ('\\xc2\\xa0', ' '),   # no break space
                         ('\\xc2\\xa1', '¡'),
                         ('\\xc2\\xa2', '¢'),
                         ('\\xc2\\xa3', '£'),
@@ -260,9 +261,10 @@ class TextMeta:
         self.nodds = n_mistakes
         self.nchars = len(self.text)
 
-    def setfn_tagandlemma(self):
-        """set filenames to store tagged file and lemma frequency distribution
-        for lemmafreq still undecided if csv or json
+    def set_fn_tag_and_lemma(self):
+        """set path to filenames where lemma-frequency-distribution and
+        tagged text will later be stored
+        lemmafreq in csv-format, tagged text in json-format
         """
         root_tagg = sd.ResourceNames.dir_tagged
         myname = self.fn_in.split("/")[-1]
@@ -271,13 +273,13 @@ class TextMeta:
         self.fn_tag = root_tagg+"tag__"+self.short+".json"
         self.fn_freqlemma = root_tagg+"fl__"+self.short+".csv"
 
-    def setfnbbc(self):
+    def set_fn_corpus(self, corpus_name):
         """set filenames for results in corpus mode
         """
         self.fn_tag = sd.ResourceNames.dir_tagged + \
-            "bbc/tag__" + self.short + ".json"
+            corpus_name + "/tag__" + self.short + ".json"
         self.fn_freqlemma = sd.ResourceNames.dir_tagged + \
-            "bbc/fl__" + self.short + ".csv"
+            corpus_name + "/fl__" + self.short + ".csv"
 
 
 class FreqSimple:
@@ -301,7 +303,7 @@ class FreqSimple:
     def __repr__(self):
         return f"pathname='{self.pathname}', fileid={self.fileid}, " \
             + "ntypes={self.ntypes}\nask .blanktext for analysed words "\
-            + "and .simple for the frequency distribution"
+            + "and .freq for the frequency distribution"
 
     def __f_dist__(self, blanktext):
         """returns frequency list from list of words,
