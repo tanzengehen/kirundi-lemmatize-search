@@ -14,7 +14,7 @@ import kir_string_depot as sd
 import kir_helper2 as kh
 
 
-def load_dbkirundi(filename=sd.ResourceNames.fn_db):
+def load_db_kirundi(filename=sd.ResourceNames.fn_db):
     """returns lists sorted more or less by part of speech:
     verbs, nouns, adjectives, pronouns,
     (prepositions, adverbs, conjunctions and interjections) together,
@@ -69,7 +69,7 @@ def load_dbkirundi(filename=sd.ResourceNames.fn_db):
     verbs = kv.filter_proverbs_out(verbs)
     verbs = kv.filter_passiv_out(verbs)
     for verb in verbs:
-        verb.set_qu()
+        verb.set_questions()
 
     # divide nouns: to be searched before or after verbs
     nouns_one, nouns_two = noun_partition(nouns)
@@ -526,7 +526,7 @@ class Adjectiv(kv.Lemma):
             for i in self.alternatives:
                 self.coll.append(i.strip("-"))
         # add prefix-regex depending on first letter of stem of variant
-        self.set_qu(self.coll)
+        self.set_questions(self.coll)
 
     def __str__(self):
         return f"lemma={self.lemma}, ID={self.dbid}, POS= {self.pos}, "\
@@ -538,7 +538,7 @@ class Adjectiv(kv.Lemma):
                + f"stem={self.stem}, alternatives={self.alternatives}, "\
                + f"coll={self.coll}, len(questions)={len(self.questions)}"
 
-    def set_qu(self, coll):
+    def set_questions(self, coll):
         """sets regex-questions for fishing adjectivs out of
         frequency distribution
         """
