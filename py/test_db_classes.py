@@ -987,7 +987,7 @@ class TestLoading(TestCase):
 
     def test_load_dbkirundi(self):
         """Test load rundi dictionary from csv"""
-        db_data = dbc.load_dbkirundi(
+        db_data = dbc.load_db_kirundi(
             sd.ResourceNames.root + "/tests/test_lemmata.csv")
         self.assertEqual(len(db_data), 8)
         self.assertEqual(len(db_data.get('adjectives')), 0)
