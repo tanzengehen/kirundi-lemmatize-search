@@ -14,7 +14,7 @@ import kir_prepare_verbs as kv
 
 
 ###############################################################
-#       TEST   V E R B S                                      #
+#       TEST   V E R B - S E T T I N G S                      #
 ###############################################################
 class TestPrepareVerbs(TestCase):
     """Test cases for Verb preparation:
@@ -39,7 +39,7 @@ class TestPrepareVerbs(TestCase):
                         'ku', 'rararara', 'raye?', '?',
                         '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
                         '', '', '', '', '', '0', '', '0', '', 'NULL'])
-        self.assertEqual(data.perfective, None)
+        self.assertEqual(data.perfective, '')
         self.assertEqual(
             data.unclear,
             [['kurararara', 'perfective unclear:', 'raye?']])
@@ -142,7 +142,7 @@ class TestPrepareVerbs(TestCase):
         self.assertEqual(row_alt[5], 'sabge')
         self.assertEqual(row_alt[13], 'x')
 
-    def test_set_questions_short_verb(self):
+    def test_set_questions_ku_short_verb(self):
         """Test set regEx"""
         data = kv.Verb(['180', 'kuba', 'kubá',
                         'ku', 'ba', 'baye', 'baye',
@@ -162,6 +162,86 @@ class TestPrepareVerbs(TestCase):
         self.assertEqual(len(data.comb[4][1]), 20)
         self.assertEqual(len(data.comb[5][0]), 26)
         self.assertEqual(len(data.comb[5][1]), 98)
+
+    def test_set_questions_ku_m(self):
+        data = kv.Verb(['3120', 'kumira', 'kumira',
+                        'ku', 'mira', 'mize', 'ze',
+                        '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
+                        '', '', '', '', '', '0', '', '0', '', 'NULL'])
+        data.set_questions()
+        self.assertEqual(data.lemma, "kumira")
+        self.assertEqual(data.comb[0][0], "mir(w?a)((([hyk]|mw)o)?$)")
+        self.assertEqual(len(data.comb[0][1]), 25)
+        self.assertEqual(data.comb[1][0], "mir(w?a)((([hyk]|mw)o)?$)")
+        self.assertEqual(len(data.comb[1][1]), 116)
+        self.assertEqual(data.comb[2][0], 'mire((([hyk]|mw)o)?$)')
+        self.assertEqual(len(data.comb[2][1]), 18)
+        self.assertEqual(data.comb[3][0], "mire((([hyk]|mw)o)?$)")
+        self.assertEqual(len(data.comb[3][1]), 89)
+        self.assertEqual(data.comb[4][0], "miz((w)?e)((([hyk]|mw)o)?$)")
+        self.assertEqual(len(data.comb[4][1]), 20)
+        self.assertEqual(data.comb[5][0], "miz((w)?e)((([hyk]|mw)o)?$)")
+        self.assertEqual(len(data.comb[5][1]), 98)
+
+    def test_set_questions_ku_r(self):
+        data = kv.Verb(['3984', 'kurima', 'kurima',
+                        'ku', 'rima', 'rimye', 'mye',
+                        '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
+                        '', '', '', '', '', '0', '', '0', '', 'NULL'])
+        data.set_questions()
+        self.assertEqual(data.lemma, "kurima")
+        self.assertEqual(data.comb[0][0], "ndim(w?a)((([hyk]|mw)o)?$)")
+        self.assertEqual(len(data.comb[0][1]), 25)
+        self.assertEqual(data.comb[1][0], "rim(w?a)((([hyk]|mw)o)?$)")
+        self.assertEqual(len(data.comb[1][1]), 116)
+        self.assertEqual(data.comb[2][0], 'ndime((([hyk]|mw)o)?$)')
+        self.assertEqual(len(data.comb[2][1]), 18)
+        self.assertEqual(data.comb[3][0], "rime((([hyk]|mw)o)?$)")
+        self.assertEqual(len(data.comb[3][1]), 89)
+        self.assertEqual(data.comb[4][0], "ndimy(w?e)((([hyk]|mw)o)?$)")
+        self.assertEqual(len(data.comb[4][1]), 20)
+        self.assertEqual(data.comb[5][0], "rimy(w?e)((([hyk]|mw)o)?$)")
+        self.assertEqual(len(data.comb[5][1]), 98)
+
+    def test_set_questions_gu(self):
+        data = kv.Verb(['2795', 'gukora', '',
+                        'gu', 'kora', 'koze', 'ze',
+                        '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
+                        '', '', '', '', '', '0', '', '0', '', 'NULL'])
+        data.set_questions()
+        self.assertEqual(data.lemma, "gukora")
+        self.assertEqual(data.comb[0][0], "nkor(w?a)((([hyk]|mw)o)?$)")
+        self.assertEqual(len(data.comb[0][1]), 25)
+        self.assertEqual(data.comb[1][0], "kor(w?a)((([hyk]|mw)o)?$)")
+        self.assertEqual(len(data.comb[1][1]), 142)
+        self.assertEqual(data.comb[2][0], 'nkore((([hyk]|mw)o)?$)')
+        self.assertEqual(len(data.comb[2][1]), 18)
+        self.assertEqual(data.comb[3][0], "kore((([hyk]|mw)o)?$)")
+        self.assertEqual(len(data.comb[3][1]), 109)
+        self.assertEqual(data.comb[4][0], "nkoz((w)?e)((([hyk]|mw)o)?$)")
+        self.assertEqual(len(data.comb[4][1]), 20)
+        self.assertEqual(data.comb[5][0], "koz((w)?e)((([hyk]|mw)o)?$)")
+        self.assertEqual(len(data.comb[5][1]), 120)
+
+    def test_set_questions_gu_h(self):
+        data = kv.Verb(['6364', 'guhagarara', 'guhágarara',
+                        'gu', 'hagarara', 'hagaraze', 'ze',
+                        '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
+                        '', '', '', '', '', '0', '', '0', '', 'NULL'])
+        data.set_questions()
+        self.assertEqual(data.lemma, "guhagarara")
+        self.assertEqual(data.comb[0][0], "mpagarar(w?a)((([hyk]|mw)o)?$)")
+        self.assertEqual(len(data.comb[0][1]), 25)
+        self.assertEqual(data.comb[1][0], "hagarar(w?a)((([hyk]|mw)o)?$)")
+        self.assertEqual(len(data.comb[1][1]), 142)
+        self.assertEqual(data.comb[2][0], 'mpagarare((([hyk]|mw)o)?$)')
+        self.assertEqual(len(data.comb[2][1]), 18)
+        self.assertEqual(data.comb[3][0], "hagarare((([hyk]|mw)o)?$)")
+        self.assertEqual(len(data.comb[3][1]), 109)
+        self.assertEqual(data.comb[4][0], "mpagaraz((w)?e)((([hyk]|mw)o)?$)")
+        self.assertEqual(len(data.comb[4][1]), 20)
+        self.assertEqual(data.comb[5][0], "hagaraz((w)?e)((([hyk]|mw)o)?$)")
+        self.assertEqual(len(data.comb[5][1]), 120)
 
     def test_set_questions_kw_a(self):
         data = kv.Verb(['83', 'kwandika', 'kwaandika',
@@ -203,86 +283,6 @@ class TestPrepareVerbs(TestCase):
         self.assertEqual(data.comb[5][0], "iruts((w)?e)((([hyk]|mw)o)?$)")
         self.assertEqual(len(data.comb[5][1]), 141)
 
-    def test_set_questions_stem_m(self):
-        data = kv.Verb(['3120', 'kumira', 'kumira',
-                        'ku', 'mira', 'mize', 'ze',
-                        '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                        '', '', '', '', '', '0', '', '0', '', 'NULL'])
-        data.set_questions()
-        self.assertEqual(data.lemma, "kumira")
-        self.assertEqual(data.comb[0][0], "mir(w?a)((([hyk]|mw)o)?$)")
-        self.assertEqual(len(data.comb[0][1]), 25)
-        self.assertEqual(data.comb[1][0], "mir(w?a)((([hyk]|mw)o)?$)")
-        self.assertEqual(len(data.comb[1][1]), 116)
-        self.assertEqual(data.comb[2][0], 'mire((([hyk]|mw)o)?$)')
-        self.assertEqual(len(data.comb[2][1]), 18)
-        self.assertEqual(data.comb[3][0], "mire((([hyk]|mw)o)?$)")
-        self.assertEqual(len(data.comb[3][1]), 89)
-        self.assertEqual(data.comb[4][0], "miz((w)?e)((([hyk]|mw)o)?$)")
-        self.assertEqual(len(data.comb[4][1]), 20)
-        self.assertEqual(data.comb[5][0], "miz((w)?e)((([hyk]|mw)o)?$)")
-        self.assertEqual(len(data.comb[5][1]), 98)
-
-    def test_set_questions_gu(self):
-        data = kv.Verb(['2795', 'gukora', '',
-                        'gu', 'kora', 'koze', 'ze',
-                        '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                        '', '', '', '', '', '0', '', '0', '', 'NULL'])
-        data.set_questions()
-        self.assertEqual(data.lemma, "gukora")
-        self.assertEqual(data.comb[0][0], "nkor(w?a)((([hyk]|mw)o)?$)")
-        self.assertEqual(len(data.comb[0][1]), 25)
-        self.assertEqual(data.comb[1][0], "kor(w?a)((([hyk]|mw)o)?$)")
-        self.assertEqual(len(data.comb[1][1]), 142)
-        self.assertEqual(data.comb[2][0], 'nkore((([hyk]|mw)o)?$)')
-        self.assertEqual(len(data.comb[2][1]), 18)
-        self.assertEqual(data.comb[3][0], "kore((([hyk]|mw)o)?$)")
-        self.assertEqual(len(data.comb[3][1]), 109)
-        self.assertEqual(data.comb[4][0], "nkoz((w)?e)((([hyk]|mw)o)?$)")
-        self.assertEqual(len(data.comb[4][1]), 20)
-        self.assertEqual(data.comb[5][0], "koz((w)?e)((([hyk]|mw)o)?$)")
-        self.assertEqual(len(data.comb[5][1]), 120)
-
-    def test_set_questions_stem_r(self):
-        data = kv.Verb(['3984', 'kurima', 'kurima',
-                        'ku', 'rima', 'rimye', 'mye',
-                        '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                        '', '', '', '', '', '0', '', '0', '', 'NULL'])
-        data.set_questions()
-        self.assertEqual(data.lemma, "kurima")
-        self.assertEqual(data.comb[0][0], "ndim(w?a)((([hyk]|mw)o)?$)")
-        self.assertEqual(len(data.comb[0][1]), 25)
-        self.assertEqual(data.comb[1][0], "rim(w?a)((([hyk]|mw)o)?$)")
-        self.assertEqual(len(data.comb[1][1]), 116)
-        self.assertEqual(data.comb[2][0], 'ndime((([hyk]|mw)o)?$)')
-        self.assertEqual(len(data.comb[2][1]), 18)
-        self.assertEqual(data.comb[3][0], "rime((([hyk]|mw)o)?$)")
-        self.assertEqual(len(data.comb[3][1]), 89)
-        self.assertEqual(data.comb[4][0], "ndimy(w?e)((([hyk]|mw)o)?$)")
-        self.assertEqual(len(data.comb[4][1]), 20)
-        self.assertEqual(data.comb[5][0], "rimy(w?e)((([hyk]|mw)o)?$)")
-        self.assertEqual(len(data.comb[5][1]), 98)
-
-    def test_set_questions_stem_h(self):
-        data = kv.Verb(['6364', 'guhagarara', 'guhágarara',
-                        'gu', 'hagarara', 'hagaraze', 'ze',
-                        '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                        '', '', '', '', '', '0', '', '0', '', 'NULL'])
-        data.set_questions()
-        self.assertEqual(data.lemma, "guhagarara")
-        self.assertEqual(data.comb[0][0], "mpagarar(w?a)((([hyk]|mw)o)?$)")
-        self.assertEqual(len(data.comb[0][1]), 25)
-        self.assertEqual(data.comb[1][0], "hagarar(w?a)((([hyk]|mw)o)?$)")
-        self.assertEqual(len(data.comb[1][1]), 142)
-        self.assertEqual(data.comb[2][0], 'mpagarare((([hyk]|mw)o)?$)')
-        self.assertEqual(len(data.comb[2][1]), 18)
-        self.assertEqual(data.comb[3][0], "hagarare((([hyk]|mw)o)?$)")
-        self.assertEqual(len(data.comb[3][1]), 109)
-        self.assertEqual(data.comb[4][0], "mpagaraz((w)?e)((([hyk]|mw)o)?$)")
-        self.assertEqual(len(data.comb[4][1]), 20)
-        self.assertEqual(data.comb[5][0], "hagaraz((w)?e)((([hyk]|mw)o)?$)")
-        self.assertEqual(len(data.comb[5][1]), 120)
-
     def test_get(self):
         """Test get attributes"""
         data = kv.Verb(['1135', 'kugenda', '',
@@ -301,10 +301,12 @@ class TestPrepareVerbs(TestCase):
         self.assertEqual(data.get('unclear'), [])
 
 
+###############################################################
+#       TEST   V E R B - L I S T S                            #
+###############################################################
 class TestVerbLists(TestCase):
-    """Test cases for Verb
-    sort out passiv forms and proverbs,
-    collect types for ku/gu/kw-verbs
+    """Test cases for verb-lists
+    passiv forms and proverbs, collect types for ku/gu/kw-verbs
         in time, mode, negation, ...
     """
 # TODO   test subjects, objects
