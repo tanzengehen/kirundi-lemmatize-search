@@ -14,9 +14,9 @@ import kir_prepare_verbs as kv
 
 
 ###############################################################
-#       TEST   V E R B - S E T T I N G S                      #
+#       TEST   S I N G L E   V E R B     -  S E T T I N G S   #
 ###############################################################
-class TestPrepareVerbs(TestCase):
+class TestPrepareVerb(TestCase):
     """Test cases for Verb preparation:
         build alternative spellings, perfective, set questions
     """

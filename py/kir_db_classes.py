@@ -410,7 +410,6 @@ class Noun(kv.Lemma):
         self.questions = []
         self.coll = []
         self._set_questions(row)
-        # print(self.coll)
 
     def __str__(self):
         return f"lemma={self.lemma}, ID={self.dbid}, POS= {self.pos}, "\

@@ -14,91 +14,144 @@ import kir_string_depot as sd
 # nosetests --with-spec --spec-color --with-coverage --cover-erase
 # coverage report -m
 
-DB_DATA = []
-NE_DATA = []
-FREQ_SIM = {}
-
 
 ###############################################################
-#       TEST   N O U N S                                      #
+#       TEST   S I N G L E   N O U N                          #
 ###############################################################
-class TestNoun(TestCase):
+class TestPrepareNoun(TestCase):
     """Test cases for Noun
     alternatives, plurals, questions
     with and without augment, also breakdownrules"""
 
-    @classmethod
-    def setUpClass(cls):
-        """ Connect and load data needed by tests """
-        global DB_DATA
-        global FREQ_SIM
-        # with open("bsp.csv") as csv_data:
-        #     DB_DATA = csv.reader(csv_data, delimiter=";")
+    def test_possibilities_with_augment(self):
+        """Test prepositions glued directly before noun with augment"""
+        data = dbc.Noun(['14', 'umwaka', 'umwáaka',
+                         'umw', 'aka', '', '', 'imy', '1',
+                         '2', '2', '3', '4', '', '', '', '', '',
+                         '0', '', '0', '', 'NULL'])
+        self.assertEqual(data._possibilities("umwaka"),
+                         [r"^([na]ta|[mk]u|s?i)?mwaka$",
+                          r"^([bkmrt]?w|[rv]?y|[nsckzbh])?umwaka$"])
 
-        DB_DATA = [
-            dbc.Noun(['8336', 'ubwinshi', 'ubwiínshi',
-                      'ubw', 'inshi', '', '', '', '1',
-                      '8', 'NULL', '14', 'NULL', '', '', '', '', '',
-                      '0', '', '1', '', 'NULL']),
-            dbc.Noun(['6273', 'umupadiri', 'umupáadíri',
-                      'umu', 'padiri', '', '', 'aba', '1',
-                      '1', '1', '1', '2',
-                      'umupatiri;umupadri; umupatri;patiri;padiri',
-                      'umu', '', '', '',
-                      '0', '', '0', '', 'la']),
-            dbc.Noun(['14', 'umwaka', 'umwáaka',
-                      'umw', 'aka', '', '', 'imy', '1',
-                      '2', '2', '3', '4', '', '', '', '', '',
-                      '0', '', '0', '', 'NULL']),
-            dbc.Noun(['5965', 'inzira', 'inzira',
-                      'in', 'zira', '', '', 'in', '1',
-                      '3', '3', '9', '10', '', '', '', '', '',
-                      '0', '', '0', '', 'NULL']),
-            dbc.Noun(['5939', 'izina', 'izína',
-                      'i', 'zina', '', '', 'ama', '1',
-                      '5', '5', '5', '6', '', '', '', '', '',
-                      '0', '', '0', '', 'NULL']),
-            # no5
-            dbc.Noun(['1074', 'amagara', '', 'ama',
-                      'gara', '', '', '', '1',
-                      'NULL', '5', 'NULL', '6', '', '', '', '', '',
-                      '0', '', '0', '', 'NULL']),
-            dbc.Noun(['3314', 'ikintu', 'ikiintu',
-                      'iki', 'ntu', '', '', 'ibi', '1',
-                      '4', '4', '7', '8', '', '', '', '', '',
-                      '0', '', '0', '', 'NULL']),
-            dbc.Noun(['6664', 'icaha', 'icáaha',
-                      'ic', 'aha', '', '', 'ivy', '1',
-                      '4', '4', '7', '8', '', '', '', '', '',
-                      '0', '', '0', '', 'NULL']),
-            dbc.Noun(['2905', 'urukundo', 'urukúundo',
-                      'uru', 'kundo', '', '', '', '1',
-                      '6', 'NULL', '11', 'NULL', '', '', '', '', '',
-                      '0', '', '0', '', 'NULL']),
-            dbc.Noun(['6805', 'agashusho', 'agashusho',
-                      'aga', 'shusho', '', '', 'udu', '1',
-                      '7', '7', '12', '13', '', '', '', '', '',
-                      '0', '', '0', '', 'NULL']),
-            # no10
-            dbc.Noun(['7193', 'akaburungu', 'akaburuungu',
-                      'aka', 'burungu', '', '', 'utu', '1',
-                      '7', '7', '12', '13', '', '', '', '', '',
-                      '0', '', '0', '', 'NULL']),
-            dbc.Noun(['6674', 'uruhago', 'uruhago',
-                      'uru', 'hago', '', '', 'im', '1',
-                      '6', '6', '11', '10', '', '', '', '', '',
-                      '0', '', '0', 'impago', 'NULL']),
-            dbc.Noun(['6677', 'kanseri', 'kaanséeri',
-                      '', 'kanseri', '', '', '', '1',
-                      '3', '3', '9', '10', 'kansere', '', '', '', '',
-                      '0', '', '1', '', 'fr']),
-            # no13
-            dbc.Noun(['210', 'ukubaho', 'ukubahó',
-                      'uku', 'baho', '', '', '', '1',
-                      '9', 'NULL', '15', 'NULL', '', '', '', '', '',
-                      '0', '', '1', '', 'NULL'])
-        ]
-        FREQ_SIM = {
+    def test_possibilities_without_augment(self):
+        """Test prepositions glued directly before noun without augment"""
+        data = dbc.Noun(['6677', 'kanseri', 'kaanséeri',
+                         '', 'kanseri', '', '', '', '1',
+                         '3', '3', '9', '10', 'kansere', '', '', '', '',
+                         '0', '', '1', '', 'fr'])
+        self.assertEqual(data._possibilities("kanseri"),
+                         [r"^([na]ta|[mk]u|s?i)?kanseri$",
+                          r"^([nckzbh]|[bkmrt]?w|[rv]?y)[ao]kanseri$"])
+
+    def test_init_simple(self):
+        """Test direct initializations"""
+        data = dbc.Noun(['6273', 'umupadiri', 'umupáadíri',
+                         'umu', 'padiri', '', '', 'aba', '1',
+                         '1', '1', '1', '2',
+                         'umupatiri;umupadri; umupatri;patiri;padiri',
+                         'umu', '', '', '',
+                         '0', '', '0', '', 'la'])
+        self.assertEqual(data.lemma, "umupadiri")
+        self.assertEqual(data.dbid, "6273")
+        self.assertEqual(data.pos, "NOUN")
+        self.assertEqual(data.stem, "padiri")
+        self.assertEqual(data.alternatives,
+                         ['umupatiri', 'umupadri', 'umupatri', 'patiri',
+                          'padiri'])
+        self.assertEqual(data.coll, ['umupadiri', 'abapadiri',
+                                     'umupatiri', 'abapatiri',
+                                     'umupadri', 'abapadri',
+                                     'umupatri', 'abapatri',
+                                     'patiri', 'padiri'])
+
+    def test_exception_plural(self):
+        """Test irregular plural"""
+        data = dbc.Noun(['6674', 'uruhago', 'uruhago',
+                         'uru', 'hago', '', '', 'im', '1',
+                         '6', '6', '11', '10', '', '', '', '', '',
+                         '0', '', '0', 'impago', 'NULL'])
+        self.assertEqual(data.coll, ['uruhago', 'impago'])
+
+    def test_set_questionsl(self):
+        """Test questions for all alternatives"""
+        data = dbc.Noun(['14', 'umwaka', 'umwáaka',
+                         'umw', 'aka', '', '', 'imy', '1',
+                         '2', '2', '3', '4', '', '', '', '', '',
+                         '0', '', '0', '', 'NULL'])
+        self.assertEqual(data.questions,
+                         [r"^([na]ta|[mk]u|s?i)?mwaka$",
+                          r"^([bkmrt]?w|[rv]?y|[nsckzbh])?umwaka$",
+                          r"^([na]ta|[mk]u|s?i)?myaka$",
+                          r"^([bkmrt]?w|[rv]?y|[nsckzbh])?imyaka$"])
+
+
+###############################################################
+#       TEST   N O U N   L I S T S                            #
+###############################################################
+
+class TestNounLists(TestCase):
+    """Test cases for noun-lists"""
+
+    data = [
+        dbc.Noun(['8336', 'ubwinshi', 'ubwiínshi',
+                  'ubw', 'inshi', '', '', '', '1',
+                  '8', 'NULL', '14', 'NULL', '', '', '', '', '',
+                  '0', '', '1', '', 'NULL']),
+        dbc.Noun(['6273', 'umupadiri', 'umupáadíri',
+                  'umu', 'padiri', '', '', 'aba', '1',
+                  '1', '1', '1', '2',
+                  'umupatiri;umupadri; umupatri;patiri;padiri',
+                  'umu', '', '', '',
+                  '0', '', '0', '', 'la']),
+        dbc.Noun(['14', 'umwaka', 'umwáaka',
+                  'umw', 'aka', '', '', 'imy', '1',
+                  '2', '2', '3', '4', '', '', '', '', '',
+                  '0', '', '0', '', 'NULL']),
+        dbc.Noun(['5939', 'izina', 'izína',
+                  'i', 'zina', '', '', 'ama', '1',
+                  '5', '5', '5', '6', '', '', '', '', '',
+                  '0', '', '0', '', 'NULL']),
+        dbc.Noun(['1074', 'amagara', '', 'ama',
+                  'gara', '', '', '', '1',
+                  'NULL', '5', 'NULL', '6', '', '', '', '', '',
+                  '0', '', '0', '', 'NULL']),
+        dbc.Noun(['3314', 'ikintu', 'ikiintu',
+                  'iki', 'ntu', '', '', 'ibi', '1',
+                  '4', '4', '7', '8', '', '', '', '', '',
+                  '0', '', '0', '', 'NULL']),
+        dbc.Noun(['6664', 'icaha', 'icáaha',
+                  'ic', 'aha', '', '', 'ivy', '1',
+                  '4', '4', '7', '8', '', '', '', '', '',
+                  '0', '', '0', '', 'NULL']),
+        dbc.Noun(['2905', 'urukundo', 'urukúundo',
+                  'uru', 'kundo', '', '', '', '1',
+                  '6', 'NULL', '11', 'NULL', '', '', '', '', '',
+                  '0', '', '0', '', 'NULL']),
+        dbc.Noun(['7193', 'akaburungu', 'akaburuungu',
+                  'aka', 'burungu', '', '', 'utu', '1',
+                  '7', '7', '12', '13', '', '', '', '', '',
+                  '0', '', '0', '', 'NULL']),
+        dbc.Noun(['6674', 'uruhago', 'uruhago',
+                  'uru', 'hago', '', '', 'im', '1',
+                  '6', '6', '11', '10', '', '', '', '', '',
+                  '0', '', '0', 'impago', 'NULL']),
+        dbc.Noun(['210', 'ukubaho', 'ukubahó',
+                  'uku', 'baho', '', '', '', '1',
+                  '9', 'NULL', '15', 'NULL', '', '', '', '', '',
+                  '0', '', '1', '', 'NULL'])
+    ]
+
+    def test_partition(self):
+        """Test part of nouns collecting before or after verbs"""
+        part1, part2 = dbc.noun_partition(TestNounLists.data)
+        self.assertEqual(len(part1), 9)
+        self.assertEqual(len(part2), 2)
+        for noun in part2:
+            self.assertIn(noun.lemma, ["ubwinshi", "ukubaho"])
+
+    def test_collect_nouns(self):
+        """Test collecting all variants of nouns"""
+        freq_simple = {
             'kaburungu': 70, 'akaburungu': 26, 'utuburungu': 2,
             'bakaburungu': 1, 'tuburungu': 1,
             'urukundo': 2011, 'rukundo': 659, 'ntarukundo': 3, 'atarukundo': 1,
@@ -125,76 +178,18 @@ class TestNoun(TestCase):
             'mupatri': 8, 'bapatri': 10, 'patiri': 429,
             'mpago': 3
             }
-
-    @classmethod
-    def tearDownClass(cls):
-        """Disconnect from database"""
-        global DB_DATA
-        DB_DATA = None
-
-    # def setUp(self):
-    #     """Setup before each test"""
-
-    # def tearDown(self):
-    #     """Clean up after test"""
-
-    def test_possibilities(self):
-        """Test prepositions glued directly before noun"""
-        self.assertEqual(DB_DATA[2]._possibilities("umwaka"),
-                         [r"^([na]ta|[mk]u|s?i)?mwaka$",
-                          r"^([bkmrt]?w|[rv]?y|[nsckzbh])?umwaka$"])
-        self.assertEqual(DB_DATA[12]._possibilities("kanseri"),
-                         [r"^([na]ta|[mk]u|s?i)?kanseri$",
-                          r"^([nckzbh]|[bkmrt]?w|[rv]?y)[ao]kanseri$"])
-
-    def test_init_simple(self):
-        """Test direct initializations"""
-        self.assertEqual(DB_DATA[1].lemma, "umupadiri")
-        self.assertEqual(DB_DATA[1].dbid, "6273")
-        self.assertEqual(DB_DATA[1].pos, "NOUN")
-        self.assertEqual(DB_DATA[1].stem, "padiri")
-
-    def test_set_questions_collection(self):
-        """Test collect alternatives and plural"""
-        self.assertEqual(DB_DATA[1].alternatives,
-                         ['umupatiri', 'umupadri', 'umupatri', 'patiri',
-                          'padiri'])
-        self.assertEqual(DB_DATA[1].coll, ['umupadiri', 'abapadiri',
-                                           'umupatiri', 'abapatiri',
-                                           'umupadri', 'abapadri',
-                                           'umupatri', 'abapatri',
-                                           'patiri', 'padiri'])
-        self.assertEqual(DB_DATA[11].coll, ['uruhago', 'impago'])
-
-    def test_set_questionsl(self):
-        """Test questions for all alternatives"""
-        self.assertEqual(DB_DATA[2].questions,
-                         [r"^([na]ta|[mk]u|s?i)?mwaka$",
-                          r"^([bkmrt]?w|[rv]?y|[nsckzbh])?umwaka$",
-                          r"^([na]ta|[mk]u|s?i)?myaka$",
-                          r"^([bkmrt]?w|[rv]?y|[nsckzbh])?imyaka$"])
-
-    def test_partition(self):
-        """Test part of nouns collecting before or after verbs"""
-        part1, part2 = dbc.noun_partition(DB_DATA)
-        self.assertEqual(len(part1), 12)
-        self.assertEqual(len(part2), 2)
-        for noun in part2:
-            self.assertIn(noun.lemma, ["ubwinshi", "ukubaho"])
-
-    def test_collect_nouns(self):
-        """Test collecting all variants of nouns"""
-        collection, freq_subs = dbc.collect_nouns(DB_DATA, FREQ_SIM)
+        collection, not_collected = dbc.collect_nouns(
+            TestNounLists.data, freq_simple)
         # collected
         types_num = 0
         for i in collection:
             types_num += i[4]
-        self.assertEqual(len(freq_subs), 7)
+        self.assertEqual(len(not_collected), 7)
         self.assertEqual(types_num, 62)
         # not collected
         for i in ['nticahama', 'guhamagara', 'ikintuma', 'nkikintu',
                   'atanikintu', 'ikikintu']:
-            self.assertIn(i, freq_subs)
+            self.assertIn(i, not_collected)
 
 
 ###############################################################
