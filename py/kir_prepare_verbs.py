@@ -16,7 +16,80 @@ import kir_helper2 as kh
 REGEX_SUFFIX = r"((([hyk]|mw)o)?$)"
 
 
+class RundiDictEntry:
+    """single db_kirundi entry mapped"""
+
+    def __init__(self, db_entry):
+        self.row = {}
+        self.read_db_entry(db_entry)
+
+    def __str__(self):
+        return f"lemma: '{self.row.get('lemma')}', "\
+                + f"dbid: '{self.row.get('dbid')}', "\
+                + f"pos: '{self.row.get('pos')}',\n"\
+                + f"prefix: '{self.row.get('prefix')}', "\
+                + f"stem: '{self.row.get('stem')}', "\
+                + f"perfective: '{self.row.get('perfective')}', "\
+                + f"perfective_short: '{self.row.get('perfective_short')}', "\
+                + f"prefix_plural: '{self.row.get('prefix_plural')}', "\
+                + f"plural_irregular: '{self.row.get('plural_irregular')}', "\
+                + f"alternatives: '{self.row.get('alternatives')}', "\
+                + "alternative_singular: "\
+                + f"'{self.row.get('alternative_singular')}', "\
+                + f"alternative_stem: '{self.row.get('alternative_stem')}', "\
+                + "alternative_perfective: "\
+                + f"'{self.row.get('alternative_perfective')}'"
+
+    def __repr__(self):
+        return f"lemma: '{self.row.get('lemma')}', "\
+                + f"dbid: '{self.row.get('dbid')}', "\
+                + f"pos: '{self.row.get('pos')}',\n"\
+                + f"prefix: '{self.row.get('prefix')}', "\
+                + f"stem: '{self.row.get('stem')}', "\
+                + f"perfective: '{self.row.get('perfective')}', "\
+                + f"perfective_short: '{self.row.get('perfective_short')}', "\
+                + f"prefix_plural: '{self.row.get('prefix_plural')}', "\
+                + f"plural_irregular: '{self.row.get('plural_irregular')}', "\
+                + f"alternatives: '{self.row.get('alternatives')}', "\
+                + "alternative_singular: "\
+                + f"'{self.row.get('alternative_singular')}', "\
+                + f"alternative_stem: '{self.row.get('alternative_stem')}', "\
+                + "alternative_perfective: "\
+                + f"'{self.row.get('alternative_perfective')}'"
+
+    def read_db_entry(self, db_entry):
+        """dao db_kirundi"""
+        pos_dict = {"0": "VERB", "1": "NOUN", "2": "ADJ", "3": "PREP",
+                    "5": "PRON", "6": "ADV", "7": "CONJ", "8": " INTJ",
+                    "9": "PHRASE", "10": "PREFIX"}
+        if int(db_entry.get('type')) in [0, 1, 2, 3, 5, 6, 7, 8, 9, 10]:
+            pos = pos_dict.get(db_entry.get('type')).strip()
+        else:
+            pos = "UNK"
+        self.row.update({'pos': pos})
+        db_rundi_map = [['dbid', 'id'],
+                        ['lemma', 'kirundi0'],
+                        ['prefix', 'prefix'],
+                        ['stem', 'stem'],
+                        ['perfective', 'stem_perf'],
+                        ['perfective_short', 'perf'],
+                        ['prefix_plural', 'plural'],
+                        ['plural_irregular', 'pluralFull'],
+                        ['alternatives', 'kirundi0_a'],
+                        ['alternative_singular', 'prefix_a'],
+                        ['alternative_stem', 'stem_a'],
+                        ['alternative_perfective', 'stem_perf_a']]
+        for i in db_rundi_map:
+            if db_entry.get(i[1]):
+                my_value = unidecode(db_entry.get(i[1]).strip())
+            else:
+                # None or ""
+                my_value = db_entry.get(i[1])
+            self.row.update({i[0]: my_value})
+
+
 class WordBuild:
+    """lemma-entry made by the program"""
     @abstractmethod
     def __init__(self):
         self.dbid = ''
@@ -49,29 +122,21 @@ class Lemma:
     """
 
     def __init__(self, row):
-        columns = [0,   # entry0-id
-                   1,   # entry1-lemma
-                   4,   # entry2-stem
-                   8,   # entry3-PoS
-                   13]  # entry4-list with alternatives
-        entry = [unidecode(row[x].strip().lower()) for x in columns]
-        pos_dict = {"0": "VERB", "1": "NOUN", "2": "ADJ", "3": "PREP",
-                    "5": "PRON", "6": "ADV", "7": "CONJ", "8": " INTJ",
-                    "9": "PHRASE", "10": "PREFIX"}
-        self.dbid = entry[0].strip()
-        self.lemma = entry[1].strip()
-        self.pos = pos_dict.get(entry[3]).strip()
-        if entry[2]:
-            self.stem = entry[2].strip()
+        # print(type(row), row)
+        self.dbid = row.get('dbid')
+        self.lemma = row.get('lemma')
+        self.pos = row.get('pos')
+        if row.get('stem'):
+            self.stem = row.get('stem')
         else:
             # Translators: (debug) check dictionary new entry
             kh.OBSERVER.notify(
                 kh._("lemma has no stem in database: ID {}").format(self.dbid))
             self.stem = "xxx"
         # self.questions = [self.lemma,]
-        if entry[4]:
-            self.alternatives = [i.strip() for i in entry[4].split(";")]
-            self.questions = [i.strip() for i in entry[4].split(";")]
+        if row.get('alternatives'):
+            self.alternatives = [i.strip() for i in row.get('alternatives').split(";")]
+            self.questions = [i.strip() for i in row.get('alternatives').split(";")]
         else:
             self.alternatives = ""
             self.questions = []
@@ -494,7 +559,7 @@ class Verb(Lemma):
         self.unclear = []
         self.proverb = False
         self.passiv = False
-        self.perfective = unidecode(row[5].strip().lower())
+        self.perfective = unidecode(row.get('perfective').strip().lower())
         self.check_perfective()
 
     def __str__(self):
@@ -765,10 +830,10 @@ def prepare_verb_alternativ(row):
     """takes: id,lemma,alternative_stem,alternativ_perfectif
     returns row for the alternatively spelled verb
     """
-    row_a = list(row)
-    stem_a = row[15]
-    perf_a = row[16]
-    lemma = row[1]
+    row_a = row.copy()
+    stem_a = row.get('alternative_stem')
+    perf_a = row.get('alternative_perfective')
+    lemma = row.get('lemma')
     perfective_a = ""
     if perf_a != "":
         if len(stem_a) > len(perf_a)+1:
@@ -787,11 +852,11 @@ def prepare_verb_alternativ(row):
     else:
         perfective_a = ""
     # suppose the first letter of stem and stem_alternative is always the same:
-    lemma_a = lemma[:2]+stem_a
-    row_a[1] = lemma_a              # 1  lemma
-    row_a[4] = stem_a               # 4  stem
-    row_a[5] = perfective_a         # 5  perfectiv
-    row_a[13] = "x"                 # 13 alternatives
+    # lemma_a = lemma[:2]+stem_a
+    row_a.update({# 'lemma': lemma_a,
+                  'stem': stem_a,
+                  'perfective': perfective_a,
+                  'alternatives': "x"})
     return row_a
 
 
@@ -804,8 +869,8 @@ def filter_proverbs_out(verb_list):
     pur_stems = []
     new_list = []
     for verb in verbs:
-        verb.mark_proverb()
         try:
+            verb.mark_proverb()
             if verb.proverb is False:
                 new_list.append(verb)
                 pur_stems.insert(0, verb.stem)
@@ -820,7 +885,8 @@ def filter_proverbs_out(verb_list):
         except Exception:
             # Translators: (debug) check dictionary new entry
             kh.OBSERVER.notify(kh._(
-                "filter proverbs out doesn't work': {}").format(verb.lemma))
+                "Attention: filter proverbs out doesn't work with '{}'. Check "
+                + "also its alternatives in the database.").format(verb.lemma))
     return new_list
 
 
@@ -855,11 +921,11 @@ def filter_passiv_out(verb_list):
     return new_list
 
 
-def collect_verbs(db_verbs, freq_d):
+def collect_verbs(db_verbs, freq_simple_dict):
     """sorts verbforms to their stem
     takes fdist as a dict and returns also dict"""
 
-    freq_verb = freq_d
+    freq_uncollected = freq_simple_dict.copy()
     collect_unclear_things = ["things that didn't match\n",]
     # sort by length of stem, for better hits
     verben = sorted(db_verbs, key=lambda x: len(x.stem), reverse=True)
@@ -932,14 +998,14 @@ def collect_verbs(db_verbs, freq_d):
         else:
             qu_list_for_short_freqs = []
 
-        for freqtype, num in freq_verb.items():
+        for freqtype, num in freq_uncollected.items():
             # for short freqtypes
             if num != 0 and len(freqtype) < 4 and qu_list_for_short_freqs:
                 for quest in qu_list_for_short_freqs:
                     if freqtype == quest:
                         freqsum += num
                         found.append([freqtype, num])
-                        freq_verb.update({freqtype: 0})
+                        freq_uncollected.update({freqtype: 0})
                         num = 0
                         break  # next freqtype
             # for n/end_a, n/end_e, n/end_y
@@ -959,7 +1025,7 @@ def collect_verbs(db_verbs, freq_d):
                         # is pure Imperative
                         freqsum += num
                         found.append([freqtype, num])
-                        freq_verb.update({freqtype: 0})
+                        freq_uncollected.update({freqtype: 0})
                         num = 0
                         ask_begin = False  # no break here, the end_loop
                         # has to go on, it will break above with num==0
@@ -970,7 +1036,7 @@ def collect_verbs(db_verbs, freq_d):
                             if re.search(qu, part1) is not None:
                                 freqsum += num
                                 found.append([freqtype, num])
-                                freq_verb.update({freqtype: 0})
+                                freq_uncollected.update({freqtype: 0})
                                 num = 0
                                 ask_begin = False
                                 break  # next end/ loop breaks above >> next freqtype
@@ -1003,14 +1069,15 @@ def collect_verbs(db_verbs, freq_d):
     if collection:
         collection.sort(key=lambda x: x[3], reverse=True)
         collection.sort(key=lambda x: x[4], reverse=True)
-        freq_verb = {x: y for x, y in freq_verb.items() if y != 0}
+        freq_uncollected = {
+            x: y for x, y in freq_uncollected.items() if y != 0}
 
     # kh.save_list(collection, "found6_verbs.csv", ";")
     # save_dict(freqVerb, "keine6_verbs.csv")
 
     # kh.save_list(unk_verbform, "unk_verbform.csv")
     # kh.save_list(unk_perf, "unk_perfective.csv")
-    return (collection, freq_verb)
+    return (collection, freq_uncollected)
 
 
 def put_alternatives_of_same_id_together(collection):

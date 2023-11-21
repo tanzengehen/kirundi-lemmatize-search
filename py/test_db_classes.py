@@ -25,32 +25,40 @@ class TestPrepareNoun(TestCase):
 
     def test_possibilities_with_augment(self):
         """Test prepositions glued directly before noun with augment"""
-        data = dbc.Noun(['14', 'umwaka', 'umwáaka',
-                         'umw', 'aka', '', '', 'imy', '1',
-                         '2', '2', '3', '4', '', '', '', '', '',
-                         '0', '', '0', '', 'NULL'])
+        data = dbc.Noun(
+            {'dbid': '14', 'lemma': 'umwaka', 'prefix': 'umw',
+             'stem': 'aka', 'perfective': '',
+             'perfective_short': '', 'prefix_plural': 'imy', 'pos': 'NOUN',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''})
         self.assertEqual(data._possibilities("umwaka"),
                          [r"^([na]ta|[mk]u|s?i)?mwaka$",
                           r"^([bkmrt]?w|[rv]?y|[nsckzbh])?umwaka$"])
 
     def test_possibilities_without_augment(self):
         """Test prepositions glued directly before noun without augment"""
-        data = dbc.Noun(['6677', 'kanseri', 'kaanséeri',
-                         '', 'kanseri', '', '', '', '1',
-                         '3', '3', '9', '10', 'kansere', '', '', '', '',
-                         '0', '', '1', '', 'fr'])
+        data = dbc.Noun(
+            {'dbid': '6677', 'lemma': 'kanseri', 'prefix': '',
+             'stem': 'kanseri', 'perfective': '',
+             'perfective_short': '', 'prefix_plural': '', 'pos': 'NOUN',
+             'alternatives': 'kansere', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''})
         self.assertEqual(data._possibilities("kanseri"),
                          [r"^([na]ta|[mk]u|s?i)?kanseri$",
                           r"^([nckzbh]|[bkmrt]?w|[rv]?y)[ao]kanseri$"])
 
     def test_init_simple(self):
         """Test direct initializations"""
-        data = dbc.Noun(['6273', 'umupadiri', 'umupáadíri',
-                         'umu', 'padiri', '', '', 'aba', '1',
-                         '1', '1', '1', '2',
-                         'umupatiri;umupadri; umupatri;patiri;padiri',
-                         'umu', '', '', '',
-                         '0', '', '0', '', 'la'])
+        data = dbc.Noun(
+            {'dbid': '6273', 'lemma': 'umupadiri', 'prefix': 'umu',
+             'stem': 'padiri', 'perfective': '',
+             'perfective_short': '', 'prefix_plural': 'aba', 'pos': 'NOUN',
+             'alternatives': 'umupatiri;umupadri; umupatri;patiri;padiri',
+             'alternative_singular': 'umu',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''})
         self.assertEqual(data.lemma, "umupadiri")
         self.assertEqual(data.dbid, "6273")
         self.assertEqual(data.pos, "NOUN")
@@ -66,18 +74,24 @@ class TestPrepareNoun(TestCase):
 
     def test_exception_plural(self):
         """Test irregular plural"""
-        data = dbc.Noun(['6674', 'uruhago', 'uruhago',
-                         'uru', 'hago', '', '', 'im', '1',
-                         '6', '6', '11', '10', '', '', '', '', '',
-                         '0', '', '0', 'impago', 'NULL'])
+        data = dbc.Noun(
+            {'dbid': '6674', 'lemma': 'uruhago', 'prefix': 'uru',
+             'stem': 'hago', 'perfective': '',
+             'perfective_short': '', 'prefix_plural': 'im', 'pos': 'NOUN',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': 'impago'})
         self.assertEqual(data.coll, ['uruhago', 'impago'])
 
     def test_set_questionsl(self):
         """Test questions for all alternatives"""
-        data = dbc.Noun(['14', 'umwaka', 'umwáaka',
-                         'umw', 'aka', '', '', 'imy', '1',
-                         '2', '2', '3', '4', '', '', '', '', '',
-                         '0', '', '0', '', 'NULL'])
+        data = dbc.Noun(
+            {'dbid': '14', 'lemma': 'umwaka', 'prefix': 'umw',
+             'stem': 'aka', 'perfective': '',
+             'perfective_short': '', 'prefix_plural': 'imy', 'pos': 'NOUN',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''})
         self.assertEqual(data.questions,
                          [r"^([na]ta|[mk]u|s?i)?mwaka$",
                           r"^([bkmrt]?w|[rv]?y|[nsckzbh])?umwaka$",
@@ -93,52 +107,84 @@ class TestNounLists(TestCase):
     """Test cases for noun-lists"""
 
     data = [
-        dbc.Noun(['8336', 'ubwinshi', 'ubwiínshi',
-                  'ubw', 'inshi', '', '', '', '1',
-                  '8', 'NULL', '14', 'NULL', '', '', '', '', '',
-                  '0', '', '1', '', 'NULL']),
-        dbc.Noun(['6273', 'umupadiri', 'umupáadíri',
-                  'umu', 'padiri', '', '', 'aba', '1',
-                  '1', '1', '1', '2',
-                  'umupatiri;umupadri; umupatri;patiri;padiri',
-                  'umu', '', '', '',
-                  '0', '', '0', '', 'la']),
-        dbc.Noun(['14', 'umwaka', 'umwáaka',
-                  'umw', 'aka', '', '', 'imy', '1',
-                  '2', '2', '3', '4', '', '', '', '', '',
-                  '0', '', '0', '', 'NULL']),
-        dbc.Noun(['5939', 'izina', 'izína',
-                  'i', 'zina', '', '', 'ama', '1',
-                  '5', '5', '5', '6', '', '', '', '', '',
-                  '0', '', '0', '', 'NULL']),
-        dbc.Noun(['1074', 'amagara', '', 'ama',
-                  'gara', '', '', '', '1',
-                  'NULL', '5', 'NULL', '6', '', '', '', '', '',
-                  '0', '', '0', '', 'NULL']),
-        dbc.Noun(['3314', 'ikintu', 'ikiintu',
-                  'iki', 'ntu', '', '', 'ibi', '1',
-                  '4', '4', '7', '8', '', '', '', '', '',
-                  '0', '', '0', '', 'NULL']),
-        dbc.Noun(['6664', 'icaha', 'icáaha',
-                  'ic', 'aha', '', '', 'ivy', '1',
-                  '4', '4', '7', '8', '', '', '', '', '',
-                  '0', '', '0', '', 'NULL']),
-        dbc.Noun(['2905', 'urukundo', 'urukúundo',
-                  'uru', 'kundo', '', '', '', '1',
-                  '6', 'NULL', '11', 'NULL', '', '', '', '', '',
-                  '0', '', '0', '', 'NULL']),
-        dbc.Noun(['7193', 'akaburungu', 'akaburuungu',
-                  'aka', 'burungu', '', '', 'utu', '1',
-                  '7', '7', '12', '13', '', '', '', '', '',
-                  '0', '', '0', '', 'NULL']),
-        dbc.Noun(['6674', 'uruhago', 'uruhago',
-                  'uru', 'hago', '', '', 'im', '1',
-                  '6', '6', '11', '10', '', '', '', '', '',
-                  '0', '', '0', 'impago', 'NULL']),
-        dbc.Noun(['210', 'ukubaho', 'ukubahó',
-                  'uku', 'baho', '', '', '', '1',
-                  '9', 'NULL', '15', 'NULL', '', '', '', '', '',
-                  '0', '', '1', '', 'NULL'])
+        dbc.Noun(
+            {'dbid': '8336', 'lemma': 'ubwinshi', 'prefix': 'ubw',
+             'stem': 'inshi', 'perfective': '',
+             'perfective_short': '', 'prefix_plural': '', 'pos': 'NOUN',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+        dbc.Noun(
+            {'dbid': '6273', 'lemma': 'umupadiri', 'prefix': 'umu',
+             'stem': 'padiri', 'perfective': '',
+             'perfective_short': '', 'prefix_plural': 'aba', 'pos': 'NOUN',
+             'alternatives': 'umupatiri;umupadri; umupatri;patiri;padiri',
+             'alternative_singular': 'umu',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+        dbc.Noun(
+            {'dbid': '14', 'lemma': 'umwaka', 'prefix': 'umw',
+             'stem': 'aka', 'perfective': '',
+             'perfective_short': '', 'prefix_plural': 'imy', 'pos': 'NOUN',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+        dbc.Noun(
+            {'dbid': '5939', 'lemma': 'izina', 'prefix': 'i',
+             'stem': 'zina', 'perfective': '',
+             'perfective_short': '', 'prefix_plural': 'ama', 'pos': 'NOUN',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+        dbc.Noun(
+            {'dbid': '1074', 'lemma': 'amagara', 'prefix': 'ama',
+             'stem': 'gara', 'perfective': '',
+             'perfective_short': '', 'prefix_plural': '', 'pos': 'NOUN',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+        dbc.Noun(
+            {'dbid': '3314', 'lemma': 'ikintu', 'prefix': 'iki',
+             'stem': 'ntu', 'perfective': '',
+             'perfective_short': '', 'prefix_plural': 'ibi', 'pos': 'NOUN',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+        dbc.Noun(
+            {'dbid': '6664', 'lemma': 'icaha', 'prefix': 'ic',
+             'stem': 'aha', 'perfective': '',
+             'perfective_short': '', 'prefix_plural': 'ivy', 'pos': 'NOUN',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+        dbc.Noun(
+            {'dbid': '2905', 'lemma': 'urukundo', 'prefix': 'uru',
+             'stem': 'kundo', 'perfective': '',
+             'perfective_short': '', 'prefix_plural': '', 'pos': 'NOUN',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+        dbc.Noun(
+            {'dbid': '7193', 'lemma': 'akaburungu', 'prefix': 'aka',
+             'stem': 'burungu', 'perfective': '',
+             'perfective_short': '', 'prefix_plural': 'utu', 'pos': 'NOUN',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+        dbc.Noun(
+            {'dbid': '6674', 'lemma': 'uruhago', 'prefix': 'uru',
+             'stem': 'hago', 'perfective': '',
+             'perfective_short': '', 'prefix_plural': 'im', 'pos': 'NOUN',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': 'impago'}),
+        dbc.Noun(
+            {'dbid': '210', 'lemma': 'ukubaho', 'prefix': 'uku',
+             'stem': 'baho', 'perfective': '',
+             'perfective_short': '', 'prefix_plural': '', 'pos': 'NOUN',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
     ]
 
     def test_partition(self):
@@ -199,37 +245,94 @@ class TestAdjectives(TestCase):
     """Test cases for Adjective
     alternatives, all classes, double-stem """
 
-    @classmethod
-    def setUpClass(cls):
-        """ Connect and load data needed by tests """
-        global DB_DATA
-        global FREQ_SIM
-        # with open("bsp.csv") as csv_data:
-        #     DB_DATA = csv.reader(csv_data, delimiter=";")
+    def test_init(self):
+        """Test direct initializations"""
+        data = dbc.Adjectiv(
+            {'dbid': '3943', 'lemma': '-re-re', 'prefix': '-',
+             'stem': 're-re', 'perfective': '',
+             'perfective_short': '', 'prefix_plural': '', 'pos': 'ADJ',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''})
+        self.assertEqual(data.lemma, "-re-re")
+        self.assertEqual(data.dbid, "3943")
+        self.assertEqual(data.pos, "ADJ")
+        self.assertEqual(data.stem, "re-re")
 
-        DB_DATA = [
-            dbc.Adjectiv(['3943', '-re-re', '-ree-re',
-                          '-', 're-re', '', '', '', '2',
-                          '', '', '', '', '', '', '', '', '',
-                          '0', '', '0', '', 'NULL']),
-            dbc.Adjectiv(['2190', '-inshi', '',
-                          '-', 'inshi', '', '', '', '2',
-                          '', '', '', '', '', '', '', '', '',
-                          '0', '', '2', '', 'NULL']),
-            dbc.Adjectiv(['2937', '-kuru', 'kuru',
-                          '-', 'kuru', '', '', '', '2',
-                          '', '', '', '', '-kuru-kuru', '', '', '', '',
-                          '0', '', '0', '', 'NULL']),
-            dbc.Adjectiv(['3141', '-ompi', '',
-                          '-', 'ompi', 'ompi', '', '', '2',
-                          '', '', '', '', 'mwempi; twempi', '', '', '', '',
-                          '0', '', '0', '', 'NULL']),
-            dbc.Adjectiv(['3274', '-nini', '',
-                          '-', 'nini', 'nini', '', '', '2',
-                          '', '', '', '', '', '', '', '', '',
-                          '0', '', '0', '', 'NULL'])
+    def test_set_questions_i(self):
+        """Test questions i-adjective"""
+        data = dbc.Adjectiv(
+            {'dbid': '2190', 'lemma': '-inshi', 'prefix': '-',
+             'stem': 'inshi', 'perfective': '',
+             'perfective_short': '', 'prefix_plural': '', 'pos': 'ADJ',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''})
+        self.assertEqual(
+            data.questions,
+            ['^((a?[bkmh]e)|(u?[bkmrt]?w[i]+)|(i?[mnrv]?yi|n?zi|[bc]i))(nshi)$'])
+
+    def test_set_questions_in_two_alternatives(self):
+        """Test questions for adjective with alternative"""
+        data = dbc.Adjectiv(
+            {'dbid': '2937', 'lemma': '-kuru', 'prefix': '-',
+             'stem': 'kuru', 'perfective': '',
+             'perfective_short': '', 'prefix_plural': '', 'pos': 'ADJ',
+             'alternatives': '-kuru-kuru', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''})
+        self.assertEqual(len(data.questions), 2)
+
+    def test_set_questions_in_three_alternatives(self):
+        """Test questions for o-adjective in 3 alternatives"""
+        data = dbc.Adjectiv(
+            {'dbid': '3141', 'lemma': '-ompi', 'prefix': '-',
+             'stem': 'ompi', 'perfective': 'ompi',
+             'perfective_short': '', 'prefix_plural': '', 'pos': 'ADJ',
+             'alternatives': 'mwempi; twempi', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''})
+        self.assertEqual(len(data.questions), 3)
+
+    def test_collect_adjs(self):
+        """Test collecting adjectives for all classes"""
+        data = [dbc.Adjectiv(
+            {'dbid': '3943', 'lemma': '-re-re', 'prefix': '-',
+             'stem': 're-re', 'perfective': '',
+             'perfective_short': '', 'prefix_plural': '', 'pos': 'ADJ',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+                dbc.Adjectiv(
+            {'dbid': '2190', 'lemma': '-inshi', 'prefix': '-',
+             'stem': 'inshi', 'perfective': '',
+             'perfective_short': '', 'prefix_plural': '', 'pos': 'ADJ',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+                dbc.Adjectiv(
+            {'dbid': '2937', 'lemma': '-kuru', 'prefix': '-',
+             'stem': 'kuru', 'perfective': '',
+             'perfective_short': '', 'prefix_plural': '', 'pos': 'ADJ',
+             'alternatives': '-kuru-kuru', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+                dbc.Adjectiv(
+            {'dbid': '3141', 'lemma': '-ompi', 'prefix': '-',
+             'stem': 'ompi', 'perfective': 'ompi',
+             'perfective_short': '', 'prefix_plural': '', 'pos': 'ADJ',
+             'alternatives': 'mwempi; twempi', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+                dbc.Adjectiv(
+            {'dbid': '3274', 'lemma': '-nini', 'prefix': '-',
+             'stem': 'nini', 'perfective': 'nini',
+             'perfective_short': '', 'prefix_plural': '', 'pos': 'ADJ',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''})
         ]
-        FREQ_SIM = {
+        freq_simple = {
             'abarekure': 1, 'arekure': 3, 'barebare': 7, 'barekure': 4,
             'birebire': 45, 'biregure': 1, 'birekure': 1, 'buregure': 1,
             'burekure': 1, 'burezire': 1, 'harehare': 3, 'ibirebire': 1,
@@ -256,55 +359,19 @@ class TestAdjectives(TestCase):
             'munini': 198, 'rinini': 75, 'runini': 126, 'tunini': 8,
             'umunini': 2, 'utunini': 2, 'zinini': 3
             }
-
-    @classmethod
-    def tearDownClass(cls):
-        """Disconnect from database"""
-        global DB_DATA
-        global FREQ_SIM
-        DB_DATA = None
-        FREQ_SIM = None
-
-    # def setUp(self):
-    #     """Setup before each test"""
-
-    # def tearDown(self):
-    #     """Clean up after test"""
-
-    def test_init(self):
-        """Test direct initializations"""
-        self.assertEqual(DB_DATA[0].lemma, "-re-re")
-        self.assertEqual(DB_DATA[0].dbid, "3943")
-        self.assertEqual(DB_DATA[0].pos, "ADJ")
-        self.assertEqual(DB_DATA[0].stem, "re-re")
-
-    def test_set_questionsl(self):
-        """Test questions for all alternatives"""
-        self.assertEqual(
-            DB_DATA[1].questions,
-            ['^((a?[bkmh]e)|(u?[bkmrt]?w[i]+)|(i?[mnrv]?yi|n?zi|[bc]i))(nshi)$'])
-        self.assertEqual(len(DB_DATA[2].questions), 2)
-        self.assertEqual(len(DB_DATA[3].questions), 3)
-        self.assertEqual(
-            DB_DATA[4].questions,
-            ['^((a?[bgkmhy]?a)|(i?[bgkmryz]?i)|(u?[bgkmrdtwy]?u)|[mn])(nini)$'])
-        self.assertEqual(len(DB_DATA[0].questions), 2)
-
-    def test_collect_adjs(self):
-        """Test collecting adjectives for all classes"""
-        collection, freq_no_adj = dbc.collect_adjs(DB_DATA, FREQ_SIM)
+        collection, not_collected = dbc.collect_adjs(data, freq_simple)
         # collected
         types_num = 0
         for i in collection:
             types_num += i[4]
-        self.assertEqual(len(freq_no_adj), 17)
+        self.assertEqual(len(not_collected), 17)
         self.assertEqual(types_num, 76)
         # not collected
         for i in ['barekure', 'arekure', 'barekure', 'biregure', 'birekure',
                   'buregure', 'burekure', 'burezire', 'irekure', 'kirerire',
                   'murekure', 'turekure', 'turerure', 'uburegare', 'umurekure',
                   'urekure', 'yiregure']:
-            self.assertIn(i, freq_no_adj)
+            self.assertIn(i, not_collected)
 
 
 ###############################################################
@@ -322,27 +389,41 @@ class TestPronouns(TestCase):
         # with open("bsp.csv") as csv_data:
         #     DB_DATA = csv.reader(csv_data, delimiter=";")
 
-        DB_DATA = [
-            kv.Lemma(['8274', 'iki', 'iki',
-                      '', 'iki', '', '', '', '5',
-                      '', '', '', '', '', '', '', '', '',
-                      '0', '', '1', '', 'NULL']),
-            kv.Lemma(['8098', '-abo', '-abo',
-                      '-', 'abo', '', '', '', '5',
-                      '', '', '', '', '', '', '', '', '',
-                      '0', '', '0', '', 'NULL']),
-            kv.Lemma(['1458', 'hano', 'háno',
-                      'ha', 'no', '', '', '', '5',
-                      '', '', '', '', '', '', '', '', '',
-                      '0', '', '0', '', 'NULL']),
-            kv.Lemma(['5447', 'twebwe', 'tweebwé',
-                      '', 'twebwe', '', '', '', '5',
-                      '', '', '', '', 'twebge;tweho', '', '', '', '',
-                      '0', '', '0', '', 'NULL']),
-            kv.Lemma(['7863', 'igihe?', 'ígihe?',
-                      'igi', 'he?', '', '', '', '5',
-                      '', '', '', '', '', '', '', '', '',
-                      '0', '', '0', '', 'NULL'])
+        DB_DATA = [kv.Lemma(
+            {'dbid': '8274', 'lemma': 'iki', 'prefix': '',
+             'stem': 'iki', 'perfective': '',
+             'perfective_short': '', 'prefix_plural': '', 'pos': 'PRON',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+                kv.Lemma(
+            {'dbid': '8098', 'lemma': '-abo', 'prefix': '-',
+             'stem': 'abo', 'perfective': '',
+             'perfective_short': '', 'prefix_plural': '', 'pos': 'PRON',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+                kv.Lemma(
+            {'dbid': '1458', 'lemma': 'hano', 'prefix': 'ha',
+             'stem': 'no', 'perfective': '',
+             'perfective_short': '', 'prefix_plural': '', 'pos': 'PRON',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+                kv.Lemma(
+            {'dbid': '5447', 'lemma': 'twebwe', 'prefix': '',
+             'stem': 'twebwe', 'perfective': '',
+             'perfective_short': '', 'prefix_plural': '', 'pos': 'PRON',
+             'alternatives': 'twebge;tweho', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+                kv.Lemma(
+            {'dbid': '7863', 'lemma': 'igihe?', 'prefix': 'igi',
+             'stem': 'he?', 'perfective': '',
+             'perfective_short': '', 'prefix_plural': '', 'pos': 'PRON',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
         ]
         FREQ_SIM = {
             'iki': 6373, 'igi': 3,
@@ -441,27 +522,42 @@ class TestAdverbsEtc(TestCase):
         """ Connect and load data needed by tests """
         global DB_DATA
         global FREQ_SIM
-        DB_DATA = [
-            kv.Lemma(['7121', 'ubu nyene', 'ubu nyéne',
-                      '', 'ubu nyene', '', '', '', '6',
-                      '', '', '', '', 'ubunyene', '', '', '', '',
-                      '0', '', '0', '', 'NULL']),
-            kv.Lemma(['5519', 'inyuma', 'inyuma	',
-                      'i', 'nyuma', '', '', '', '7',
-                      '', '', '', '', '', '', '', '', '',
-                      '0', '', '0', '', 'NULL']),
-            kv.Lemma(['5525', 'umengo', 'umeengo',
-                      '', 'umengo', '', '', '', '8',
-                      '', '', '', '', '', '', '', '', '',
-                      '0', '', '0', '', 'NULL']),
-            kv.Lemma(['6121', 'i ruhande', 'i ruhánde',
-                      'i ru', 'hande', '', '', '', '3',
-                      '', '', '', '', 'iruhande', '', '', '', '',
-                      '0', '', '0', '', 'NULL']),
-            kv.Lemma(['7505', 'mirongwitatu', 'miroongwitaatu',
-                      '', 'mirongwitatu', '', '', '', '6',
-                      '', '', '', '', 'mirongo itatu;mirongitatu', '', '', '',
-                      '', '0', '', '0', '', 'NULL']),
+        DB_DATA = [kv.Lemma(
+            {'dbid': '7121', 'lemma': 'ubu nyene', 'prefix': '',
+             'stem': 'ubu nyene', 'perfective': '',
+             'perfective_short': '', 'prefix_plural': '', 'pos': 'ADV',
+             'alternatives': 'ubunyene', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+                kv.Lemma(
+            {'dbid': '5519', 'lemma': 'inyuma', 'prefix': 'i',
+             'stem': 'nyuma', 'perfective': '',
+             'perfective_short': '', 'prefix_plural': '', 'pos': 'CONJ',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+                kv.Lemma(
+            {'dbid': '5525', 'lemma': 'umengo', 'prefix': '',
+             'stem': 'umengo', 'perfective': '',
+             'perfective_short': '', 'prefix_plural': '', 'pos': 'INTJ',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+                kv.Lemma(
+            {'dbid': '6121', 'lemma': 'i ruhande', 'prefix': 'i ru',
+             'stem': 'hande', 'perfective': '',
+             'perfective_short': '', 'prefix_plural': '', 'pos': 'PREP',
+             'alternatives': 'iruhande', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+                kv.Lemma(
+            {'dbid': '7505', 'lemma': 'mirongwitatu', 'prefix': '',
+             'stem': 'mirongwitatu', 'perfective': '',
+             'perfective_short': '', 'prefix_plural': '', 'pos': 'ADV',
+             'alternatives': 'mirongo itatu;mirongitatu',
+             'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
             ]
         FREQ_SIM = {
             'mirongwitatu': 19, 'mirongoitatu': 1, 'mirongitatu': 3,
@@ -480,10 +576,13 @@ class TestAdverbsEtc(TestCase):
     def test_init(self):
         """Test direct initializations"""
         # test single instance
-        ubunyene = kv.Lemma(['7121', 'ubu nyene', 'ubu nyéne',
-                             '', 'ubu nyene', '', '', '', '6',
-                             '', '', '', '', 'ubunyene', '', '', '', '',
-                             '0', '', '0', '', 'NULL'])
+        ubunyene = kv.Lemma(
+            {'dbid': '7121', 'lemma': 'ubu nyene', 'prefix': '',
+             'stem': 'ubu nyene', 'perfective': '',
+             'perfective_short': '', 'prefix_plural': '', 'pos': 'ADV',
+             'alternatives': 'ubunyene', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''})
         self.assertEqual(ubunyene.lemma, "ubu nyene")
         self.assertEqual(ubunyene.dbid, "7121")
         self.assertEqual(ubunyene.pos, "ADV")
@@ -524,23 +623,34 @@ class TestExclamations(TestCase):
         """ Connect and load data needed by tests """
         global DB_DATA
         global FREQ_SIM
-        DB_DATA = [
-            kv.Lemma(['818', 'ego', '',
-                      '', 'ego', '', '', '', '8',
-                      '', '', '', '', '', '', '', '', '',
-                      '0', '', '0', '', 'NULL']),
-            kv.Lemma(['3556', 'oya', 'oya',
-                      '', 'oya', '', '', '', '8',
-                      '', '', '', '', '', '', '', '', '6570',
-                      '0', '', '0', '', 'NULL']),
-            kv.Lemma(['7307', 'karibu', 'ikaribú',
-                      '', 'karibu', '', '', '', '8',
-                      '', '', '', '', '', '', '', '', '',
-                      '0', '', '0', '', 'sw']),
-            kv.Lemma(['7196', 'egome', 'eegóme',
-                      '', 'egome', '', '', '', '8',
-                      '', '', '', '', 'ego me', '', '', '', '',
-                      '0', '', '0', '', 'NULL'])
+        DB_DATA = [kv.Lemma(
+            {'dbid': '818', 'lemma': 'ego', 'prefix': '',
+             'stem': 'ego', 'perfective': '',
+             'perfective_short': '', 'prefix_plural': '', 'pos': 'INTJ',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+                kv.Lemma(
+            {'dbid': '3556', 'lemma': 'oya', 'prefix': '',
+             'stem': 'oya', 'perfective': '',
+             'perfective_short': '', 'prefix_plural': '', 'pos': 'INTJ',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+                kv.Lemma(
+            {'dbid': '7307', 'lemma': 'karibu', 'prefix': '',
+             'stem': 'karibu', 'perfective': '',
+             'perfective_short': '', 'prefix_plural': '', 'pos': 'INTJ',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+                kv.Lemma(
+            {'dbid': '7196', 'lemma': 'egome', 'prefix': '',
+             'stem': 'egome', 'perfective': '',
+             'perfective_short': '', 'prefix_plural': '', 'pos': 'INTJ',
+             'alternatives': 'ego me', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
             ]
         FREQ_SIM = {'karibu': 5, 'egome': 1, 'ego': 38, 'eeeego': 11,
                     'eeeeh': 191, 'eeego': 15, 'eeegoo': 2, 'oyaa': 117,
@@ -982,8 +1092,10 @@ class TestLoading(TestCase):
 
     def test_load_dbkirundi(self):
         """Test load rundi dictionary from csv"""
-        db_data = dbc.load_db_kirundi(
+
+        database = dbc.AllRundiRows(
             sd.ResourceNames.root + "/tests/test_lemmata.csv")
+        db_data = dbc.load_db_kirundi(database.rows)
         self.assertEqual(len(db_data), 8)
         self.assertEqual(len(db_data.get('adjectives')), 0)
         self.assertEqual(len(db_data.get('nouns1')), 17)

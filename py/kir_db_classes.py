@@ -14,7 +14,32 @@ import kir_string_depot as sd
 import kir_helper2 as kh
 
 
-def load_db_kirundi(filename=sd.ResourceNames.fn_db):
+class AllRundiRows:
+    """all db_kirundi entries"""
+
+    def __init__(self, filename=sd.ResourceNames.fn_db):
+        self.rows = []
+        self.map_db_to_row(filename)
+
+    def __str__(self):
+        return f"number of .rows: {len(self.rows)}"
+
+    def __repr__(self):
+        return f"number of .rows: {len(self.rows)}"
+
+    def map_db_to_row(self, filename):
+        """reads db_kirundi"""
+        with open(filename, encoding="utf-8") as csv_file:
+            csv_reader = csv.DictReader(csv_file, delimiter=";")
+            for entry in csv_reader:
+                self.rows.append(kv.RundiDictEntry(entry))
+
+
+# class NeEntry:
+#     def __init__(self, row):
+
+
+def load_db_kirundi(rows):
     """returns lists sorted more or less by part of speech:
     verbs, nouns, adjectives, pronouns,
     (prepositions, adverbs, conjunctions and interjections) together,
@@ -28,41 +53,33 @@ def load_db_kirundi(filename=sd.ResourceNames.fn_db):
     rests = []
     stems = []
     stems = set(stems)
-    with open(filename, encoding="utf-8") as csv_file:
-        csv_reader = csv.reader(csv_file, delimiter=";")
-        line_count = 0
-        for row in csv_reader:
-            # attention: column numbers still valid?
-            # first row is column names
-            if line_count > 0:
-                if row[8] == "0":
-                    if row[13] or row[15]:
-                        # there is also an alternative spelling
-                        row_a = kv.prepare_verb_alternativ(row)
-                        verb = kv.Verb(row_a)
-                        verbs.append(verb)
-                        row[13] = "x"                 # alternatives
-                    verb = kv.Verb(row)
-                    verbs.append(verb)
-                elif row[8] == "1":
-                    nouns.append(Noun(row))
-                elif row[8] == "2":
-                    adjectivs.append(Adjectiv(row))
-                elif row[8] == "5":
-                    pronouns.append(kv.Lemma(row))
-                # prepositions, adverbs, conjunctions, interjections
-                elif row[8] == "3" or row[8] == "6" or row[8] == "7" \
-                        or row[8] == "8":
-                    unchanging_words.append(kv.Lemma(row))
-                # prefixes, phrases
-                else:
-                    rests.append(kv.Lemma(row))
-                # stems as set
-                stems.add(unidecode(row[4]).lower())
-            line_count += 1
+    for entry in rows:
+        row = entry.row
+        if row.get('pos') == "VERB":
+            if row.get('alternatives') or row.get('alternative_stem'):
+                # there is also an alternative spelling
+                row_a = kv.prepare_verb_alternativ(row)
+                verb = kv.Verb(row_a)
+                verbs.append(verb)
+                row.update({'alternative': "x"})
+            verb = kv.Verb(row)
+            verbs.append(verb)
+        elif row.get('pos') == "NOUN":
+            nouns.append(Noun(row))
+        elif row.get('pos') == "ADJ":
+            adjectivs.append(Adjectiv(row))
+        elif row.get('pos') == "PRON":
+            pronouns.append(kv.Lemma(row))
+        # prepositions, adverbs, conjunctions, interjections
+        elif row.get('pos') in ["PREP", "ADV", "CONJ", "INTJ"]:
+            unchanging_words.append(kv.Lemma(row))
+        # prefixes, phrases
+        else:
+            rests.append(kv.Lemma(row))
+        # stems as set
+        stems.add(unidecode(row.get('stem').lower()))
     # kh.OBSERVER.notify(
     #     kh._('{} entries of the dictionary prepared.\n').format(line_count))
-    csv_file.close()
 
     # set questions only for verbs we will use
     # skip proverbs and lemma with passiv
@@ -440,18 +457,18 @@ class Noun(kv.Lemma):
         sets singular, plural with and without augment and also for
         spelling variations
         """
-        columns = [3,   # entry0-prefix_sg
-                   7,   # entry1-prefix_pl
-                   14,  # entry2-alternative prefix_sg
-                   21]  # entry3-plural irregular
-        entry = [unidecode(row[x]).strip().lower() for x in columns]
+        sg_prefix = unidecode(row.get('prefix')).strip().lower()
+        pl_prefix = unidecode(row.get('prefix_plural')).strip().lower()
+        sg_alternative_prefix = unidecode(
+            row.get('alternative_singular')).strip().lower()
+        pl_irregular = unidecode(row.get('plural_irregular')).strip().lower()
         # add plural
         # plural is irregular (amaso)
-        if entry[3]:
-            coll = [self.lemma, entry[3]]
+        if pl_irregular:
+            coll = [self.lemma, unidecode(pl_irregular)]
         # there is plural and it's different from singular
-        elif entry[1] not in ("", entry[0]):
-            coll = [self.lemma, sd.breakdown_consonants(entry[1]+self.stem)]
+        elif pl_prefix not in ("", sg_prefix):
+            coll = [self.lemma, sd.breakdown_consonants(pl_prefix+self.stem)]
         # there is no plural
         else:
             coll = [self.lemma, ]
@@ -462,10 +479,11 @@ class Noun(kv.Lemma):
                 coll.append(i)
                 # add plural of alternative
                 # alternative starts with same letters as sg-prefix of lemma
-                if entry[0] == "" or i[:(len(entry[2]))] == entry[0]:
+                if sg_prefix == "" \
+                   or i[:(len(sg_alternative_prefix))] == sg_prefix:
                     # use plural-prefix of lemma also for alternative
                     coll.append(
-                        sd.breakdown_consonants(entry[1]+i[len(entry[0]):]))
+                        sd.breakdown_consonants(pl_prefix+i[len(sg_prefix):]))
         for i in coll:
             self.questions += self._possibilities(i)
         self.coll = coll
@@ -584,7 +602,7 @@ class Adjectiv(kv.Lemma):
             self.questions.append(quest)
 
 
-def collect_adjs(db_adjektive, freq_d):
+def collect_adjs(db_adjektive, freq_simple_dict):
     """maps adjectivs to lemmata in dbkirundi
     takes frequency-dictionary and list of adjectives
     returns list with columns:
@@ -593,9 +611,9 @@ def collect_adjs(db_adjektive, freq_d):
             and changed frequency-dictionary {'found_adjectiv':0}
     """
     collection = []
-    freq_adj = freq_d
+    freq_uncollected = freq_simple_dict.copy()
     for adj in db_adjektive:
-        found = regex_search(adj, freq_adj)
+        found = regex_search(adj, freq_uncollected)
         if found:
             teil = found[0].strip("-").split("-")
             # filter wrong positivs out: ibirebire yes, but not abarekure
@@ -613,7 +631,7 @@ def collect_adjs(db_adjektive, freq_d):
                         new.append(foundtype)
                     else:
                         # was wrong positiv, roll back
-                        freq_adj.update({ftype: foundtype[1]})
+                        freq_uncollected.update({ftype: foundtype[1]})
                         found[4] -= 1
                         found[3] -= foundtype[1]
                     found = found[:5]+new
@@ -621,14 +639,14 @@ def collect_adjs(db_adjektive, freq_d):
             else:
                 collection.append(found)
     if collection:
-        freq_adj = {x: y for x, y in freq_adj.items() if y != 0}
+        freq_uncollected = {x: y for x, y in freq_uncollected.items() if y != 0}
         collection.sort(key=lambda x: x[3], reverse=True)
         collection.sort(key=lambda x: x[4], reverse=True)
 
     # save_dict(freq_adj,"keine5_adj.csv")
     # all adjectives
     # kh.save_list(collection,"found5_adj.csv",";")
-    return (collection, freq_adj)
+    return (collection, freq_uncollected)
 
 
 def build_pronouns():

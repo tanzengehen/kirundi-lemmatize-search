@@ -23,10 +23,13 @@ class TestPrepareVerb(TestCase):
 
     def test_simple_initiation(self):
         """Test direct initializations"""
-        data = kv.Verb(['180', 'kuba', 'kubá',
-                        'ku', 'ba', 'baye', 'baye',
-                        '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                        '', '', '', '', '', '0', '', '0', '', 'NULL'])
+        data = kv.Verb(
+            {'dbid': '180', 'lemma': 'kuba', 'prefix': 'ku',
+             'stem': 'ba', 'perfective': 'baye',
+             'perfective_short': 'baye', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''})
         self.assertEqual(data.lemma, "kuba")
         self.assertEqual(data.dbid, "180")
         self.assertEqual(data.pos, "VERB")
@@ -35,21 +38,27 @@ class TestPrepareVerb(TestCase):
 
     def test_check_perfective(self):
         """Test check unclear perfective"""
-        data = kv.Verb(['9999', 'kurararara', '',
-                        'ku', 'rararara', 'raye?', '?',
-                        '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                        '', '', '', '', '', '0', '', '0', '', 'NULL'])
+        data = kv.Verb(
+            {'dbid': '9999', 'lemma': 'kurararara', 'prefix': 'ku',
+             'stem': 'rararara', 'perfective': 'raye?',
+             'perfective_short': '?', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''})
         self.assertEqual(data.perfective, '')
         self.assertEqual(
             data.unclear,
             [['kurararara', 'perfective unclear:', 'raye?']])
 
     def test_simple_initiation_with_alternative(self):
-        data = kv.Verb(['1814', 'guhuhuta', '',
-                        'gu', 'hūhūta', 'hūhūse', 'se',
-                        '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                        'guhuhuta', '', 'huhuta', 'hūhūshe',
-                        '', '0', '', '0', '', 'NULL'])
+        """Test initiation with alternative"""
+        data = kv.Verb(
+            {'dbid': '1814', 'lemma': 'guhuhuta', 'prefix': 'gu',
+             'stem': 'hūhūta', 'perfective': 'hūhūse',
+             'perfective_short': 'se', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': 'guhuhuta', 'alternative_singular': '',
+             'alternative_stem': 'huhuta', 'alternative_perfective': 'hūhūshe',
+             'plural_irregular': ''})
         self.assertEqual(data.lemma, "guhuhuta")
         self.assertEqual(data.dbid, "1814")
         self.assertEqual(data.alternatives, ['guhuhuta'])
@@ -57,10 +66,13 @@ class TestPrepareVerb(TestCase):
 
     def test_set_end_of_verbs_m(self):
         """Test built verb endings"""
-        data = kv.Verb(['3120', 'kumira', 'kumira',
-                        'ku', 'mira', 'mize', 'ze',
-                        '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                        '', '', '', '', '', '0', '', '0', '', 'NULL'])
+        data = kv.Verb(
+            {'dbid': '3120', 'lemma': 'kumira', 'prefix': 'ku',
+             'stem': 'mira', 'perfective': 'mize',
+             'perfective_short': 'ze', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''})
         data._set_end_of_ends()
         self.assertEqual(data.lemma, "kumira")
         self.assertEqual(data._end_a, 'mir(w?a)((([hyk]|mw)o)?$)')
@@ -68,10 +80,14 @@ class TestPrepareVerb(TestCase):
         self.assertEqual(data._end_y, 'miz((w)?e)((([hyk]|mw)o)?$)')
 
     def test_set_end_of_verbs_perfective_with_u(self):
-        data = kv.Verb(['5585', 'gupfa', '',
-                        'gu', 'pfa', 'pfūye', 'pfūye',
-                        '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                        '', '', '', '', '', '0', '', '0', '', 'NULL'])
+        """Test perfective-end -uye"""
+        data = kv.Verb(
+            {'dbid': '5585', 'lemma': 'gupfa', 'prefix': 'gu',
+             'stem': 'pfa', 'perfective': 'pfūye',
+             'perfective_short': 'pfūye', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''})
         data._set_end_of_ends()
         self.assertEqual(data.lemma, "gupfa")
         self.assertEqual(data.perfective[-3], "u")
@@ -79,39 +95,55 @@ class TestPrepareVerb(TestCase):
             data._end_y, 'pfu(ye|((ri)?we))((([hyk]|mw)o)?$)')
 
     def test_set_end_of_verbs_perfective_with_f(self):
-        data = kv.Verb(['7962', 'gucapa', 'gucápa',
-                        'gu', 'capa', 'cafye', 'fye',
-                        '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                        '', '', '', '', '', '0', '', '0', '', 'sw'])
+        """Test perfective-end -puwe"""
+        data = kv.Verb(
+            {'dbid': '7962', 'lemma': 'gucapa', 'prefix': 'gu',
+             'stem': 'capa', 'perfective': 'cafye',
+             'perfective_short': 'fye', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''})
         data._set_end_of_ends()
         self.assertEqual(
             data._end_y, 'capuwe((([hyk]|mw)o)?$)')
 
     def test_set_end_of_verbs_perfective_with_l(self):
-        data = kv.Verb(['9999', 'kulalalala', '',
-                        'ku', 'rararara', 'calye', '',
-                        '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                        '', '', '', '', '', '0', '', '0', '', 'NULL'])
+        """Test wrong perfective-end"""
+        data = kv.Verb(
+            {'dbid': '9999', 'lemma': 'kulalalala', 'prefix': 'ku',
+             'stem': 'rararara', 'perfective': 'calye',
+             'perfective_short': '', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''})
         data._set_end_of_ends()
         self.assertIn(['perfective: unexpected letter before [y] ',
                        'kulalalala', 'calye'],
                       data.unclear)
 
     def test_set_end_of_verbs_exception_zi(self):
-        data = kv.Verb(['24', '-zi', '',
-                        '-', 'zi', '', '',
-                        '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                        '', '', '', '', '', '0', '', '0', '', 'NULL'])
+        """Test exception for verb -zi"""
+        data = kv.Verb(
+            {'dbid': '24', 'lemma': '-zi', 'prefix': '-',
+             'stem': 'zi', 'perfective': '',
+             'perfective_short': '', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''})
         data.stem = "zi"
         data._set_end_of_ends()
         self.assertEqual(data._end_y, '')
         self.assertEqual(data._end_a, 'zw?i((([hyk]|mw)o)?$)')
 
     def test_set_end_of_verbs_exception_fise(self):
-        data = kv.Verb(['908', '-fise', '',
-                        '-', 'fise', '', '',
-                        '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                        '', '', '', '', '', '0', '', '0', '', 'NULL'])
+        """Test exception for verb -fise"""
+        data = kv.Verb(
+            {'dbid': '908', 'lemma': '-fise', 'prefix': '-',
+             'stem': 'fise', 'perfective': '',
+             'perfective_short': '', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''})
         data.stem = "fise"
         data._set_end_of_ends()
         self.assertEqual(data._end_y, 'fise((([hyk]|mw)o)?$)')
@@ -119,35 +151,41 @@ class TestPrepareVerb(TestCase):
     def test_prepare_verb_alternativ_with_long_perfective(self):
         """Test prepare_verb_alternativ"""
         row_alt = kv.prepare_verb_alternativ(
-            ['1814', 'guhuhuta', '',
-             'gu', 'hūhūta', 'hūhūse', 'se',
-             '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-             'guhuhuta', '', 'huhuta', 'hūhūshe',
-             '', '', '0', '', '0', '', 'NULL'])
-        self.assertEqual(row_alt[0], '1814')
-        self.assertEqual(row_alt[1], 'guhuhuta')
-        self.assertEqual(row_alt[4], 'huhuta')
-        self.assertEqual(row_alt[5], 'hūhūshe')
-        self.assertEqual(row_alt[13], 'x')
+            {'dbid': '1814', 'lemma': 'guhuhuta', 'prefix': 'gu',
+             'stem': 'hūhūta', 'perfective': 'hūhūse',
+             'perfective_short': 'se', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': 'guhuhuta', 'alternative_singular': '',
+             'alternative_stem': 'huhuta', 'alternative_perfective': 'hūhūshe',
+             'plural_irregular': 'VERB'})
+        self.assertEqual(row_alt.get('dbid'), '1814')
+        self.assertEqual(row_alt.get('lemma'), 'guhuhuta')
+        self.assertEqual(row_alt.get('stem'), 'huhuta')
+        self.assertEqual(row_alt.get('perfective'), 'hūhūshe')
+        self.assertEqual(row_alt.get('alternatives'), 'x')
 
     def test_prepare_verb_alternativ_with_short_perfective(self):
+        """Test only short version of perfective is given"""
         row_alt = kv.prepare_verb_alternativ(
-            ['4229', 'gusabwa', 'gusabwa',
-             'gu', 'sabwa', 'sabwe', 'bwe',
-             '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-             'gusabga', '', 'sabga', 'bge',
-             '', '0', '', '0', '', 'NULL'])
-        self.assertEqual(row_alt[0], '4229')
-        self.assertEqual(row_alt[4], 'sabga')
-        self.assertEqual(row_alt[5], 'sabge')
-        self.assertEqual(row_alt[13], 'x')
+            {'dbid': '4229', 'lemma': 'gusabwa', 'prefix': 'gu',
+             'stem': 'sabwa', 'perfective': 'sabwe',
+             'perfective_short': 'bwe', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': 'gusabga', 'alternative_singular': '',
+             'alternative_stem': 'sabga', 'alternative_perfective': 'bge',
+             'plural_irregular': ''})
+        self.assertEqual(row_alt.get('dbid'), '4229')
+        self.assertEqual(row_alt.get('stem'), 'sabga')
+        self.assertEqual(row_alt.get('perfective'), 'sabge')
+        self.assertEqual(row_alt.get('alternatives'), 'x')
 
     def test_set_questions_ku_short_verb(self):
         """Test set regEx"""
-        data = kv.Verb(['180', 'kuba', 'kubá',
-                        'ku', 'ba', 'baye', 'baye',
-                        '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                        '', '', '', '', '', '0', '', '0', '', 'NULL'])
+        data = kv.Verb(
+            {'dbid': '180', 'lemma': 'kuba', 'prefix': 'ku',
+             'stem': 'ba', 'perfective': 'baye',
+             'perfective_short': 'baye', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''})
         data.set_questions()
         self.assertEqual(len(data.comb), 6)
         self.assertEqual(len(data.comb[0][0]), 24)
@@ -164,10 +202,14 @@ class TestPrepareVerb(TestCase):
         self.assertEqual(len(data.comb[5][1]), 98)
 
     def test_set_questions_ku_m(self):
-        data = kv.Verb(['3120', 'kumira', 'kumira',
-                        'ku', 'mira', 'mize', 'ze',
-                        '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                        '', '', '', '', '', '0', '', '0', '', 'NULL'])
+        """Test questions for m-stem"""
+        data = kv.Verb(
+            {'dbid': '3120', 'lemma': 'kumira', 'prefix': 'ku',
+             'stem': 'mira', 'perfective': 'mize',
+             'perfective_short': 'ze', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''})
         data.set_questions()
         self.assertEqual(data.lemma, "kumira")
         self.assertEqual(data.comb[0][0], "mir(w?a)((([hyk]|mw)o)?$)")
@@ -184,10 +226,14 @@ class TestPrepareVerb(TestCase):
         self.assertEqual(len(data.comb[5][1]), 98)
 
     def test_set_questions_ku_r(self):
-        data = kv.Verb(['3984', 'kurima', 'kurima',
-                        'ku', 'rima', 'rimye', 'mye',
-                        '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                        '', '', '', '', '', '0', '', '0', '', 'NULL'])
+        """Test questions for r-stem"""
+        data = kv.Verb(
+            {'dbid': '3984', 'lemma': 'kurima', 'prefix': 'ku',
+             'stem': 'rima', 'perfective': 'rimye',
+             'perfective_short': 'mye', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''})
         data.set_questions()
         self.assertEqual(data.lemma, "kurima")
         self.assertEqual(data.comb[0][0], "ndim(w?a)((([hyk]|mw)o)?$)")
@@ -204,10 +250,14 @@ class TestPrepareVerb(TestCase):
         self.assertEqual(len(data.comb[5][1]), 98)
 
     def test_set_questions_gu(self):
-        data = kv.Verb(['2795', 'gukora', '',
-                        'gu', 'kora', 'koze', 'ze',
-                        '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                        '', '', '', '', '', '0', '', '0', '', 'NULL'])
+        """Test questions for gu-verbs"""
+        data = kv.Verb(
+            {'dbid': '2795', 'lemma': 'gukora', 'prefix': 'gu',
+             'stem': 'kora', 'perfective': 'koze',
+             'perfective_short': 'ze', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''})
         data.set_questions()
         self.assertEqual(data.lemma, "gukora")
         self.assertEqual(data.comb[0][0], "nkor(w?a)((([hyk]|mw)o)?$)")
@@ -224,10 +274,14 @@ class TestPrepareVerb(TestCase):
         self.assertEqual(len(data.comb[5][1]), 120)
 
     def test_set_questions_gu_h(self):
-        data = kv.Verb(['6364', 'guhagarara', 'guhágarara',
-                        'gu', 'hagarara', 'hagaraze', 'ze',
-                        '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                        '', '', '', '', '', '0', '', '0', '', 'NULL'])
+        """Test questions for h-stem"""
+        data = kv.Verb(
+            {'dbid': '6364', 'lemma': 'guhagarara', 'prefix': 'gu',
+             'stem': 'hagarara', 'perfective': 'hagaraze',
+             'perfective_short': 'ze', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''})
         data.set_questions()
         self.assertEqual(data.lemma, "guhagarara")
         self.assertEqual(data.comb[0][0], "mpagarar(w?a)((([hyk]|mw)o)?$)")
@@ -244,10 +298,14 @@ class TestPrepareVerb(TestCase):
         self.assertEqual(len(data.comb[5][1]), 120)
 
     def test_set_questions_kw_a(self):
-        data = kv.Verb(['83', 'kwandika', 'kwaandika',
-                        'kw', 'andika', 'anditse', 'tse',
-                        '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                        '', '', '', '', '', '0', '', '0', '', 'NULL'])
+        """Test questions for a-stem"""
+        data = kv.Verb(
+            {'dbid': '83', 'lemma': 'kwandika', 'prefix': 'kw',
+             'stem': 'andika', 'perfective': 'anditse',
+             'perfective_short': 'tse', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''})
         self.assertEqual(data.lemma, "kwandika")
         data.set_questions()
         self.assertEqual(len(data.comb[0][0]), 30)
@@ -264,10 +322,14 @@ class TestPrepareVerb(TestCase):
         self.assertEqual(len(data.comb[5][1]), 141)
 
     def test_set_questions_kw_i(self):
-        data = kv.Verb(['2236', 'kwiruka', 'kwiíruka',
-                        'kw', 'iruka', 'irutse', 'tse',
-                        '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                        '', '', '', '', '', '0', '', '0', '', 'NULL'])
+        """Test questions for i-stem"""
+        data = kv.Verb(
+            {'dbid': '2236', 'lemma': 'kwiruka', 'prefix': 'kw',
+             'stem': 'iruka', 'perfective': 'irutse',
+             'perfective_short': 'tse', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''})
         data.set_questions()
         self.assertEqual(data.lemma, "kwiruka")
         self.assertEqual(data.comb[0][0], "ny?iruk(w?a)((([hyk]|mw)o)?$)")
@@ -285,10 +347,13 @@ class TestPrepareVerb(TestCase):
 
     def test_get(self):
         """Test get attributes"""
-        data = kv.Verb(['1135', 'kugenda', '',
-                        'ku', 'gēnda', 'giye', 'giye',
-                        '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                        '', '', '', '', '', '0', '', '0', '', 'NULL'])
+        data = kv.Verb(
+            {'dbid': '1135', 'lemma': 'kugenda', 'prefix': 'ku',
+             'stem': 'genda', 'perfective': 'giye',
+             'perfective_short': 'giye', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''})
         self.assertEqual(data.get('lemma'), 'kugenda')
         self.assertEqual(data.get('dbid'), '1135')
         self.assertEqual(data.get('stem'), 'genda')
@@ -314,46 +379,67 @@ class TestVerbLists(TestCase):
     def test_mark_proverb(self):
         """Test mark proverb
         is preparation for 'filter proverbs out'"""
-        data = [kv.Verb(['7161', 'kugira amazinda', 'kugira amaziinda',
-                         'ku', 'gira amazinda', 'gize', 'gize',
-                         '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                         '', '', '', '', '', '0', '', '0', '', 'NULL']),
-                kv.Verb(['1223', 'kugira', 'kugira',
-                         'ku', 'gira', 'gize', 'gize ',
-                         '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                         '', '', '', '', '', '0', '', '0', '', 'NULL'])
+        data = [kv.Verb(
+            {'dbid': '7161', 'lemma': 'kugira amazinda', 'prefix': 'ku',
+             'stem': 'gira amazinda', 'perfective': 'gize',
+             'perfective_short': 'gize', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+                kv.Verb(
+            {'dbid': '1223', 'lemma': 'kugira', 'prefix': 'ku',
+             'stem': 'gira', 'perfective': 'gize',
+             'perfective_short': 'gize', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''})
                 ]
         for verb in data:
             verb.mark_proverb()
-        self.assertEqual(data[0].lemma, "kugira amazinda")
-        self.assertEqual(data[0].proverb, True)
-        self.assertEqual(data[1].lemma, "kugira")
-        self.assertEqual(data[1].proverb, False)
+        self.assertEqual(data[0].get('lemma'), "kugira amazinda")
+        self.assertEqual(data[0].get('proverb'), True)
+        self.assertEqual(data[1].get('lemma'), "kugira")
+        self.assertEqual(data[1].get('proverb'), False)
 
     def test_filter_proverbs_out(self):
         """Test filter proverbs out:
         take only verb from stem and only if there's no same solo form"""
         # prepare
-        data = [kv.Verb(['6988', 'gukoma amashi', 'gukóma amashí',
-                         'gu', 'koma amashi', 'komye', '',
-                         '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                         '', '', '', '', '', '0', '', '0', '', 'NULL']),
-                kv.Verb(['7161', 'kugira amazinda', 'kugira amaziinda',
-                         'ku', 'gira amazinda', 'gize', 'gize',
-                         '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                         '', '', '', '', '', '0', '', '0', '', 'NULL']),
-                kv.Verb(['2795', 'gukora', '',
-                         'gu', 'kora', 'koze', 'ze',
-                         '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                         '', '', '', '', '', '0', '', '0', '', 'NULL']),
-                kv.Verb(['1223', 'kugira', 'kugira',
-                         'ku', 'gira', 'gize', 'gize ',
-                         '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                         '', '', '', '', '', '0', '', '0', '', 'NULL']),
-                kv.Verb(['1135', 'kugenda', '',
-                         'ku', 'gēnda', 'giye', 'giye',
-                         '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                         '', '', '', '', '', '0', '', '0', '', 'NULL'])
+        data = [kv.Verb(
+            {'dbid': '6988', 'lemma': 'gukoma amashi', 'prefix': 'gu',
+             'stem': 'koma amashi', 'perfective': 'komye',
+             'perfective_short': '', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+                kv.Verb(
+            {'dbid': '7161', 'lemma': 'kugira amazinda', 'prefix': 'ku',
+             'stem': 'gira amazinda', 'perfective': 'gize',
+             'perfective_short': 'gize', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': '', }),
+                kv.Verb(
+            {'dbid': '2795', 'lemma': 'gukora', 'prefix': 'gu',
+             'stem': 'kora', 'perfective': 'koze',
+             'perfective_short': 'ze', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': '', }),
+                kv.Verb(
+            {'dbid': '1223', 'lemma': 'kugira', 'prefix': 'ku',
+             'stem': 'gira', 'perfective': 'gize',
+             'perfective_short': 'gize ', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': '', }),
+                kv.Verb(
+            {'dbid': '1135', 'lemma': 'kugenda', 'prefix': 'ku',
+             'stem': 'gēnda', 'perfective': 'giye',
+             'perfective_short': 'giye', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': '', })
                 ]
         lemma_before = [i.lemma for i in data]
         for i in ["kugira", "kugira amazinda", "gukoma amashi"]:
@@ -376,15 +462,20 @@ class TestVerbLists(TestCase):
     def test_mark_passiv(self):
         """Test mark passiv:
         is preparation for 'filter passiv out'"""
-        data = [kv.Verb(['2796', 'gukora', 'gukoora',
-                         'gu', 'kora', 'koye', 'ye',
-                         '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                         '', '', '', '', '', '0', '', '0', '', 'NULL']),
-                kv.Verb(['4229', 'gusabwa', 'gusabwa',
-                         'gu', 'sabwa', 'sabwe', 'bwe',
-                         '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                         'gusabga', '', 'sabga', 'bge',
-                         '', '0', '', '0', '', 'NULL'])
+        data = [kv.Verb(
+            {'dbid': '2795', 'lemma': 'gukora', 'prefix': 'gu',
+             'stem': 'kora', 'perfective': 'koze',
+             'perfective_short': 'ze', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+                kv.Verb(
+            {'dbid': '4229', 'lemma': 'gusabwa', 'prefix': 'gu',
+             'stem': 'sabwa', 'perfective': 'sabwe',
+             'perfective_short': 'bwe', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': 'gusabga', 'alternative_singular': '',
+             'alternative_stem': 'sabga', 'alternative_perfective': 'bge',
+             'plural_irregular': ''})
                 ]
         for verb in data:
             verb.mark_passiv()
@@ -396,31 +487,48 @@ class TestVerbLists(TestCase):
     def test_filter_passiv_out(self):
         """Test filter passiv out:
         skip passiv-lemma if there's already same lemma without passiv"""
-        data = [kv.Verb(['2236', 'kwiruka', 'kwiíruka',
-                         'kw', 'iruka', 'irutse', 'tse',
-                         '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                         '', '', '', '', '', '0', '', '0', '', 'NULL']),
-                kv.Verb(['3120', 'kumira', 'kumira',
-                         'ku', 'mira', 'mize', 'ze',
-                         '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                         '', '', '', '', '', '0', '', '0', '', 'NULL']),
-                kv.Verb(['4229', 'gusabwa', 'gusabwa',
-                         'gu', 'sabwa', 'sabwe', 'bwe',
-                         '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                         'gusabga', '', 'sabga', 'bge',
-                         '', '0', '', '0', '', 'NULL']),
-                kv.Verb(['4222', 'gusaba', 'gusaba',
-                         'gu', 'saba', 'savye', 'vye',
-                         '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                         '', '', '', '', '', '0', '', '0', '', 'NULL']),
-                kv.Verb(['3124', 'kumirwa', 'kumirwa',
-                         'ku', 'mirwa', 'mizwe', 'zwe',
-                         '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                         '', '', '', '', '', '0', '', '0', '', 'NULL']),
-                kv.Verb(['467', 'kuborerwa', 'kuborerwa',
-                         'ku', 'borerwa', 'borewe', 'we',
-                         '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                         '', '', '', '', '', '0', '', '0', '', 'NULL'])
+        data = [kv.Verb(
+            {'dbid': '2236', 'lemma': 'kwiruka', 'prefix': 'kw',
+             'stem': 'iruka', 'perfective': 'irutse',
+             'perfective_short': 'tse', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+                kv.Verb(
+            {'dbid': '3120', 'lemma': 'kumira', 'prefix': 'ku',
+             'stem': 'mira', 'perfective': 'mize',
+             'perfective_short': 'ze', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+                kv.Verb(
+            {'dbid': '4229', 'lemma': 'gusabwa', 'prefix': 'gu',
+             'stem': 'sabwa', 'perfective': 'sabwe',
+             'perfective_short': 'bwe', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': 'gusabga', 'alternative_singular': '',
+             'alternative_stem': 'sabga', 'alternative_perfective': 'bge',
+             'plural_irregular': ''}),
+                kv.Verb(
+            {'dbid': '4222', 'lemma': 'gusaba', 'prefix': 'gu',
+             'stem': 'saba', 'perfective': 'savye',
+             'perfective_short': 'vye', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+                kv.Verb(
+            {'dbid': '3124', 'lemma': 'kumirwa', 'prefix': 'ku',
+             'stem': 'mirwa', 'perfective': 'mizwe',
+             'perfective_short': 'zwe', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+                kv.Verb(
+            {'dbid': '467', 'lemma': 'kuborerwa', 'prefix': 'ku',
+             'stem': 'borerwa', 'perfective': 'borewe',
+             'perfective_short': 'we', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''})
                 ]
         lemma_before = [i.lemma for i in data]
         for i in ["gusabwa", "gusaba", "kuborerwa", "kumira", "kumirwa"]:
@@ -438,76 +546,125 @@ class TestVerbLists(TestCase):
 
     def test_collect_verbs(self):
         """Test collect verbs"""
-        data = [kv.Verb(['180', 'kuba', 'kubá',
-                         'ku', 'ba', 'baye', 'baye',
-                         '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                         '', '', '', '', '', '0', '', '0', '', 'NULL']),
-                kv.Verb(['83', 'kwandika', 'kwaandika',
-                         'kw', 'andika', 'anditse', 'tse',
-                         '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                         '', '', '', '', '', '0', '', '0', '', 'NULL']),
-                kv.Verb(['3562', 'kwoza', 'kwoóza',
-                         'kw', 'oza', 'ogeje', 'geje',
-                         '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                         '', '', '', '', '', '0', '', '0', '', 'NULL']),
-                kv.Verb(['2236', 'kwiruka', 'kwiíruka',
-                         'kw', 'iruka', 'irutse', 'tse',
-                         '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                         '', '', '', '', '', '0', '', '0', '', 'NULL']),
-                kv.Verb(['3120', 'kumira', 'kumira',
-                         'ku', 'mira', 'mize', 'ze',
-                         '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                         '', '', '', '', '', '0', '', '0', '', 'NULL']),
-                kv.Verb(['3209', 'kunanirana', 'kunanirana',
-                         'ku', 'nanirana', 'naniranye', 'nye',
-                         '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                         '', '', '', '', '', '0', '', '0', '', 'NULL']),
-                kv.Verb(['2795', 'gukora', '',
-                         'gu', 'kora', 'koze', 'ze',
-                         '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                         '', '', '', '', '', '0', '', '0', '', 'NULL']),
-                kv.Verb(['2796', 'gukora', 'gukoora',
-                         'gu', 'kora', 'koye', 'ye',
-                         '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                         '', '', '', '', '', '0', '', '0', '', 'NULL']),
-                kv.Verb(['1814', 'guhuhuta', '',
-                         'gu', 'hūhūta', 'hūhūse', 'se',
-                         '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                         'x', '', 'huhuta', 'hūhūshe',
-                         '', '0', '', '0', '', 'NULL']),
-                kv.Verb(['1814', 'guhuhuta', '',
-                         'gu', 'hūhūta', 'hūhūshe', '',
-                         '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                         'x', '', '', '',
-                         '', '0', '', '0', '', 'NULL']),
-                kv.Verb(['5585', 'gupfa', '',
-                         'gu', 'pfa', 'pfūye', 'pfūye',
-                         '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                         '', '', '', '', '', '0', '', '0', '', 'NULL']),
-                kv.Verb(['1223', 'kugira', 'kugira',
-                         'ku', 'gira', 'gize', 'gize ',
-                         '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                         '', '', '', '', '', '0', '', '0', '', 'NULL']),
-                kv.Verb(['4222', 'gusaba', 'gusaba',
-                         'gu', 'saba', 'savye', 'vye',
-                         '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                         '', '', '', '', '', '0', '', '0', '', 'NULL']),
-                kv.Verb(['3984', 'kurima', 'kurima',
-                         'ku', 'rima', 'rimye', 'mye',
-                         '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                         '', '', '', '', '', '0', '', '0', '', 'NULL']),
-                kv.Verb(['6364', 'guhagarara', 'guhágarara',
-                         'gu', 'hagarara', 'hagaraze', 'ze',
-                         '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                         '', '', '', '', '', '0', '', '0', '', 'NULL']),
-                kv.Verb(['1135', 'kugenda', '',
-                         'ku', 'gēnda', 'giye', 'giye',
-                         '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                         '', '', '', '', '', '0', '', '0', '', 'NULL']),
-                kv.Verb(['1406', 'guha', '',
-                         'gu', 'ha', 'haye', 'haye',
-                         '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                         '', '', '', '', '', '0', '', '0', '', 'NULL'])
+        data = [kv.Verb(
+            {'dbid': '180', 'lemma': 'kuba', 'prefix': 'ku',
+             'stem': 'ba', 'perfective': 'baye',
+             'perfective_short': 'baye', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+                kv.Verb(
+            {'dbid': '83', 'lemma': 'kwandika', 'prefix': 'kw',
+             'stem': 'andika', 'perfective': 'anditse',
+             'perfective_short': 'tse', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+                kv.Verb(
+            {'dbid': '3562', 'lemma': 'kwoza', 'prefix': 'kw',
+             'stem': 'oza', 'perfective': 'ogeje',
+             'perfective_short': 'geje', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+                kv.Verb(
+            {'dbid': '2236', 'lemma': 'kwiruka', 'prefix': 'kw',
+             'stem': 'iruka', 'perfective': 'irutse',
+             'perfective_short': 'tse', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+                kv.Verb(
+            {'dbid': '3120', 'lemma': 'kumira', 'prefix': 'ku',
+             'stem': 'mira', 'perfective': 'mize',
+             'perfective_short': 'ze', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+                kv.Verb(
+            {'dbid': '3209', 'lemma': 'kunanirana', 'prefix': 'ku',
+             'stem': 'nanirana', 'perfective': 'naniranye',
+             'perfective_short': 'nye', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+                kv.Verb(
+            {'dbid': '2795', 'lemma': 'gukora', 'prefix': 'gu',
+             'stem': 'kora', 'perfective': 'koze',
+             'perfective_short': 'ze', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+                kv.Verb(
+            {'dbid': '2796', 'lemma': 'gukora', 'prefix': 'gu',
+             'stem': 'kora', 'perfective': 'koye',
+             'perfective_short': 'ye', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+                kv.Verb(
+            {'dbid': '1814', 'lemma': 'guhuhuta', 'prefix': 'gu',
+             'stem': 'hūhūta', 'perfective': 'hūhūse',
+             'perfective_short': 'se', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': 'x', 'alternative_singular': '',
+             'alternative_stem': 'huhuta', 'alternative_perfective': 'hūhūshe',
+             'plural_irregular': ''}),
+                kv.Verb(
+            {'dbid': '1814', 'lemma': 'guhuhuta', 'prefix': 'gu',
+             'stem': 'hūhūta', 'perfective': 'hūhūshe',
+             'perfective_short': '', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': 'x', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+                kv.Verb(
+            {'dbid': '5585', 'lemma': 'gupfa', 'prefix': 'gu',
+             'stem': 'pfa', 'perfective': 'pfūye',
+             'perfective_short': 'pfūye', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+                kv.Verb(
+            {'dbid': '1223', 'lemma': 'kugira', 'prefix': 'ku',
+             'stem': 'gira', 'perfective': 'gize',
+             'perfective_short': 'gize ', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+                kv.Verb(
+            {'dbid': '4222', 'lemma': 'gusaba', 'prefix': 'gu',
+             'stem': 'saba', 'perfective': 'savye',
+             'perfective_short': 'vye', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+                kv.Verb(
+            {'dbid': '3984', 'lemma': 'kurima', 'prefix': 'ku',
+             'stem': 'rima', 'perfective': 'rimye',
+             'perfective_short': 'mye', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+                kv.Verb(
+            {'dbid': '6364', 'lemma': 'guhagarara', 'prefix': 'gu',
+             'stem': 'hagarara', 'perfective': 'hagaraze',
+             'perfective_short': 'ze', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+                kv.Verb(
+            {'dbid': '1135', 'lemma': 'kugenda', 'prefix': 'ku',
+             'stem': 'genda', 'perfective': 'giye',
+             'perfective_short': 'giye', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+                kv.Verb(
+            {'dbid': '1406', 'lemma': 'guha', 'prefix': 'gu',
+             'stem': 'ha', 'perfective': 'haye',
+             'perfective_short': 'haye', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''})
                 ]
         freq_simple = {
             'wagira': 3, 'wagize': 3, 'waragira': 3, 'waragize': 3,
@@ -584,18 +741,18 @@ class TestVerbLists(TestCase):
         for i in data:
             i.set_questions()
             print(i.lemma, i.alternatives)
-        collection, freq_verbs = kv.collect_verbs(data, freq_simple)
-        for i in freq_verbs:
+        collection, not_collected = kv.collect_verbs(data, freq_simple)
+        for i in not_collected:
             print(i)
         # TODO check if they should be collected:
         # ukwoza, namize, nomize, nuwandika
-        self.assertEqual(len(freq_verbs), 4)
+        self.assertEqual(len(not_collected), 4)
         self.assertEqual(len(collection), 9)
         types = 0
         for i in collection:
             types += i[4]
             print(i)
-        self.assertEqual(len(freq_verbs), len(freq_simple)-types)
+        self.assertEqual(len(not_collected), len(freq_simple)-types)
         self.assertEqual(collection[0][0], 'kugira')
         self.assertEqual(collection[0][4], 64)
         self.assertEqual(collection[1][0], 'kwandika')
@@ -618,19 +775,27 @@ class TestVerbLists(TestCase):
     def test_collect_verbs_only_alternative_verb_hits(self):
         """Test only one of two spelling-alternatives
         from a verbs finds types"""
-        data = [kv.Verb(['1114', 'guhuhuta', '',
-                         'gu', 'hūhūta', 'hūhūshe', '',
-                         '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                         'x', '', '', '',
-                         '', '0', '', '0', '', 'NULL']),
-                kv.Verb(['1135', 'kugenda', '',
-                         'ku', 'gēnda', 'giye', 'giye',
-                         '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                         '', '', '', '', '', '0', '', '0', '', 'NULL']),
-                kv.Verb(['1406', 'guha', '',
-                         'gu', 'ha', 'haye', 'haye',
-                         '', '0', 'NULL', 'NULL', 'NULL', 'NULL',
-                         '', '', '', '', '', '0', '', '0', '', 'NULL'])
+        data = [kv.Verb(
+            {'dbid': '1114', 'lemma': 'guhuhuta', 'prefix': 'gu',
+             'stem': 'hūhūta', 'perfective': 'hūhūshe',
+             'perfective_short': '', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': 'x', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+                kv.Verb(
+            {'dbid': '1135', 'lemma': 'kugenda', 'prefix': 'ku',
+             'stem': 'gēnda', 'perfective': 'giye',
+             'perfective_short': 'giye', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''}),
+                kv.Verb(
+            {'dbid': '1406', 'lemma': 'guha', 'prefix': 'gu',
+             'stem': 'ha', 'perfective': 'haye',
+             'perfective_short': 'haye', 'prefix_plural': '', 'pos': 'VERB',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''})
                 ]
         for i in data:
             i.set_questions()

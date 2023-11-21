@@ -168,10 +168,11 @@ def check_search_wtl(whichtags, whichwords):
 def get_resources():
     """load Named Entities and db_kirundi
     """
-    dbrundi = dbc.load_db_kirundi()
-    dbrundi.update(
+    database = dbc.AllRundiRows(sd.ResourceNames.fn_db)
+    db_rundi = dbc.load_db_kirundi(database.rows)
+    db_rundi.update(
         {"names": dbc.complete_location_language_person(dbc.load_ne())})
-    return dbrundi
+    return db_rundi
 
 
 if __name__ == "__main__":
