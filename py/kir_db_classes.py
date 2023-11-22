@@ -22,10 +22,10 @@ class AllRundiRows:
         self.map_db_to_row(filename)
 
     def __str__(self):
-        return f"number of .rows: {len(self.rows)}"
+        return f"number of AllRundiRows.rows: {len(self.rows)}"
 
     def __repr__(self):
-        return f"number of .rows: {len(self.rows)}"
+        return f"number of AllRundiRows.rows: {len(self.rows)}"
 
     def map_db_to_row(self, filename):
         """reads db_kirundi"""
@@ -35,8 +35,57 @@ class AllRundiRows:
                 self.rows.append(kv.RundiDictEntry(entry))
 
 
-# class NeEntry:
-#     def __init__(self, row):
+class AllNeRows:
+    """all Named Entities"""
+
+    def __init__(self, filename=sd.ResourceNames.fn_named_entities):
+        self.rows = []
+        self.map_ne_to_row(filename)
+
+    def __str__(self):
+        return f"number of AllNeRows.rows: {len(self.rows)}"
+
+    def __repr__(self):
+        return f"number of AllNeRows.rows: {len(self.rows)}"
+
+    def map_ne_to_row(self, filename):
+        """reads names and foreign words"""
+        with open(filename, encoding="utf-8") as csv_file:
+            csv_reader = csv.DictReader(csv_file, delimiter=";")
+            for entry in csv_reader:
+                self.rows.append(EnEntry(entry))
+
+
+class EnEntry:
+    """single Named-Entity entry mapped"""
+
+    def __init__(self, ne_entry):
+        self.row = {}
+        self.read_ne_entry(ne_entry)
+
+    def __str__(self):
+        return f"lemma: '{self.row.get('lemma')}', "\
+                + f"pos: '{self.row.get('pos')}',\n"\
+                + f"alternatives: '{self.row.get('alternatives')}"
+
+    def __repr__(self):
+        return f"lemma: '{self.row.get('lemma')}', "\
+                + f"pos: '{self.row.get('pos')}',\n"\
+                + f"alternatives: '{self.row.get('alternatives')}'"
+
+    def read_ne_entry(self, ne_entry):
+        """dao ne_kirundi"""
+        ne_rundi_map = [['lemma', 'entry'],
+                        ['pos', 'PoS'],
+                        ['alternatives', 'alternatives']]
+        for i in ne_rundi_map:
+            if ne_entry.get(i[1]):
+                my_value = unidecode(ne_entry.get(i[1]).strip())
+            else:
+                # None or ""
+                my_value = ne_entry.get(i[1])
+            self.row.update({i[0]: my_value})
+
 
 
 def load_db_kirundi(rows):
@@ -102,7 +151,7 @@ def load_db_kirundi(rows):
     return dbrundi
 
 
-def load_ne(filename=sd.ResourceNames.fn_namedentities):
+def load_ne(rows):
     """reads file Named Entites and foreign words
     returns list of objects"""
     namedentities = []
@@ -110,25 +159,21 @@ def load_ne(filename=sd.ResourceNames.fn_namedentities):
     per = []
     lng = []
     foreign = []
-    with open(filename, encoding="utf-8") as csv_file:
-        csv_reader = csv.reader(csv_file, delimiter=";")
-        for row in csv_reader:
-            if row[2] == "F":
-                foreign.append(Foreign(row))
-            elif row[2] == "PROPN_LOC":
-                loc.append(NamedEntities(row))
-            elif row[2] == "PROPN_PER":
-                per.append(NamedEntities(row))
-            elif row[2] == "PROPN_LNG":
-                lng.append(NamedEntities(row))
-            else:
-                enti = NamedEntities(row)
-                enti.questions = enti.alternatives
-                namedentities.append(enti)
-    csv_file.close()
-    # remove column names
-    if namedentities[0].lemma == "entry":
-        namedentities.pop(0)
+    print('in load ne: rows0=', rows[:5])
+    for entry in rows:
+        row = entry.row
+        if row.get('pos') == "F":
+            foreign.append(Foreign(row))
+        elif row.get('pos') == "PROPN_LOC":
+            loc.append(NamedEntities(row))
+        elif row.get('pos') == "PROPN_PER":
+            per.append(NamedEntities(row))
+        elif row.get('pos') == "PROPN_LNG":
+            lng.append(NamedEntities(row))
+        else:
+            enti = NamedEntities(row)
+            enti.questions = enti.alternatives
+            namedentities.append(enti)
     ne_dict = {"names": namedentities,
                'loc': loc,
                'per': per,
@@ -212,12 +257,9 @@ class Foreign:
     """
 
     def __init__(self, row):
-        columns = [0,  # entry0-lemma
-                   2]  # entry1-PoS
-        entry = [unidecode(row[x].strip().lower()) for x in columns]
-        self.lemma = entry[0].strip()
+        self.lemma = unidecode(row.get('lemma')).strip().lower()
         self.dbid = ""
-        self.pos = entry[1].strip().upper()
+        self.pos = row.get('pos').strip().upper()
         self.questions = [self.lemma,]
 
     def __str__(self):
@@ -233,16 +275,13 @@ class NamedEntities:
     """
 
     def __init__(self, row):
-        columns = [0,  # entry0-lemma
-                   2,  # entry1-PoS
-                   4]  # entry2-alternatives
-        entry = [unidecode(row[x].strip().lower()) for x in columns]
         self.row = row
         self.dbid = ""
-        self.lemma = entry[0].strip()
-        self.pos = entry[1].strip().upper()
-        if entry[2]:
-            self.alternatives = [i.strip() for i in entry[2].split(";")]
+        self.lemma = unidecode(row.get('lemma')).strip().lower()
+        self.pos = row.get('pos').strip().upper()
+        if row.get('alternatives'):
+            self.alternatives = [unidecode(i).strip().lower() for i in row.get(
+                'alternatives').split(";")]
         else:
             self.alternatives = []
         self.alternatives.insert(0, self.lemma)
@@ -348,7 +387,7 @@ class NamedEntities:
         takes lemma_name"""
         new = None
         if self.pos == "PROPN_LOC":
-            self.row[0] = langname
+            self.row.update({'lemma': langname})
             new = NamedEntities(self.row)
             new.pos = "PROPN_LNG"
             new.alternatives = self.alternatives
@@ -356,11 +395,11 @@ class NamedEntities:
         return new
 
     def create_new_person(self, pername):
-        """creates new language instance from location-data
+        """creates new person instance from location-data
         takes lemma_name"""
         new = None
         if self.pos == "PROPN_LOC":
-            self.row[0] = pername
+            self.row.update({'lemma': pername})
             new = NamedEntities(self.row)
             new.pos = "PROPN_PER"
             new.alternatives = self.alternatives
@@ -762,7 +801,7 @@ def collect_pronouns(db_pronouns, freq_d):
             * and changed frequency-dictionary {found pronouns are removed}
     """
     collection = []
-    freq_prn = freq_d
+    freq_prn = freq_d.copy()
 
     # pronouns made with regex
     prns_made_here = build_pronouns()
@@ -817,8 +856,8 @@ def collect_names(names_and_foreign_words, freq_list):
                                                len(names_and_foreign_words))
     if collection:
         collection.sort(key=lambda x: x[3], reverse=True)
-        freq_names = {x: y for x, y in freq_names.items() if y != 0}
-    return (collection, freq_names)
+        not_collected = {x: y for x, y in freq_names.items() if y != 0}
+    return (collection, not_collected)
 
 
 def collect_adv_plus(db_advplus, freq_d):

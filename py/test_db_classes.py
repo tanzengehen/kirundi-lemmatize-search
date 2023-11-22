@@ -381,15 +381,53 @@ class TestPronouns(TestCase):
     """Test cases for Pronouns
     from db and built, alternatives, all classes"""
 
-    @classmethod
-    def setUpClass(cls):
-        """ Connect and load data needed by tests """
-        global DB_DATA
-        global FREQ_SIM
-        # with open("bsp.csv") as csv_data:
-        #     DB_DATA = csv.reader(csv_data, delimiter=";")
+    def test_init(self):
+        """Test direct initializations"""
+        # single instance
+        data = kv.Lemma(
+            {'dbid': '8274', 'lemma': 'iki', 'prefix': '',
+             'stem': 'iki', 'perfective': '',
+             'perfective_short': '', 'prefix_plural': '', 'pos': 'PRON',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''})
+        self.assertEqual(data.lemma, "iki")
+        self.assertEqual(data.dbid, "8274")
+        self.assertEqual(data.pos, "PRON")
+        self.assertEqual(data.questions, ["iki",])
 
-        DB_DATA = [kv.Lemma(
+    def test_build_pronouns(self):
+        """Test pronouns composed by the program"""
+        pronouns = dbc.build_pronouns()
+        self.assertEqual(len(pronouns), 31)
+        self.assertEqual(pronouns[5].lemma, '-o')
+        self.assertEqual(pronouns[5].dbid, 40002)
+        self.assertEqual(pronouns[5].questions,
+                         ['^([bkrt]?w|[rv]?y|[bchkz])o?$',])
+        self.assertEqual(pronouns[9].lemma, 'nyene')
+        self.assertEqual(pronouns[9].dbid, 3402)
+        self.assertEqual(len(pronouns[9].questions), 4)
+        self.assertEqual(
+            pronouns[9].questions[0],
+            '^(na)?((([jw]|[mt]w)e)|([bkrt]?w|[rv]?y|[bchkz])o)nyene$')
+        self.assertEqual(pronouns[13].lemma, '-ryo')
+        self.assertEqual(pronouns[13].dbid, 40014)
+        self.assertEqual(pronouns[13].questions,
+                         ['^((a?[bhk]a|i?[bkrz]i|u?[bkrt]u)|[aiu])ryo$'])
+        self.assertEqual(pronouns[23].lemma, 'si-')
+        self.assertEqual(pronouns[23].dbid, 40012)
+        self.assertEqual(pronouns[23].questions,
+                         ['^si([bkrt]?w|[rv]?y|[bchkz])o?$'])
+        self.assertEqual(pronouns[30].lemma, '-abo')
+        self.assertEqual(pronouns[30].dbid, 8098)
+        self.assertEqual(len(pronouns[30].questions), 2)
+        self.assertEqual(
+            pronouns[30].questions[1],
+            '^([bkrt]?w|[rv]?y|[bchkz])abo$')
+
+    def test_collect_pronouns(self):
+        """Test collect pronouns from db and composed ones """
+        data = [kv.Lemma(
             {'dbid': '8274', 'lemma': 'iki', 'prefix': '',
              'stem': 'iki', 'perfective': '',
              'perfective_short': '', 'prefix_plural': '', 'pos': 'PRON',
@@ -425,7 +463,7 @@ class TestPronouns(TestCase):
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
         ]
-        FREQ_SIM = {
+        freq_simple = {
             'iki': 6373, 'igi': 3,
             'twebge': 5, 'twebwe': 2060, 'tweho': 130,
             'abiwabo': 15, 'biwabo': 1, 'iwabo': 600, 'iziwabo': 2,
@@ -441,57 +479,9 @@ class TestPronouns(TestCase):
             'catwo': 2, 'cavyo': 49, 'cawo': 21, 'cayo': 134, 'cazo': 13,
             'habo': 4, 'haho': 4, 'haryo': 2
             }
-
-    @classmethod
-    def tearDownClass(cls):
-        """Disconnect from database"""
-        global DB_DATA
-        global FREQ_SIM
-        DB_DATA = None
-        FREQ_SIM = None
-
-    def test_init(self):
-        """Test direct initializations"""
-        # single instance
-        self.assertEqual(DB_DATA[0].lemma, "iki")
-        self.assertEqual(DB_DATA[0].dbid, "8274")
-        self.assertEqual(DB_DATA[0].pos, "PRON")
-        self.assertEqual(DB_DATA[0].questions, ["iki",])
         # test-db
-        self.assertEqual(len(DB_DATA), 5)
-
-    def test_build_pronouns(self):
-        """Test composed pronouns"""
-        pronouns = dbc.build_pronouns()
-        self.assertEqual(len(pronouns), 31)
-        self.assertEqual(pronouns[5].lemma, '-o')
-        self.assertEqual(pronouns[5].dbid, 40002)
-        self.assertEqual(pronouns[5].questions,
-                         ['^([bkrt]?w|[rv]?y|[bchkz])o?$',])
-        self.assertEqual(pronouns[9].lemma, 'nyene')
-        self.assertEqual(pronouns[9].dbid, 3402)
-        self.assertEqual(len(pronouns[9].questions), 4)
-        self.assertEqual(
-            pronouns[9].questions[0],
-            '^(na)?((([jw]|[mt]w)e)|([bkrt]?w|[rv]?y|[bchkz])o)nyene$')
-        self.assertEqual(pronouns[13].lemma, '-ryo')
-        self.assertEqual(pronouns[13].dbid, 40014)
-        self.assertEqual(pronouns[13].questions,
-                         ['^((a?[bhk]a|i?[bkrz]i|u?[bkrt]u)|[aiu])ryo$'])
-        self.assertEqual(pronouns[23].lemma, 'si-')
-        self.assertEqual(pronouns[23].dbid, 40012)
-        self.assertEqual(pronouns[23].questions,
-                         ['^si([bkrt]?w|[rv]?y|[bchkz])o?$'])
-        self.assertEqual(pronouns[30].lemma, '-abo')
-        self.assertEqual(pronouns[30].dbid, 8098)
-        self.assertEqual(len(pronouns[30].questions), 2)
-        self.assertEqual(
-            pronouns[30].questions[1],
-            '^([bkrt]?w|[rv]?y|[bchkz])abo$')
-
-    def test_collect_pronouns(self):
-        """Test collect pronouns from db and composed ones """
-        collection, freq_no_prn = dbc.collect_pronouns(DB_DATA, FREQ_SIM)
+        self.assertEqual(len(data), 5)
+        collection, not_collected = dbc.collect_pronouns(data, freq_simple)
         types_num = 0
         for i in collection:
             types_num += i[4]
@@ -500,11 +490,11 @@ class TestPronouns(TestCase):
         # collected lemmata
         self.assertEqual(len(collection), 5)
         # not collected
-        self.assertEqual(len(freq_no_prn), 13)
+        self.assertEqual(len(not_collected), 13)
         for no_pronoun in ['igi', 'ahabo', 'akabo', 'icabo', 'iryabo',
                            'ivyabo', 'iyabo', 'izabo', 'mwabo', 'nyabo',
                            'ubwabo', 'urwabo', 'utwabo']:
-            self.assertIn(no_pronoun, freq_no_prn)
+            self.assertIn(no_pronoun, not_collected)
         # right lemma for merged types
         self.assertEqual(collection[0][0], '-no')
 
@@ -517,12 +507,24 @@ class TestAdverbsEtc(TestCase):
     conjunctions, interjections
     lemmata, alternatives"""
 
-    @classmethod
-    def setUpClass(cls):
-        """ Connect and load data needed by tests """
-        global DB_DATA
-        global FREQ_SIM
-        DB_DATA = [kv.Lemma(
+    def test_init(self):
+        """Test direct initializations"""
+        # test single instance
+        data = kv.Lemma(
+            {'dbid': '7121', 'lemma': 'ubu nyene', 'prefix': '',
+             'stem': 'ubu nyene', 'perfective': '',
+             'perfective_short': '', 'prefix_plural': '', 'pos': 'ADV',
+             'alternatives': 'ubunyene', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''})
+        self.assertEqual(data.lemma, "ubu nyene")
+        self.assertEqual(data.dbid, "7121")
+        self.assertEqual(data.pos, "ADV")
+        self.assertEqual(data.questions, ["ubu nyene", "ubunyene"])
+
+    def test_collect_adverbs_plus(self):
+        """Test collection unchanging words"""
+        data = [kv.Lemma(
             {'dbid': '7121', 'lemma': 'ubu nyene', 'prefix': '',
              'stem': 'ubu nyene', 'perfective': '',
              'perfective_short': '', 'prefix_plural': '', 'pos': 'ADV',
@@ -559,56 +561,28 @@ class TestAdverbsEtc(TestCase):
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
             ]
-        FREQ_SIM = {
+        freq_simple = {
             'mirongwitatu': 19, 'mirongoitatu': 1, 'mirongitatu': 3,
             'samunani': 13, 'iruhande': 56, 'ubu': 2927, 'nyene': 1544,
             'mirongo': 202,
             }
-
-    @classmethod
-    def tearDownClass(cls):
-        """Disconnect from database"""
-        global DB_DATA
-        global FREQ_SIM
-        DB_DATA = None
-        FREQ_SIM = None
-
-    def test_init(self):
-        """Test direct initializations"""
-        # test single instance
-        ubunyene = kv.Lemma(
-            {'dbid': '7121', 'lemma': 'ubu nyene', 'prefix': '',
-             'stem': 'ubu nyene', 'perfective': '',
-             'perfective_short': '', 'prefix_plural': '', 'pos': 'ADV',
-             'alternatives': 'ubunyene', 'alternative_singular': '',
-             'alternative_stem': '', 'alternative_perfective': '',
-             'plural_irregular': ''})
-        self.assertEqual(ubunyene.lemma, "ubu nyene")
-        self.assertEqual(ubunyene.dbid, "7121")
-        self.assertEqual(ubunyene.pos, "ADV")
-        # test test-database
-        self.assertEqual(len(DB_DATA), 5)
-        self.assertEqual(DB_DATA[0].lemma, "ubu nyene")
-        self.assertEqual(DB_DATA[0].dbid, "7121")
-        self.assertEqual(DB_DATA[0].pos, "ADV")
-        self.assertEqual(DB_DATA[0].questions, ["ubu nyene", "ubunyene"])
-        self.assertEqual(DB_DATA[1].pos, "CONJ")
-        self.assertEqual(DB_DATA[2].pos, "INTJ")
-        self.assertEqual(DB_DATA[3].pos, "PREP")
-
-    def test_collect_adverbs_plus(self):
-        """Test collection unchanging words"""
-        collection, freq_no_advbs = dbc.collect_adv_plus(DB_DATA, FREQ_SIM)
+        self.assertEqual(len(data), 5)
+        self.assertEqual(data[0].questions, ["ubu nyene", "ubunyene"])
+        self.assertEqual(data[1].pos, "CONJ")
+        self.assertEqual(data[2].pos, "INTJ")
+        self.assertEqual(data[3].pos, "PREP")
+        collection, not_collected = dbc.collect_adv_plus(data, freq_simple)
         types_num = 0
         for i in collection:
             types_num += i[4]
-            print(i)
         # found types
         self.assertEqual(types_num, 3)
         # found lemmata
         self.assertEqual(len(collection), 2)
         # not collected
-        self.assertEqual(len(freq_no_advbs), 5)
+        self.assertEqual(len(not_collected), 5)
+        for i in ['samunani', 'mirongoitatu', 'ubu', 'nyene', 'mirongo']:
+            self.assertIn(i, not_collected)
 
 
 ###############################################################
@@ -618,12 +592,36 @@ class TestExclamations(TestCase):
     """Test cases for Exclamations
     from db and built"""
 
-    @classmethod
-    def setUpClass(cls):
-        """ Connect and load data needed by tests """
-        global DB_DATA
-        global FREQ_SIM
-        DB_DATA = [kv.Lemma(
+    def test_init(self):
+        """Test direct initializations"""
+        data = kv.Lemma(
+            {'dbid': '818', 'lemma': 'ego', 'prefix': '',
+             'stem': 'ego', 'perfective': '',
+             'perfective_short': '', 'prefix_plural': '', 'pos': 'INTJ',
+             'alternatives': '', 'alternative_singular': '',
+             'alternative_stem': '', 'alternative_perfective': '',
+             'plural_irregular': ''})
+        self.assertEqual(data.lemma, "ego")
+        self.assertEqual(data.dbid, "818")
+        self.assertEqual(data.pos, "INTJ")
+        self.assertEqual(data.questions, ["ego",])
+
+    def test_build_exclamations(self):
+        """Test build exclamations"""
+        exclamations = dbc.build_exclamations()
+        self.assertEqual(len(exclamations), 12)
+        for i in exclamations:
+            self.assertIn(
+                i.lemma, ["ego", "oya", "ha", "la", "aah", "ooh", "mh", "hee",
+                          "kyee", "alleluia", "alo", "euh"])
+        self.assertEqual(exclamations[3].dbid, 30001)
+        self.assertEqual(exclamations[3].pos, "INTJ")
+        self.assertEqual(exclamations[3].questions, [r"^(la)+$",])
+
+    def test_collect_exclamations(self):
+        """Test collect exclamations
+        from db and built with regex"""
+        data = [kv.Lemma(
             {'dbid': '818', 'lemma': 'ego', 'prefix': '',
              'stem': 'ego', 'perfective': '',
              'perfective_short': '', 'prefix_plural': '', 'pos': 'INTJ',
@@ -652,54 +650,23 @@ class TestExclamations(TestCase):
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
             ]
-        FREQ_SIM = {'karibu': 5, 'egome': 1, 'ego': 38, 'eeeego': 11,
-                    'eeeeh': 191, 'eeego': 15, 'eeegoo': 2, 'oyaa': 117,
-                    'oyaaa': 99, 'oya': 2785, 'oyayeeeee': 1, 'oyaye': 128,
-                    'oyaha': 27, 'oyaaaah': 2, 'oyaah': 2
-                    }
-
-    @classmethod
-    def tearDownClass(cls):
-        """Disconnect from database"""
-        global DB_DATA
-        global FREQ_SIM
-        DB_DATA = None
-        FREQ_SIM = None
-
-    def test_init(self):
-        """Test direct initializations"""
-        self.assertEqual(len(DB_DATA), 4)
-        self.assertEqual(DB_DATA[0].lemma, "ego")
-        self.assertEqual(DB_DATA[0].dbid, "818")
-        self.assertEqual(DB_DATA[0].pos, "INTJ")
-        self.assertEqual(DB_DATA[0].questions, ["ego",])
-
-    def test_build_exclamations(self):
-        """Test build exclamations"""
-        exclamations = dbc.build_exclamations()
-        self.assertEqual(len(exclamations), 12)
-        for i in exclamations:
-            self.assertIn(
-                i.lemma, ["ego", "oya", "ha", "la", "aah", "ooh", "mh", "hee",
-                          "kyee", "alleluia", "alo", "euh"])
-        self.assertEqual(exclamations[3].dbid, 30001)
-        self.assertEqual(exclamations[3].pos, "INTJ")
-        self.assertEqual(exclamations[3].questions, [r"^(la)+$",])
-
-    def test_collect_exclamations(self):
-        """Test collect exclamations
-        from db and built with regex"""
-        collection, freq_no_excl = dbc.collect_exclamations(DB_DATA, FREQ_SIM)
+        freq_simple = {'karibu': 5, 'egome': 1, 'ego': 38, 'eeeego': 11,
+                       'eeeeh': 191, 'eeego': 15, 'eeegoo': 2, 'oyaa': 117,
+                       'oyaaa': 99, 'oya': 2785, 'oyayeeeee': 1, 'oyaye': 128,
+                       'oyaha': 27, 'oyaaaah': 2, 'oyaah': 2
+                       }
+        self.assertEqual(len(data), 4)
+        collection, not_collected = dbc.collect_exclamations(data, freq_simple)
         types_num = 0
         for i in collection:
             types_num += i[4]
-        self.assertEqual(types_num + len(freq_no_excl), len(FREQ_SIM))
+        self.assertEqual(types_num + len(not_collected), len(freq_simple))
         # found types
         self.assertEqual(types_num, 10)
         # found lemmata
         self.assertEqual(len(collection), 4)
         # not colllected
-        self.assertEqual(len(freq_no_excl), 5)
+        self.assertEqual(len(not_collected), 5)
 
 
 ############################################################################
@@ -714,13 +681,17 @@ class TestForeign(TestCase):
         global NE_DATA
         global FREQ_SIM
         NE_DATA = [
-            dbc.Foreign(['blé ', '', 'f', '', '']),
-            dbc.Foreign(['Gärten', '', 'F', '', '']),
-            dbc.Foreign([' Noël', '', 'F', '', '']),
-            dbc.NamedEntities(['euro', '', 'PROPN_CUR', '', 'EUR; euros']),
-            dbc.NamedEntities(['barça', '', 'PROPN_ORG', '', 'barca']),
-            dbc.NamedEntities(['dmn-tre', '', 'PROPN_SCI', '', 'dmn;tre']),
-            dbc.NamedEntities(['Nsengiyumva', '', 'PROPN_NAM', '', '']),
+            dbc.Foreign({'lemma': 'blé', 'pos': 'f', 'alternatives': ''}),
+            dbc.Foreign({'lemma': 'Gärten', 'pos': 'F', 'alternatives': ''}),
+            dbc.Foreign({'lemma': ' Noël', 'pos': 'F', 'alternatives': ''}),
+            dbc.NamedEntities({'lemma': 'euro', 'pos': 'PROPN_CUR',
+                               'alternatives': 'EUR; euros'}),
+            dbc.NamedEntities({'lemma': 'barça', 'pos': 'PROPN_ORG',
+                               'alternatives': 'barca'}),
+            dbc.NamedEntities({'lemma': 'dmn-tre', 'pos': 'PROPN_SCI',
+                               'alternatives': 'dmn;tre'}),
+            dbc.NamedEntities({'lemma': 'Nsengiyumva', 'pos': 'PROPN_NAM',
+                               'alternatives': ''}),
             ]
         FREQ_SIM = {
             'ble': 2, 'garten': 7, 'noel': 33, 'euro': 12, 'euros': 12,
@@ -739,26 +710,28 @@ class TestForeign(TestCase):
     def test_initialization_foreign(self):
         """Test direct initialization foreign words"""
         # single instance
-        ble = dbc.Foreign(['blé ', '', 'f', '', ''])
-        self.assertEqual(ble.lemma, "ble")
-        self.assertEqual(ble.dbid, "")
-        self.assertEqual(ble.pos, "F")
+        data = dbc.Foreign({'lemma': 'ble', 'pos': 'f', 'alternatives': ''})
+        self.assertEqual(data.lemma, "ble")
+        self.assertEqual(data.dbid, "")
+        self.assertEqual(data.pos, "F")
+        self.assertEqual(data.questions, ["ble",])
         # test test-database
         self.assertEqual(len(NE_DATA), 7)
-        self.assertEqual(NE_DATA[0].questions, ["ble",])
         self.assertEqual(NE_DATA[1].lemma, "garten")
         self.assertEqual(NE_DATA[2].lemma, "noel")
 
     def test_initialization_names(self):
         """Test direct initialization names"""
         # single instance
-        euro = dbc.NamedEntities(['euro', '', 'PROPN_CUR', '', 'EUR; euros'])
+        euro = dbc.NamedEntities({'lemma': 'euro', 'pos': 'PROPN_CUR',
+                                  'alternatives': 'EUR; euros'})
         self.assertEqual(euro.lemma, "euro")
         self.assertEqual(len(euro.alternatives), 3)
-        # test test-database
-        for i in NE_DATA[3].alternatives:
+        for i in euro.alternatives:
             self.assertIn(i, ['euro', 'eur', 'euros'])
-        self.assertEqual(NE_DATA[3].pos, "PROPN_CUR")
+        self.assertEqual(euro.pos, "PROPN_CUR")
+
+        # test test-database
         self.assertEqual(NE_DATA[4].lemma, "barca")
         self.assertEqual(NE_DATA[4].pos, "PROPN_ORG")
         self.assertEqual(NE_DATA[4].alternatives, ["barca"])
@@ -770,11 +743,27 @@ class TestForeign(TestCase):
 
     def test_collect_names(self):
         """Test collect names and foreign words"""
-        data = NE_DATA[:3]
-        for i in NE_DATA[3:]:
+        data =[
+            dbc.Foreign({'lemma': 'blé', 'pos': 'f', 'alternatives': ''}),
+            dbc.Foreign({'lemma': 'Gärten', 'pos': 'F', 'alternatives': ''}),
+            dbc.Foreign({'lemma': ' Noël', 'pos': 'F', 'alternatives': ''})]
+        for i in [dbc.NamedEntities({'lemma': 'euro', 'pos': 'PROPN_CUR',
+                                     'alternatives': 'EUR; euros'}),
+                  dbc.NamedEntities({'lemma': 'barça', 'pos': 'PROPN_ORG',
+                                     'alternatives': 'barca'}),
+                  dbc.NamedEntities({'lemma': 'dmn-tre', 'pos': 'PROPN_SCI',
+                                     'alternatives': 'dmn;tre'}),
+                  dbc.NamedEntities({'lemma': 'Nsengiyumva', 'pos': 'PROPN_NAM',
+                                     'alternatives': ''}),
+                  ]:
             i.questions = i.alternatives
             data.append(i)
-        collection, freq_no_names = dbc.collect_names(data, FREQ_SIM)
+        freq_simple = {
+            'ble': 2, 'garten': 7, 'noel': 33, 'euro': 12, 'euros': 12,
+            'nyumva': 14, 'eur': 6, 'barca': 8, 'dmn': 6, 'tre': 6,
+            'nsengiyumva': 15
+            }
+        collection, not_collected = dbc.collect_names(data, freq_simple)
         self.assertEqual(len(collection), 7)
         types_num = 0
         for i in collection:
@@ -787,7 +776,7 @@ class TestForeign(TestCase):
         for i in collection[1][5:]:
             self.assertIn(i[0], ['euro', 'eur', 'euros'])
         # not collected
-        self.assertEqual(len(freq_no_names), 1)
+        self.assertEqual(len(not_collected), 1)
 
 
 ############################################################################
@@ -796,58 +785,44 @@ class TestForeign(TestCase):
 class TestNE(TestCase):
     """Test cases for related location-inhabitants-language Named Entities"""
 
-    @classmethod
-    def setUpClass(cls):
-        """ Connect and load data needed by tests """
-        global FREQ_SIM
-        FREQ_SIM = {}
-
-    @classmethod
-    def tearDownClass(cls):
-        """Disconnect from database"""
-        global FREQ_SIM
-        FREQ_SIM = None
-
-    def setUp(self):
-        global NE_DATA
-        NE_DATA = [
-            dbc.NamedEntities(['misiri', '',
-                               'PROPN_loc', '',
-                               'egypt;egiputa;misri;mirisi']),
-            dbc.NamedEntities(['ubudagi', '',
-                               'PROPN_loc', '',
-                               'dagi;german;germany']),
-            dbc.NamedEntities(['igihebreyi', '',
-                               'PROPN_LNG', '', 'hebrew;hebreyi']),
-            dbc.NamedEntities(['ikinyarwanda', '',
-                               'PROPN_LNG', '', 'gwanda']),
-            dbc.NamedEntities(['ikidagi	', '',
-                               'PROPN_LNG', '', 'dagi;dage']),
-            dbc.NamedEntities(['umudagi', '',
-                               'PROPN_PER', '', 'german;dagi']),
-            dbc.NamedEntities(['umworomo', '',
-                               'PROPN_PER', '', 'oromo']),
-            ]
-
-    def tearDown(self):
-        global NE_DATA
-        NE_DATA = []
-
     def test_init_ne(self):
         """Test direct initialization locations, persons, languages"""
 
         # test single instance
-        ubudagi = dbc.NamedEntities(['ubudagi', '', 'PROPN_LOC', '',
-                                     'german;germany;dagi'])
-        self.assertEqual(ubudagi.lemma, 'ubudagi')
-        self.assertEqual(ubudagi.pos, "PROPN_LOC")
+        data = dbc.NamedEntities({'lemma': 'ubudagi',
+                                  'pos': 'PROPN_loc',
+                                  'alternatives': 'dagi;german;germany'})
+        self.assertEqual(data.lemma, 'ubudagi')
+        self.assertEqual(data.pos, "PROPN_LOC")
         # because it was a set we don't know the order of the alternatives
-        self.assertEqual(len(ubudagi.alternatives), 4)
+        self.assertEqual(len(data.alternatives), 4)
         for i in ['ubudagi', 'german', 'germany', 'dagi']:
-            self.assertIn(i, ubudagi.alternatives)
+            self.assertIn(i, data.alternatives)
 
         # test database
-        data = [x for x in NE_DATA]
+        data = [
+            dbc.NamedEntities({'lemma': 'misiri',
+                               'pos': 'PROPN_loc',
+                               'alternatives': 'egypt;egiputa;misri;mirisi'}),
+            dbc.NamedEntities({'lemma': 'ubudagi',
+                               'pos': 'PROPN_loc',
+                               'alternatives': 'dagi;german;germany'}),
+            dbc.NamedEntities({'lemma': 'igihebreyi',
+                               'pos': 'PROPN_LNG',
+                               'alternatives': 'hebrew;hebreyi'}),
+            dbc.NamedEntities({'lemma': 'ikinyarwanda',
+                               'pos': 'PROPN_LNG',
+                               'alternatives': 'gwanda'}),
+            dbc.NamedEntities({'lemma': 'ikidagi	',
+                               'pos': 'PROPN_LNG',
+                               'alternatives': 'dagi;dage'}),
+            dbc.NamedEntities({'lemma': 'umudagi',
+                               'pos': 'PROPN_PER',
+                               'alternatives': 'german;dagi'}),
+            dbc.NamedEntities({'lemma': 'umworomo',
+                               'pos': 'PROPN_PER',
+                               'alternatives': 'oromo'}),
+                ]
         self.assertEqual(len(data), 7)
         self.assertEqual(len(data[0].alternatives), 5)
         self.assertEqual(data[1].lemma, 'ubudagi')
@@ -856,7 +831,8 @@ class TestNE(TestCase):
             self.assertIn(i, data[1].alternatives)
         self.assertEqual(data[1].pos, "PROPN_LOC")
         self.assertEqual(
-           data[3].row, ['ikinyarwanda', '', 'PROPN_LNG', '', 'gwanda'])
+           data[3].row, {'lemma': 'ikinyarwanda',
+                         'pos': 'PROPN_LNG', 'alternatives': 'gwanda'})
         self.assertEqual(data[3].lemma, 'ikinyarwanda')
         self.assertEqual(len(data[3].alternatives), 2)
         for i in ['ikinyarwanda', 'gwanda']:
@@ -871,9 +847,27 @@ class TestNE(TestCase):
         """Test completing: location, language, person
         for all alternatives"""
         # prepare data
-        loc = [NE_DATA[0], NE_DATA[1]]
-        lng = [NE_DATA[2], NE_DATA[3], NE_DATA[4]]
-        per = [NE_DATA[5], NE_DATA[6]]
+        loc = [dbc.NamedEntities({'lemma': 'misiri',
+                                  'pos': 'PROPN_loc',
+                               'alternatives': 'egypt;egiputa;misri;mirisi'}),
+               dbc.NamedEntities({'lemma': 'ubudagi',
+                                  'pos': 'PROPN_loc',
+                                  'alternatives': 'dagi;german;germany'})]
+        lng = [dbc.NamedEntities({'lemma': 'igihebreyi',
+                                  'pos': 'PROPN_LNG',
+                                  'alternatives': 'hebrew;hebreyi'}),
+               dbc.NamedEntities({'lemma': 'ikinyarwanda',
+                                  'pos': 'PROPN_LNG',
+                                  'alternatives': 'gwanda'}),
+               dbc.NamedEntities({'lemma': 'ikidagi	',
+                                  'pos': 'PROPN_LNG',
+                                  'alternatives': 'dagi;dage'})]
+        per = [dbc.NamedEntities({'lemma': 'umudagi',
+                                  'pos': 'PROPN_PER',
+                                  'alternatives': 'german;dagi'}),
+               dbc.NamedEntities({'lemma': 'umworomo',
+                                  'pos': 'PROPN_PER',
+                                  'alternatives': 'oromo'})]
         # assumed that lemma without augmention is also in alternative-list
         for local in loc:
             local.alternatives = [i for i in local.alternatives
@@ -914,7 +908,12 @@ class TestNE(TestCase):
     def test_set_languages(self):
         """Test set questions for PROPN_LNG"""
         # prepare data
-        lng = [NE_DATA[2], NE_DATA[3]]
+        lng = [dbc.NamedEntities({'lemma': 'igihebreyi',
+                                  'pos': 'PROPN_LNG',
+                                  'alternatives': 'hebrew;hebreyi'}),
+               dbc.NamedEntities({'lemma': 'ikinyarwanda',
+                                  'pos': 'PROPN_LNG',
+                                  'alternatives': 'gwanda'})]
         for language in lng:
             language.alternatives = [i for i in language.alternatives
                                      if i[:3] not in ["iki", "igi"]]
@@ -931,9 +930,14 @@ class TestNE(TestCase):
     def test_set_persons(self):
         """Test set questions for PROPN_PER"""
         # prepare data
-        per = [NE_DATA[5], NE_DATA[6],
-               dbc.NamedEntities(['umuntu', '',
-                                  'PROPN_PER', '', ''])]
+        per = [dbc.NamedEntities({'lemma': 'umudagi',
+                                  'pos': 'PROPN_PER',
+                                  'alternatives': 'german;dagi'}),
+               dbc.NamedEntities({'lemma': 'umworomo',
+                                  'pos': 'PROPN_PER',
+                                  'alternatives': 'oromo'}),
+               dbc.NamedEntities({'lemma': 'umuntu',
+                                  'pos': 'PROPN_PER', 'alternatives': ''})]
         for person in per:
             person.alternatives = [i for i in person.alternatives
                                    if i[:3] not in ["umu", "umw"]]
@@ -951,20 +955,27 @@ class TestNE(TestCase):
         self.assertIn('^([na]ta|[mk]u|s?i)?bantu(kazi)?$',
                       per[2].questions)
 
-    def test_perla_from_ub(self):
-        """Test creation of Name (.lemma) of new language and person
-        constructed from locations with ubu/ubw"""
+    def test_perla_from_ub_iki_language(self):
+        """Test creation of Name (.lemma) of new iki-language and person
+        constructed from locations with ubu"""
         # prepare iki
-        local = NE_DATA[1]
+        local = dbc.NamedEntities({'lemma': 'ubudagi',
+                                   'pos': 'PROPN_loc',
+                                   'alternatives': 'dagi;german;germany'})
         local.alternatives = [i for i in local.alternatives if i[:3] != "ubu"]
         self.assertEqual(len(local.alternatives), 3)
         # test iki
         pername, langname = local.perla_from_ub()
         self.assertEqual(pername, "umudagi")
         self.assertEqual(langname, "ikidagi")
+
+    def test_perla_from_ub_igi_language(self):
+        """Test creation of Name (.lemma) of new igi-language and person
+        constructed from locations with ubu"""
         # prepare igi
-        local = dbc.NamedEntities(['ubuhindi', '', 'PROPN_LOC', '',
-                                   'hinde;hindu;india;endu;indu;hindi'])
+        local = dbc.NamedEntities(
+            {'lemma': 'ubuhindi', 'pos': 'PROPN_LOC',
+             'alternatives': 'hinde;hindu;india;endu;indu;hindi'})
         local.alternatives = [i for i in local.alternatives if i[:3] != "ubu"]
         # test igi
         pername, langname = local.perla_from_ub()
@@ -973,7 +984,9 @@ class TestNE(TestCase):
 
     def test_create_new_lang(self):
         """Test create new language-instance of location"""
-        local = NE_DATA[1]
+        local = dbc.NamedEntities({'lemma': 'ubudagi',
+                                   'pos': 'PROPN_loc',
+                                   'alternatives': 'dagi;german;germany'})
         local.alternatives = [i for i in local.alternatives if i[:3] != "ubu"]
         lang = local.create_new_lang("ikidagi")
         self.assertEqual(lang.lemma, "ikidagi")
@@ -984,7 +997,9 @@ class TestNE(TestCase):
 
     def test_create_new_person(self):
         """Test create new person-instance of location"""
-        local = NE_DATA[0]
+        local = dbc.NamedEntities(
+            {'lemma': 'misiri', 'pos': 'PROPN_loc',
+             'alternatives': 'egypt;egiputa;misri;mirisi'})
         pers = local.create_new_person("umunya_misiri")
         self.assertEqual(pers.lemma, "umunya_misiri")
         for i in pers.questions:
@@ -998,17 +1013,24 @@ class TestNE(TestCase):
 
     def test_set_location_and_create_person_language_out_of_location(self):
         """Test set_location_and_create_person_language_out_of_location.
+        consonant-stem
         questions for location; instances for related person and language"""
         # test consonant
-        local = NE_DATA[0]
+        local = dbc.NamedEntities(
+            {'lemma': 'misiri', 'pos': 'PROPN_loc',
+             'alternatives': 'egypt;egiputa;misri;mirisi'})
         lang, pers = local.set_location_and_create_person_language_out_of_it()
         self.assertEqual(len(local.questions), 10)
         self.assertEqual(len(lang.questions), 10)
         self.assertEqual(len(pers.questions), 20)
 
+    def test_set_location_create_person_language_out_of_location_vowel1(self):
+        """Test set_location_and_create_person_language_out_of_location.
+        vowel-stem, without augmention
+        questions for location; instances for related person and language"""
         # test vowel
-        local = dbc.NamedEntities(['ostrariya', '', 'PROPN_LOC', '',
-                                   'australia;australian'])
+        local = dbc.NamedEntities({'lemma': 'ostrariya', 'pos': 'PROPN_LOC',
+                                   'alternatives': 'australia;australian'})
         lang, pers = local.set_location_and_create_person_language_out_of_it()
         for i in lang.questions:
             print(i)
@@ -1022,9 +1044,14 @@ class TestNE(TestCase):
         self.assertIn('^([na]ta|[mk]u|s?i)?banyaustralian(kazi)?$',
                       pers.questions)
 
+    def test_set_location_create_person_language_out_of_location_vowel2(self):
+        """Test set_location_and_create_person_language_out_of_location.
+        vowel-stem, with augmention
+        questions for location; instances for related person and language"""
         # test ubu + vowel
-        local = dbc.NamedEntities(['ubutariyano', '', 'PROPN_LOC', '',
-                                   'itariyano; taliyano; tariyano'])
+        local = dbc.NamedEntities(
+            {'lemma': 'ubutariyano', 'pos': 'PROPN_LOC',
+             'alternatives': 'itariyano; taliyano; tariyano'})
         local.alternatives = [i for i in local.alternatives if i[:3] != "ubu"]
         lang, pers = local.set_location_and_create_person_language_out_of_it()
         for i in local.questions:
@@ -1035,12 +1062,32 @@ class TestNE(TestCase):
     def test_complete_location_language_person(self):
         """Test add constructed languages and persons to named-entity-list"""
         # prepare
-        ne_dict = {'loc': NE_DATA[:2],
-                   'lng': NE_DATA[2:5],
-                   'per': NE_DATA[5:],
-                   'names': [],
-                   'foreign': []
+        ne_dict = {
+            'loc': [dbc.NamedEntities(
+                {'lemma': 'misiri', 'pos': 'PROPN_loc',
+                 'alternatives': 'egypt;egiputa;misri;mirisi'}),
+                    dbc.NamedEntities(
+                {'lemma': 'ubudagi', 'pos': 'PROPN_loc',
+                 'alternatives': 'dagi;german;germany'})],
+            'lng': [dbc.NamedEntities(
+                {'lemma': 'igihebreyi', 'pos': 'PROPN_LNG',
+                 'alternatives': 'hebrew;hebreyi'}),
+                   dbc.NamedEntities(
+                {'lemma': 'ikinyarwanda',  'pos': 'PROPN_LNG',
+                 'alternatives': 'gwanda'}),
+                   dbc.NamedEntities(
+                {'lemma': 'ikidagi	', 'pos': 'PROPN_LNG',
+                 'alternatives': 'dagi;dage'})],
+            'per': [dbc.NamedEntities(
+                {'lemma': 'umudagi', 'pos': 'PROPN_PER',
+                 'alternatives': 'german;dagi'}),
+                   dbc.NamedEntities(
+                {'lemma': 'umworomo', 'pos': 'PROPN_PER',
+                 'alternatives': 'oromo'})],
+            'names': [],
+            'foreign': []
                    }
+
         loc_before = len(ne_dict.get('loc'))
         per_before = len(ne_dict.get('per'))
         lng_before = len(ne_dict.get('lng'))
@@ -1071,7 +1118,8 @@ class TestLoading(TestCase):
 
     def test_load_ne(self):
         """Test load Named Entities from csv"""
-        ne_data = dbc.load_ne(sd.ResourceNames.root+"/resources/ne_test.csv")
+        database = dbc.AllNeRows(sd.ResourceNames.root+"/resources/ne_test.csv")
+        ne_data = dbc.load_ne(database.rows)
         self.assertEqual(len(ne_data), 5)
         self.assertEqual(len(ne_data.get('loc')), 10)
         self.assertEqual(len(ne_data.get('lng')), 3)
