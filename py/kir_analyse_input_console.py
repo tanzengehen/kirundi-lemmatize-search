@@ -169,13 +169,14 @@ def get_resources():
     """load Named Entities and db_kirundi
     """
     # read db
-    database_rundi = dbc.AllRundiRows(sd.ResourceNames.fn_db)
+    database_rundi = dbc.read_db_kirundi(sd.ResourceNames.fn_db)
     # map db
-    db_rundi = dbc.load_db_kirundi(database_rundi.rows)
+    db_rundi = dbc.map_db_kirundi(database_rundi)
     # read named entities
-    database_names = dbc.AllNeRows(sd.ResourceNames.fn_named_entities)
+    database_names = dbc.read_named_entities(
+        sd.ResourceNames.fn_named_entities)
     # map named entities
-    db_names = dbc.load_ne(database_names.rows)
+    db_names = dbc.map_ne(database_names)
     db_rundi.update({"names": dbc.complete_location_language_person(db_names)})
     return db_rundi
 

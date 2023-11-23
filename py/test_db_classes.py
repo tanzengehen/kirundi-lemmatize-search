@@ -1116,10 +1116,17 @@ class TestNE(TestCase):
 class TestLoading(TestCase):
     """Test loading Named Entities respective rundi dictionary"""
 
-    def test_load_ne(self):
+    def test_read_named_entities(self):
+        """Test mapping db"""
+        database = dbc.read_named_entities(
+            sd.ResourceNames.root+"/resources/ne_test.csv")
+        self.assertEqual(len(database), 45)
+
+    def test_map_ne(self):
         """Test load Named Entities from csv"""
-        database = dbc.AllNeRows(sd.ResourceNames.root+"/resources/ne_test.csv")
-        ne_data = dbc.load_ne(database.rows)
+        database = dbc.read_named_entities(
+            sd.ResourceNames.root+"/resources/ne_test.csv")
+        ne_data = dbc.map_ne(database)
         self.assertEqual(len(ne_data), 5)
         self.assertEqual(len(ne_data.get('loc')), 10)
         self.assertEqual(len(ne_data.get('lng')), 3)
@@ -1138,12 +1145,18 @@ class TestLoading(TestCase):
         self.assertEqual(ne_data.get('foreign')[0].pos, 'F')
         self.assertEqual(ne_data.get('foreign')[1].lemma, 'concert')
 
-    def test_load_dbkirundi(self):
+    def test_read_db_kirundi(self):
+        """Test mapping db"""
+        database = dbc.read_db_kirundi(
+            sd.ResourceNames.root + "/tests/test_lemmata.csv")
+        self.assertEqual(len(database), 56)
+
+    def test_map_db_kirundi(self):
         """Test load rundi dictionary from csv"""
 
-        database = dbc.AllRundiRows(
+        database = dbc.read_db_kirundi(
             sd.ResourceNames.root + "/tests/test_lemmata.csv")
-        db_data = dbc.load_db_kirundi(database.rows)
+        db_data = dbc.map_db_kirundi(database)
         self.assertEqual(len(db_data), 8)
         self.assertEqual(len(db_data.get('adjectives')), 0)
         self.assertEqual(len(db_data.get('nouns1')), 17)

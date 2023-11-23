@@ -14,46 +14,24 @@ import kir_string_depot as sd
 import kir_helper2 as kh
 
 
-class AllRundiRows:
-    """all db_kirundi entries"""
-
-    def __init__(self, filename=sd.ResourceNames.fn_db):
-        self.rows = []
-        self.map_db_to_row(filename)
-
-    def __str__(self):
-        return f"number of AllRundiRows.rows: {len(self.rows)}"
-
-    def __repr__(self):
-        return f"number of AllRundiRows.rows: {len(self.rows)}"
-
-    def map_db_to_row(self, filename):
-        """reads db_kirundi"""
-        with open(filename, encoding="utf-8") as csv_file:
-            csv_reader = csv.DictReader(csv_file, delimiter=";")
-            for entry in csv_reader:
-                self.rows.append(kv.RundiDictEntry(entry))
+def read_db_kirundi(filename=sd.ResourceNames.fn_db):
+    """reads db_kirundi"""
+    rows = []
+    with open(filename, encoding="utf-8") as csv_file:
+        csv_reader = csv.DictReader(csv_file, delimiter=";")
+        for entry in csv_reader:
+            rows.append(kv.RundiDictEntry(entry))
+    return rows
 
 
-class AllNeRows:
-    """all Named Entities"""
-
-    def __init__(self, filename=sd.ResourceNames.fn_named_entities):
-        self.rows = []
-        self.map_ne_to_row(filename)
-
-    def __str__(self):
-        return f"number of AllNeRows.rows: {len(self.rows)}"
-
-    def __repr__(self):
-        return f"number of AllNeRows.rows: {len(self.rows)}"
-
-    def map_ne_to_row(self, filename):
-        """reads names and foreign words"""
-        with open(filename, encoding="utf-8") as csv_file:
-            csv_reader = csv.DictReader(csv_file, delimiter=";")
-            for entry in csv_reader:
-                self.rows.append(EnEntry(entry))
+def read_named_entities(filename=sd.ResourceNames.fn_named_entities):
+    """reads names and foreign words"""
+    rows = []
+    with open(filename, encoding="utf-8") as csv_file:
+        csv_reader = csv.DictReader(csv_file, delimiter=";")
+        for entry in csv_reader:
+            rows.append(EnEntry(entry))
+    return rows
 
 
 class EnEntry:
@@ -87,8 +65,7 @@ class EnEntry:
             self.row.update({i[0]: my_value})
 
 
-
-def load_db_kirundi(rows):
+def map_db_kirundi(rows):
     """returns lists sorted more or less by part of speech:
     verbs, nouns, adjectives, pronouns,
     (prepositions, adverbs, conjunctions and interjections) together,
@@ -151,7 +128,7 @@ def load_db_kirundi(rows):
     return dbrundi
 
 
-def load_ne(rows):
+def map_ne(rows):
     """reads file Named Entites and foreign words
     returns list of objects"""
     namedentities = []
@@ -159,7 +136,7 @@ def load_ne(rows):
     per = []
     lng = []
     foreign = []
-    print('in load ne: rows0=', rows[:5])
+    # print('in load ne: rows0=', rows[:5])
     for entry in rows:
         row = entry.row
         if row.get('pos') == "F":
