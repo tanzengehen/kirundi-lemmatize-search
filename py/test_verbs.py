@@ -26,7 +26,7 @@ class TestPrepareVerb(TestCase):
         data = kv.Verb(
             {'dbid': '180', 'lemma': 'kuba', 'prefix': 'ku',
              'stem': 'ba', 'perfective': 'baye',
-             'perfective_short': 'baye', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''})
@@ -41,7 +41,7 @@ class TestPrepareVerb(TestCase):
         data = kv.Verb(
             {'dbid': '9999', 'lemma': 'kurararara', 'prefix': 'ku',
              'stem': 'rararara', 'perfective': 'raye?',
-             'perfective_short': '?', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''})
@@ -55,7 +55,7 @@ class TestPrepareVerb(TestCase):
         data = kv.Verb(
             {'dbid': '1814', 'lemma': 'guhuhuta', 'prefix': 'gu',
              'stem': 'hūhūta', 'perfective': 'hūhūse',
-             'perfective_short': 'se', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': 'guhuhuta', 'alternative_singular': '',
              'alternative_stem': 'huhuta', 'alternative_perfective': 'hūhūshe',
              'plural_irregular': ''})
@@ -69,7 +69,7 @@ class TestPrepareVerb(TestCase):
         data = kv.Verb(
             {'dbid': '3120', 'lemma': 'kumira', 'prefix': 'ku',
              'stem': 'mira', 'perfective': 'mize',
-             'perfective_short': 'ze', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''})
@@ -84,7 +84,7 @@ class TestPrepareVerb(TestCase):
         data = kv.Verb(
             {'dbid': '5585', 'lemma': 'gupfa', 'prefix': 'gu',
              'stem': 'pfa', 'perfective': 'pfūye',
-             'perfective_short': 'pfūye', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''})
@@ -99,7 +99,7 @@ class TestPrepareVerb(TestCase):
         data = kv.Verb(
             {'dbid': '7962', 'lemma': 'gucapa', 'prefix': 'gu',
              'stem': 'capa', 'perfective': 'cafye',
-             'perfective_short': 'fye', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''})
@@ -112,7 +112,7 @@ class TestPrepareVerb(TestCase):
         data = kv.Verb(
             {'dbid': '9999', 'lemma': 'kulalalala', 'prefix': 'ku',
              'stem': 'rararara', 'perfective': 'calye',
-             'perfective_short': '', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''})
@@ -126,7 +126,7 @@ class TestPrepareVerb(TestCase):
         data = kv.Verb(
             {'dbid': '24', 'lemma': '-zi', 'prefix': '-',
              'stem': 'zi', 'perfective': '',
-             'perfective_short': '', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''})
@@ -140,7 +140,7 @@ class TestPrepareVerb(TestCase):
         data = kv.Verb(
             {'dbid': '908', 'lemma': '-fise', 'prefix': '-',
              'stem': 'fise', 'perfective': '',
-             'perfective_short': '', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''})
@@ -153,7 +153,7 @@ class TestPrepareVerb(TestCase):
         row_alt = kv.prepare_verb_alternativ(
             {'dbid': '1814', 'lemma': 'guhuhuta', 'prefix': 'gu',
              'stem': 'hūhūta', 'perfective': 'hūhūse',
-             'perfective_short': 'se', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': 'guhuhuta', 'alternative_singular': '',
              'alternative_stem': 'huhuta', 'alternative_perfective': 'hūhūshe',
              'plural_irregular': 'VERB'})
@@ -168,7 +168,7 @@ class TestPrepareVerb(TestCase):
         row_alt = kv.prepare_verb_alternativ(
             {'dbid': '4229', 'lemma': 'gusabwa', 'prefix': 'gu',
              'stem': 'sabwa', 'perfective': 'sabwe',
-             'perfective_short': 'bwe', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': 'gusabga', 'alternative_singular': '',
              'alternative_stem': 'sabga', 'alternative_perfective': 'bge',
              'plural_irregular': ''})
@@ -182,7 +182,7 @@ class TestPrepareVerb(TestCase):
         data = kv.Verb(
             {'dbid': '180', 'lemma': 'kuba', 'prefix': 'ku',
              'stem': 'ba', 'perfective': 'baye',
-             'perfective_short': 'baye', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''})
@@ -206,7 +206,7 @@ class TestPrepareVerb(TestCase):
         data = kv.Verb(
             {'dbid': '3120', 'lemma': 'kumira', 'prefix': 'ku',
              'stem': 'mira', 'perfective': 'mize',
-             'perfective_short': 'ze', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''})
@@ -230,7 +230,7 @@ class TestPrepareVerb(TestCase):
         data = kv.Verb(
             {'dbid': '3984', 'lemma': 'kurima', 'prefix': 'ku',
              'stem': 'rima', 'perfective': 'rimye',
-             'perfective_short': 'mye', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''})
@@ -254,7 +254,7 @@ class TestPrepareVerb(TestCase):
         data = kv.Verb(
             {'dbid': '2795', 'lemma': 'gukora', 'prefix': 'gu',
              'stem': 'kora', 'perfective': 'koze',
-             'perfective_short': 'ze', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''})
@@ -278,7 +278,7 @@ class TestPrepareVerb(TestCase):
         data = kv.Verb(
             {'dbid': '6364', 'lemma': 'guhagarara', 'prefix': 'gu',
              'stem': 'hagarara', 'perfective': 'hagaraze',
-             'perfective_short': 'ze', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''})
@@ -302,7 +302,7 @@ class TestPrepareVerb(TestCase):
         data = kv.Verb(
             {'dbid': '83', 'lemma': 'kwandika', 'prefix': 'kw',
              'stem': 'andika', 'perfective': 'anditse',
-             'perfective_short': 'tse', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''})
@@ -326,7 +326,7 @@ class TestPrepareVerb(TestCase):
         data = kv.Verb(
             {'dbid': '2236', 'lemma': 'kwiruka', 'prefix': 'kw',
              'stem': 'iruka', 'perfective': 'irutse',
-             'perfective_short': 'tse', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''})
@@ -350,7 +350,7 @@ class TestPrepareVerb(TestCase):
         data = kv.Verb(
             {'dbid': '1135', 'lemma': 'kugenda', 'prefix': 'ku',
              'stem': 'genda', 'perfective': 'giye',
-             'perfective_short': 'giye', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''})
@@ -382,14 +382,14 @@ class TestVerbLists(TestCase):
         data = [kv.Verb(
             {'dbid': '7161', 'lemma': 'kugira amazinda', 'prefix': 'ku',
              'stem': 'gira amazinda', 'perfective': 'gize',
-             'perfective_short': 'gize', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
                 kv.Verb(
             {'dbid': '1223', 'lemma': 'kugira', 'prefix': 'ku',
              'stem': 'gira', 'perfective': 'gize',
-             'perfective_short': 'gize', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''})
@@ -408,35 +408,35 @@ class TestVerbLists(TestCase):
         data = [kv.Verb(
             {'dbid': '6988', 'lemma': 'gukoma amashi', 'prefix': 'gu',
              'stem': 'koma amashi', 'perfective': 'komye',
-             'perfective_short': '', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
                 kv.Verb(
             {'dbid': '7161', 'lemma': 'kugira amazinda', 'prefix': 'ku',
              'stem': 'gira amazinda', 'perfective': 'gize',
-             'perfective_short': 'gize', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': '', }),
                 kv.Verb(
             {'dbid': '2795', 'lemma': 'gukora', 'prefix': 'gu',
              'stem': 'kora', 'perfective': 'koze',
-             'perfective_short': 'ze', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': '', }),
                 kv.Verb(
             {'dbid': '1223', 'lemma': 'kugira', 'prefix': 'ku',
              'stem': 'gira', 'perfective': 'gize',
-             'perfective_short': 'gize ', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': '', }),
                 kv.Verb(
             {'dbid': '1135', 'lemma': 'kugenda', 'prefix': 'ku',
              'stem': 'gēnda', 'perfective': 'giye',
-             'perfective_short': 'giye', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': '', })
@@ -465,14 +465,14 @@ class TestVerbLists(TestCase):
         data = [kv.Verb(
             {'dbid': '2795', 'lemma': 'gukora', 'prefix': 'gu',
              'stem': 'kora', 'perfective': 'koze',
-             'perfective_short': 'ze', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
                 kv.Verb(
             {'dbid': '4229', 'lemma': 'gusabwa', 'prefix': 'gu',
              'stem': 'sabwa', 'perfective': 'sabwe',
-             'perfective_short': 'bwe', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': 'gusabga', 'alternative_singular': '',
              'alternative_stem': 'sabga', 'alternative_perfective': 'bge',
              'plural_irregular': ''})
@@ -490,42 +490,42 @@ class TestVerbLists(TestCase):
         data = [kv.Verb(
             {'dbid': '2236', 'lemma': 'kwiruka', 'prefix': 'kw',
              'stem': 'iruka', 'perfective': 'irutse',
-             'perfective_short': 'tse', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
                 kv.Verb(
             {'dbid': '3120', 'lemma': 'kumira', 'prefix': 'ku',
              'stem': 'mira', 'perfective': 'mize',
-             'perfective_short': 'ze', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
                 kv.Verb(
             {'dbid': '4229', 'lemma': 'gusabwa', 'prefix': 'gu',
              'stem': 'sabwa', 'perfective': 'sabwe',
-             'perfective_short': 'bwe', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': 'gusabga', 'alternative_singular': '',
              'alternative_stem': 'sabga', 'alternative_perfective': 'bge',
              'plural_irregular': ''}),
                 kv.Verb(
             {'dbid': '4222', 'lemma': 'gusaba', 'prefix': 'gu',
              'stem': 'saba', 'perfective': 'savye',
-             'perfective_short': 'vye', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
                 kv.Verb(
             {'dbid': '3124', 'lemma': 'kumirwa', 'prefix': 'ku',
              'stem': 'mirwa', 'perfective': 'mizwe',
-             'perfective_short': 'zwe', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
                 kv.Verb(
             {'dbid': '467', 'lemma': 'kuborerwa', 'prefix': 'ku',
              'stem': 'borerwa', 'perfective': 'borewe',
-             'perfective_short': 'we', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''})
@@ -549,119 +549,119 @@ class TestVerbLists(TestCase):
         data = [kv.Verb(
             {'dbid': '180', 'lemma': 'kuba', 'prefix': 'ku',
              'stem': 'ba', 'perfective': 'baye',
-             'perfective_short': 'baye', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
                 kv.Verb(
             {'dbid': '83', 'lemma': 'kwandika', 'prefix': 'kw',
              'stem': 'andika', 'perfective': 'anditse',
-             'perfective_short': 'tse', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
                 kv.Verb(
             {'dbid': '3562', 'lemma': 'kwoza', 'prefix': 'kw',
              'stem': 'oza', 'perfective': 'ogeje',
-             'perfective_short': 'geje', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
                 kv.Verb(
             {'dbid': '2236', 'lemma': 'kwiruka', 'prefix': 'kw',
              'stem': 'iruka', 'perfective': 'irutse',
-             'perfective_short': 'tse', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
                 kv.Verb(
             {'dbid': '3120', 'lemma': 'kumira', 'prefix': 'ku',
              'stem': 'mira', 'perfective': 'mize',
-             'perfective_short': 'ze', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
                 kv.Verb(
             {'dbid': '3209', 'lemma': 'kunanirana', 'prefix': 'ku',
              'stem': 'nanirana', 'perfective': 'naniranye',
-             'perfective_short': 'nye', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
                 kv.Verb(
             {'dbid': '2795', 'lemma': 'gukora', 'prefix': 'gu',
              'stem': 'kora', 'perfective': 'koze',
-             'perfective_short': 'ze', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
                 kv.Verb(
             {'dbid': '2796', 'lemma': 'gukora', 'prefix': 'gu',
              'stem': 'kora', 'perfective': 'koye',
-             'perfective_short': 'ye', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
                 kv.Verb(
             {'dbid': '1814', 'lemma': 'guhuhuta', 'prefix': 'gu',
              'stem': 'hūhūta', 'perfective': 'hūhūse',
-             'perfective_short': 'se', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': 'x', 'alternative_singular': '',
              'alternative_stem': 'huhuta', 'alternative_perfective': 'hūhūshe',
              'plural_irregular': ''}),
                 kv.Verb(
             {'dbid': '1814', 'lemma': 'guhuhuta', 'prefix': 'gu',
              'stem': 'hūhūta', 'perfective': 'hūhūshe',
-             'perfective_short': '', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': 'x', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
                 kv.Verb(
             {'dbid': '5585', 'lemma': 'gupfa', 'prefix': 'gu',
              'stem': 'pfa', 'perfective': 'pfūye',
-             'perfective_short': 'pfūye', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
                 kv.Verb(
             {'dbid': '1223', 'lemma': 'kugira', 'prefix': 'ku',
              'stem': 'gira', 'perfective': 'gize',
-             'perfective_short': 'gize ', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
                 kv.Verb(
             {'dbid': '4222', 'lemma': 'gusaba', 'prefix': 'gu',
              'stem': 'saba', 'perfective': 'savye',
-             'perfective_short': 'vye', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
                 kv.Verb(
             {'dbid': '3984', 'lemma': 'kurima', 'prefix': 'ku',
              'stem': 'rima', 'perfective': 'rimye',
-             'perfective_short': 'mye', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
                 kv.Verb(
             {'dbid': '6364', 'lemma': 'guhagarara', 'prefix': 'gu',
              'stem': 'hagarara', 'perfective': 'hagaraze',
-             'perfective_short': 'ze', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
                 kv.Verb(
             {'dbid': '1135', 'lemma': 'kugenda', 'prefix': 'ku',
              'stem': 'genda', 'perfective': 'giye',
-             'perfective_short': 'giye', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
                 kv.Verb(
             {'dbid': '1406', 'lemma': 'guha', 'prefix': 'gu',
              'stem': 'ha', 'perfective': 'haye',
-             'perfective_short': 'haye', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''})
@@ -778,21 +778,21 @@ class TestVerbLists(TestCase):
         data = [kv.Verb(
             {'dbid': '1114', 'lemma': 'guhuhuta', 'prefix': 'gu',
              'stem': 'hūhūta', 'perfective': 'hūhūshe',
-             'perfective_short': '', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': 'x', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
                 kv.Verb(
             {'dbid': '1135', 'lemma': 'kugenda', 'prefix': 'ku',
              'stem': 'gēnda', 'perfective': 'giye',
-             'perfective_short': 'giye', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
                 kv.Verb(
             {'dbid': '1406', 'lemma': 'guha', 'prefix': 'gu',
              'stem': 'ha', 'perfective': 'haye',
-             'perfective_short': 'haye', 'prefix_plural': '', 'pos': 'VERB',
+             'prefix_plural': '', 'pos': 'VERB',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''})

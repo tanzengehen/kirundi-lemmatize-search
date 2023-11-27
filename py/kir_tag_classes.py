@@ -345,6 +345,18 @@ class Collection:
         self.unk = dict(simple_freq_list)
         self.known = []
 
+    def __str__(self):
+        return f"names={len(self.names)}, adv={len(self.advs)}, "\
+                + f"prn={len(self.pronouns)}, nouns={len(self.nouns)}, "\
+                + f"adj={len(self.adjs)}, verbs={len(self.verbs)}, "\
+                + f"unk={len(self.unk)}, known={len(self.known)}"
+
+    def __repr__(self):
+        return f"names={len(self.names)}, adv={len(self.advs)}, "\
+                + f"prn={len(self.pronouns)}, nouns={len(self.nouns)}, "\
+                + f"adj={len(self.adjs)}, verbs={len(self.verbs)}, "\
+                + f"unk={len(self.unk)}, known={len(self.known)}"
+
     def put_known(self):
         """ returns a list of all types which found a lemma,
         sorted by lemma frequency
@@ -377,18 +389,6 @@ class Collection:
         all_in = self.known+self.unk
         all_in.sort(key=lambda x: x[3], reverse=True)
         return all_in
-
-    def __str__(self):
-        return f"names={len(self.names)}, adv={len(self.advs)}, "\
-                + f"prn={len(self.pronouns)}, nouns={len(self.nouns)}, "\
-                + f"adj={len(self.adjs)}, verbs={len(self.verbs)}, "\
-                + f"unk={len(self.unk)}, known={len(self.known)}"
-
-    def __repr__(self):
-        return f"names={len(self.names)}, adv={len(self.advs)}, "\
-                + f"prn={len(self.pronouns)}, nouns={len(self.nouns)}, "\
-                + f"adj={len(self.adjs)}, verbs={len(self.verbs)}, "\
-                + f"unk={len(self.unk)}, known={len(self.known)}"
 
     def collect_names(self, names):
         """collects names"""

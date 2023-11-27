@@ -28,7 +28,7 @@ class TestPrepareNoun(TestCase):
         data = dbc.Noun(
             {'dbid': '14', 'lemma': 'umwaka', 'prefix': 'umw',
              'stem': 'aka', 'perfective': '',
-             'perfective_short': '', 'prefix_plural': 'imy', 'pos': 'NOUN',
+             'prefix_plural': 'imy', 'pos': 'NOUN',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''})
@@ -41,7 +41,7 @@ class TestPrepareNoun(TestCase):
         data = dbc.Noun(
             {'dbid': '6677', 'lemma': 'kanseri', 'prefix': '',
              'stem': 'kanseri', 'perfective': '',
-             'perfective_short': '', 'prefix_plural': '', 'pos': 'NOUN',
+             'prefix_plural': '', 'pos': 'NOUN',
              'alternatives': 'kansere', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''})
@@ -54,7 +54,7 @@ class TestPrepareNoun(TestCase):
         data = dbc.Noun(
             {'dbid': '6273', 'lemma': 'umupadiri', 'prefix': 'umu',
              'stem': 'padiri', 'perfective': '',
-             'perfective_short': '', 'prefix_plural': 'aba', 'pos': 'NOUN',
+             'prefix_plural': 'aba', 'pos': 'NOUN',
              'alternatives': 'umupatiri;umupadri; umupatri;patiri;padiri',
              'alternative_singular': 'umu',
              'alternative_stem': '', 'alternative_perfective': '',
@@ -77,7 +77,7 @@ class TestPrepareNoun(TestCase):
         data = dbc.Noun(
             {'dbid': '6674', 'lemma': 'uruhago', 'prefix': 'uru',
              'stem': 'hago', 'perfective': '',
-             'perfective_short': '', 'prefix_plural': 'im', 'pos': 'NOUN',
+             'prefix_plural': 'im', 'pos': 'NOUN',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': 'impago'})
@@ -88,7 +88,7 @@ class TestPrepareNoun(TestCase):
         data = dbc.Noun(
             {'dbid': '14', 'lemma': 'umwaka', 'prefix': 'umw',
              'stem': 'aka', 'perfective': '',
-             'perfective_short': '', 'prefix_plural': 'imy', 'pos': 'NOUN',
+             'prefix_plural': 'imy', 'pos': 'NOUN',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''})
@@ -110,14 +110,14 @@ class TestNounLists(TestCase):
         dbc.Noun(
             {'dbid': '8336', 'lemma': 'ubwinshi', 'prefix': 'ubw',
              'stem': 'inshi', 'perfective': '',
-             'perfective_short': '', 'prefix_plural': '', 'pos': 'NOUN',
+             'prefix_plural': '', 'pos': 'NOUN',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
         dbc.Noun(
             {'dbid': '6273', 'lemma': 'umupadiri', 'prefix': 'umu',
              'stem': 'padiri', 'perfective': '',
-             'perfective_short': '', 'prefix_plural': 'aba', 'pos': 'NOUN',
+             'prefix_plural': 'aba', 'pos': 'NOUN',
              'alternatives': 'umupatiri;umupadri; umupatri;patiri;padiri',
              'alternative_singular': 'umu',
              'alternative_stem': '', 'alternative_perfective': '',
@@ -125,63 +125,63 @@ class TestNounLists(TestCase):
         dbc.Noun(
             {'dbid': '14', 'lemma': 'umwaka', 'prefix': 'umw',
              'stem': 'aka', 'perfective': '',
-             'perfective_short': '', 'prefix_plural': 'imy', 'pos': 'NOUN',
+             'prefix_plural': 'imy', 'pos': 'NOUN',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
         dbc.Noun(
             {'dbid': '5939', 'lemma': 'izina', 'prefix': 'i',
              'stem': 'zina', 'perfective': '',
-             'perfective_short': '', 'prefix_plural': 'ama', 'pos': 'NOUN',
+             'prefix_plural': 'ama', 'pos': 'NOUN',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
         dbc.Noun(
             {'dbid': '1074', 'lemma': 'amagara', 'prefix': 'ama',
              'stem': 'gara', 'perfective': '',
-             'perfective_short': '', 'prefix_plural': '', 'pos': 'NOUN',
+             'prefix_plural': '', 'pos': 'NOUN',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
         dbc.Noun(
             {'dbid': '3314', 'lemma': 'ikintu', 'prefix': 'iki',
              'stem': 'ntu', 'perfective': '',
-             'perfective_short': '', 'prefix_plural': 'ibi', 'pos': 'NOUN',
+             'prefix_plural': 'ibi', 'pos': 'NOUN',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
         dbc.Noun(
             {'dbid': '6664', 'lemma': 'icaha', 'prefix': 'ic',
              'stem': 'aha', 'perfective': '',
-             'perfective_short': '', 'prefix_plural': 'ivy', 'pos': 'NOUN',
+             'prefix_plural': 'ivy', 'pos': 'NOUN',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
         dbc.Noun(
             {'dbid': '2905', 'lemma': 'urukundo', 'prefix': 'uru',
              'stem': 'kundo', 'perfective': '',
-             'perfective_short': '', 'prefix_plural': '', 'pos': 'NOUN',
+             'prefix_plural': '', 'pos': 'NOUN',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
         dbc.Noun(
             {'dbid': '7193', 'lemma': 'akaburungu', 'prefix': 'aka',
              'stem': 'burungu', 'perfective': '',
-             'perfective_short': '', 'prefix_plural': 'utu', 'pos': 'NOUN',
+             'prefix_plural': 'utu', 'pos': 'NOUN',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
         dbc.Noun(
             {'dbid': '6674', 'lemma': 'uruhago', 'prefix': 'uru',
              'stem': 'hago', 'perfective': '',
-             'perfective_short': '', 'prefix_plural': 'im', 'pos': 'NOUN',
+             'prefix_plural': 'im', 'pos': 'NOUN',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': 'impago'}),
         dbc.Noun(
             {'dbid': '210', 'lemma': 'ukubaho', 'prefix': 'uku',
              'stem': 'baho', 'perfective': '',
-             'perfective_short': '', 'prefix_plural': '', 'pos': 'NOUN',
+             'prefix_plural': '', 'pos': 'NOUN',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
@@ -250,7 +250,7 @@ class TestAdjectives(TestCase):
         data = dbc.Adjectiv(
             {'dbid': '3943', 'lemma': '-re-re', 'prefix': '-',
              'stem': 're-re', 'perfective': '',
-             'perfective_short': '', 'prefix_plural': '', 'pos': 'ADJ',
+             'prefix_plural': '', 'pos': 'ADJ',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''})
@@ -264,7 +264,7 @@ class TestAdjectives(TestCase):
         data = dbc.Adjectiv(
             {'dbid': '2190', 'lemma': '-inshi', 'prefix': '-',
              'stem': 'inshi', 'perfective': '',
-             'perfective_short': '', 'prefix_plural': '', 'pos': 'ADJ',
+             'prefix_plural': '', 'pos': 'ADJ',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''})
@@ -277,7 +277,7 @@ class TestAdjectives(TestCase):
         data = dbc.Adjectiv(
             {'dbid': '2937', 'lemma': '-kuru', 'prefix': '-',
              'stem': 'kuru', 'perfective': '',
-             'perfective_short': '', 'prefix_plural': '', 'pos': 'ADJ',
+             'prefix_plural': '', 'pos': 'ADJ',
              'alternatives': '-kuru-kuru', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''})
@@ -288,7 +288,7 @@ class TestAdjectives(TestCase):
         data = dbc.Adjectiv(
             {'dbid': '3141', 'lemma': '-ompi', 'prefix': '-',
              'stem': 'ompi', 'perfective': 'ompi',
-             'perfective_short': '', 'prefix_plural': '', 'pos': 'ADJ',
+             'prefix_plural': '', 'pos': 'ADJ',
              'alternatives': 'mwempi; twempi', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''})
@@ -299,35 +299,35 @@ class TestAdjectives(TestCase):
         data = [dbc.Adjectiv(
             {'dbid': '3943', 'lemma': '-re-re', 'prefix': '-',
              'stem': 're-re', 'perfective': '',
-             'perfective_short': '', 'prefix_plural': '', 'pos': 'ADJ',
+             'prefix_plural': '', 'pos': 'ADJ',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
                 dbc.Adjectiv(
             {'dbid': '2190', 'lemma': '-inshi', 'prefix': '-',
              'stem': 'inshi', 'perfective': '',
-             'perfective_short': '', 'prefix_plural': '', 'pos': 'ADJ',
+             'prefix_plural': '', 'pos': 'ADJ',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
                 dbc.Adjectiv(
             {'dbid': '2937', 'lemma': '-kuru', 'prefix': '-',
              'stem': 'kuru', 'perfective': '',
-             'perfective_short': '', 'prefix_plural': '', 'pos': 'ADJ',
+             'prefix_plural': '', 'pos': 'ADJ',
              'alternatives': '-kuru-kuru', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
                 dbc.Adjectiv(
             {'dbid': '3141', 'lemma': '-ompi', 'prefix': '-',
              'stem': 'ompi', 'perfective': 'ompi',
-             'perfective_short': '', 'prefix_plural': '', 'pos': 'ADJ',
+             'prefix_plural': '', 'pos': 'ADJ',
              'alternatives': 'mwempi; twempi', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
                 dbc.Adjectiv(
             {'dbid': '3274', 'lemma': '-nini', 'prefix': '-',
              'stem': 'nini', 'perfective': 'nini',
-             'perfective_short': '', 'prefix_plural': '', 'pos': 'ADJ',
+             'prefix_plural': '', 'pos': 'ADJ',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''})
@@ -387,7 +387,7 @@ class TestPronouns(TestCase):
         data = kv.Lemma(
             {'dbid': '8274', 'lemma': 'iki', 'prefix': '',
              'stem': 'iki', 'perfective': '',
-             'perfective_short': '', 'prefix_plural': '', 'pos': 'PRON',
+             'prefix_plural': '', 'pos': 'PRON',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''})
@@ -430,35 +430,35 @@ class TestPronouns(TestCase):
         data = [kv.Lemma(
             {'dbid': '8274', 'lemma': 'iki', 'prefix': '',
              'stem': 'iki', 'perfective': '',
-             'perfective_short': '', 'prefix_plural': '', 'pos': 'PRON',
+             'prefix_plural': '', 'pos': 'PRON',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
                 kv.Lemma(
             {'dbid': '8098', 'lemma': '-abo', 'prefix': '-',
              'stem': 'abo', 'perfective': '',
-             'perfective_short': '', 'prefix_plural': '', 'pos': 'PRON',
+             'prefix_plural': '', 'pos': 'PRON',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
                 kv.Lemma(
             {'dbid': '1458', 'lemma': 'hano', 'prefix': 'ha',
              'stem': 'no', 'perfective': '',
-             'perfective_short': '', 'prefix_plural': '', 'pos': 'PRON',
+             'prefix_plural': '', 'pos': 'PRON',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
                 kv.Lemma(
             {'dbid': '5447', 'lemma': 'twebwe', 'prefix': '',
              'stem': 'twebwe', 'perfective': '',
-             'perfective_short': '', 'prefix_plural': '', 'pos': 'PRON',
+             'prefix_plural': '', 'pos': 'PRON',
              'alternatives': 'twebge;tweho', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
                 kv.Lemma(
             {'dbid': '7863', 'lemma': 'igihe?', 'prefix': 'igi',
              'stem': 'he?', 'perfective': '',
-             'perfective_short': '', 'prefix_plural': '', 'pos': 'PRON',
+             'prefix_plural': '', 'pos': 'PRON',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
@@ -513,7 +513,7 @@ class TestAdverbsEtc(TestCase):
         data = kv.Lemma(
             {'dbid': '7121', 'lemma': 'ubu nyene', 'prefix': '',
              'stem': 'ubu nyene', 'perfective': '',
-             'perfective_short': '', 'prefix_plural': '', 'pos': 'ADV',
+             'prefix_plural': '', 'pos': 'ADV',
              'alternatives': 'ubunyene', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''})
@@ -527,35 +527,35 @@ class TestAdverbsEtc(TestCase):
         data = [kv.Lemma(
             {'dbid': '7121', 'lemma': 'ubu nyene', 'prefix': '',
              'stem': 'ubu nyene', 'perfective': '',
-             'perfective_short': '', 'prefix_plural': '', 'pos': 'ADV',
+             'prefix_plural': '', 'pos': 'ADV',
              'alternatives': 'ubunyene', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
                 kv.Lemma(
             {'dbid': '5519', 'lemma': 'inyuma', 'prefix': 'i',
              'stem': 'nyuma', 'perfective': '',
-             'perfective_short': '', 'prefix_plural': '', 'pos': 'CONJ',
+             'prefix_plural': '', 'pos': 'CONJ',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
                 kv.Lemma(
             {'dbid': '5525', 'lemma': 'umengo', 'prefix': '',
              'stem': 'umengo', 'perfective': '',
-             'perfective_short': '', 'prefix_plural': '', 'pos': 'INTJ',
+             'prefix_plural': '', 'pos': 'INTJ',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
                 kv.Lemma(
             {'dbid': '6121', 'lemma': 'i ruhande', 'prefix': 'i ru',
              'stem': 'hande', 'perfective': '',
-             'perfective_short': '', 'prefix_plural': '', 'pos': 'PREP',
+             'prefix_plural': '', 'pos': 'PREP',
              'alternatives': 'iruhande', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
                 kv.Lemma(
             {'dbid': '7505', 'lemma': 'mirongwitatu', 'prefix': '',
              'stem': 'mirongwitatu', 'perfective': '',
-             'perfective_short': '', 'prefix_plural': '', 'pos': 'ADV',
+             'prefix_plural': '', 'pos': 'ADV',
              'alternatives': 'mirongo itatu;mirongitatu',
              'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
@@ -597,7 +597,7 @@ class TestExclamations(TestCase):
         data = kv.Lemma(
             {'dbid': '818', 'lemma': 'ego', 'prefix': '',
              'stem': 'ego', 'perfective': '',
-             'perfective_short': '', 'prefix_plural': '', 'pos': 'INTJ',
+             'prefix_plural': '', 'pos': 'INTJ',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''})
@@ -624,28 +624,28 @@ class TestExclamations(TestCase):
         data = [kv.Lemma(
             {'dbid': '818', 'lemma': 'ego', 'prefix': '',
              'stem': 'ego', 'perfective': '',
-             'perfective_short': '', 'prefix_plural': '', 'pos': 'INTJ',
+             'prefix_plural': '', 'pos': 'INTJ',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
                 kv.Lemma(
             {'dbid': '3556', 'lemma': 'oya', 'prefix': '',
              'stem': 'oya', 'perfective': '',
-             'perfective_short': '', 'prefix_plural': '', 'pos': 'INTJ',
+             'prefix_plural': '', 'pos': 'INTJ',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
                 kv.Lemma(
             {'dbid': '7307', 'lemma': 'karibu', 'prefix': '',
              'stem': 'karibu', 'perfective': '',
-             'perfective_short': '', 'prefix_plural': '', 'pos': 'INTJ',
+             'prefix_plural': '', 'pos': 'INTJ',
              'alternatives': '', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),
                 kv.Lemma(
             {'dbid': '7196', 'lemma': 'egome', 'prefix': '',
              'stem': 'egome', 'perfective': '',
-             'perfective_short': '', 'prefix_plural': '', 'pos': 'INTJ',
+             'prefix_plural': '', 'pos': 'INTJ',
              'alternatives': 'ego me', 'alternative_singular': '',
              'alternative_stem': '', 'alternative_perfective': '',
              'plural_irregular': ''}),

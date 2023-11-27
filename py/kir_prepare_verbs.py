@@ -30,7 +30,6 @@ class RundiDictEntry:
                 + f"prefix: '{self.row.get('prefix')}', "\
                 + f"stem: '{self.row.get('stem')}', "\
                 + f"perfective: '{self.row.get('perfective')}', "\
-                + f"perfective_short: '{self.row.get('perfective_short')}', "\
                 + f"prefix_plural: '{self.row.get('prefix_plural')}', "\
                 + f"plural_irregular: '{self.row.get('plural_irregular')}', "\
                 + f"alternatives: '{self.row.get('alternatives')}', "\
@@ -47,7 +46,6 @@ class RundiDictEntry:
                 + f"prefix: '{self.row.get('prefix')}', "\
                 + f"stem: '{self.row.get('stem')}', "\
                 + f"perfective: '{self.row.get('perfective')}', "\
-                + f"perfective_short: '{self.row.get('perfective_short')}', "\
                 + f"prefix_plural: '{self.row.get('prefix_plural')}', "\
                 + f"plural_irregular: '{self.row.get('plural_irregular')}', "\
                 + f"alternatives: '{self.row.get('alternatives')}', "\
@@ -72,7 +70,6 @@ class RundiDictEntry:
                         ['prefix', 'prefix'],
                         ['stem', 'stem'],
                         ['perfective', 'stem_perf'],
-                        ['perfective_short', 'perf'],
                         ['prefix_plural', 'plural'],
                         ['plural_irregular', 'pluralFull'],
                         ['alternatives', 'kirundi0_a'],
