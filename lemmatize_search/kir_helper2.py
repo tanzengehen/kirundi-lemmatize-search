@@ -14,7 +14,7 @@ import time
 import json
 from abc import abstractmethod
 # import kir_tag_classes as tc
-import kir_string_depot as sd
+from ..lemmatize_search import kir_string_depot as sd
 
 
 # def N_(message):

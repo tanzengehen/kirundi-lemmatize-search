@@ -10,10 +10,10 @@ Sebastian Lisken is working on the website interface'
 """
 
 from sys import exit as sysexit
-import kir_string_depot as sd
-import kir_helper2 as kh
-import kir_tag_search as ts
-import kir_db_classes as dbc
+from ..lemmatize_search import kir_string_depot as sd
+from ..lemmatize_search import kir_helper2 as kh
+from ..lemmatize_search import kir_tag_search as ts
+from ..lemmatize_search import kir_db_classes as dbc
 
 
 def input_fnin():

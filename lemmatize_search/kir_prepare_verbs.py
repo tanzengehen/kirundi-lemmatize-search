@@ -9,8 +9,8 @@ Created on Sat Jul 29 10:13:10 2023
 import re
 from abc import abstractmethod
 from unidecode import unidecode
-import kir_string_depot as sd
-import kir_helper2 as kh
+from ..lemmatize_search import kir_string_depot as sd
+from ..lemmatize_search import kir_helper2 as kh
 
 
 REGEX_SUFFIX = r"((([hyk]|mw)o)?$)"
