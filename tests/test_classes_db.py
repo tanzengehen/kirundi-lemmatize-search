@@ -7,9 +7,10 @@ Created on Sat Sep 30 14:01:20 2023
 """
 
 from unittest import TestCase
-import kir_db_classes as dbc
-import kir_prepare_verbs as kv
-import kir_string_depot as sd
+from ..lemmatize_search import kir_db_classes as dbc
+from ..lemmatize_search import kir_prepare_verbs as kv
+from ..lemmatize_search import kir_string_depot as sd
+ 
 
 # nosetests --with-spec --spec-color --with-coverage --cover-erase
 # coverage report -m
@@ -1176,7 +1177,7 @@ class TestLoading(TestCase):
 
 
 # def create_test_db():
-    # nrs = ids from lemmafreq of test_text
+    # nrs = ids from lemmafreq of text_test.txt
     # db_origin = mysql data
 
     # test_lemmata = []
