@@ -156,7 +156,7 @@ def load_lines(filename):
 class Dates:
     """returns version of db_kirundi, named_entities, freqfett
     """
-    dates = load_lines(sd.ResourceNames.fn_dates)
+    dates = load_lines(sd.ResourceNames().fn_dates)
     dates = {i.split(";")[0]: i.split(";")[1] for i in dates}
     database = dates.get("db")
     namedentities = dates.get("ne")

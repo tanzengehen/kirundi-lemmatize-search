@@ -14,8 +14,6 @@ import kir_string_depot as sd
 import kir_helper2 as kh
 import kir_tag_search as ts
 import kir_db_classes as dbc
-# # nur vorübergehend
-# import gettext
 
 
 def input_fnin():
@@ -216,7 +214,7 @@ deutsch, english, français)
         if f_in[-12:] == "meta_bbc.txt":
             ts.tag_multogether(f_in, db_rundi)
             sysexit()
-    else:        
+    else:
         tagged = ts.tag_or_load_tags(f_in, db_rundi)
     # Translators: terminal only
     kh.OBSERVER.notify(kh._("""\nWhat are you looking for?

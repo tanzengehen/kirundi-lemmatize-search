@@ -6,6 +6,11 @@ Created on Mon Nov  6 13:12:22 2023
 @author: doreen
 """
 
+# import sys
+# __package__ = sys.path[0]
+# print("In module products sys.path[0], __package__ ==", sys.path[0], __package__)
+# from ..lemmatize_search import kir_prepare_verbs as kv
+
 from unittest import TestCase
 import kir_prepare_verbs as kv
 
