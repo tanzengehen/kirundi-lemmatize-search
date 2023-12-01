@@ -197,15 +197,12 @@ rundi rurimi.
     Au moment l'interface utilisateur est rundi, mais tu peux l'échanger.
 deutsch, english, français)
 'de', 'en', 'fr' ,'rn'""")
-    # while True:
-    #     locale = input('  : ')
-    #     lang = kh.set_ui_language(locale)
-    #     if lang == "not":
-    #         continue
-    #     break
-    locale = input('  : ')
-    lang = kh.set_ui_language(locale)
-
+    while True:
+        locale = input('  : ')
+        lang = kh.set_ui_language(locale)
+        if lang == "not":
+            continue
+        break
     lang.install()
     kh._ = lang.gettext
     kh.OBSERVER.notify(kh._("\nSelect the Rundi text you want to inspect:"))

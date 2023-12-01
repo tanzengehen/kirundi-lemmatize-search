@@ -544,11 +544,11 @@ def collect_nouns(db_substantive, freq_d):
                                                lemma_count,
                                                len(db_substantive))
     if collection:
-        freq_subs = {x: y for x, y in freq_subs.items() if y != 0}
         # result: most wordforms first, with high freq first
         collection.sort(key=lambda x: x[3], reverse=True)
         collection.sort(key=lambda x: x[4], reverse=True)
-    return (collection, freq_subs)
+    freq_uncollected = {x: y for x, y in freq_subs.items() if y != 0}
+    return (collection, freq_uncollected)
 
 
 class Adjectiv(kv.Lemma):
@@ -660,9 +660,9 @@ def collect_adjs(db_adjektive, freq_simple_dict):
             else:
                 collection.append(found)
     if collection:
-        freq_uncollected = {x: y for x, y in freq_uncollected.items() if y != 0}
         collection.sort(key=lambda x: x[3], reverse=True)
         collection.sort(key=lambda x: x[4], reverse=True)
+    freq_uncollected = {x: y for x, y in freq_uncollected.items() if y != 0}
 
     # save_dict(freq_adj,"keine5_adj.csv")
     # all adjectives
@@ -803,12 +803,12 @@ def collect_pronouns(db_pronouns, freq_d):
         # sort to make sure that lemma is: '-no' and not: 'hano'
         collection.sort(key=lambda x: x[0])
         collection = kv.put_alternatives_of_same_id_together(collection)
-        freq_prn = {x: y for x, y in freq_prn.items() if y != 0}
+    freq_uncollected = {x: y for x, y in freq_prn.items() if y != 0}
 
-    # save_dict(freq_prn,"keine3_pron.csv")
+    # save_dict(not_collected, "keine3_pron.csv")
     # # Wörter, die im Korpus vorkommen
     # kh.save_list(collection,"found3_pron.csv",";")
-    return (collection, freq_prn)
+    return (collection, freq_uncollected)
 
 
 def collect_names(names_and_foreign_words, freq_list):
@@ -838,8 +838,9 @@ def collect_names(names_and_foreign_words, freq_list):
                                                len(names_and_foreign_words))
     if collection:
         collection.sort(key=lambda x: x[3], reverse=True)
-        not_collected = {x: y for x, y in freq_names.items() if y != 0}
-    return (collection, not_collected)
+    freq_uncollected = {x: y for x, y in freq_names.items() if y != 0}
+
+    return (collection, freq_uncollected)
 
 
 def collect_adv_plus(db_advplus, freq_d):
@@ -859,8 +860,8 @@ def collect_adv_plus(db_advplus, freq_d):
             collection.append(found)
     if collection:
         collection.sort(key=lambda x: x[3], reverse=True)
-        freq_unchangable = {x: y for x, y in freq_unchangable.items() if y != 0}
-    return (collection, freq_unchangable)
+    freq_uncollected = {x: y for x, y in freq_unchangable.items() if y != 0}
+    return (collection, freq_uncollected)
 
 
 def build_exclamations():
@@ -916,8 +917,8 @@ def collect_exclamations(db_rest, freq_d):
             collection.append(found)
     if collection:
         collection = kv.put_alternatives_of_same_id_together(collection)
-        freq_exc = {x: y for x, y in freq_exc.items() if y != 0}
-    return (collection, freq_exc)
+    freq_uncollected = {x: y for x, y in freq_exc.items() if y != 0}
+    return (collection, freq_uncollected)
 
 
 def regex_search(word, freq_dict):

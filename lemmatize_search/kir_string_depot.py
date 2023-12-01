@@ -7,6 +7,7 @@ Created on Sun Aug  6 15:10:18 2023
 """
 
 import os
+import sys
 
 
 class ResourceNames:
@@ -15,6 +16,7 @@ class ResourceNames:
 
     sep = os.path.sep
     long_root = os.getcwd().split(sep)
+    print(sys.path)
     for i, part in enumerate(long_root):
         if part == "rundi_lemmatize_search":
             relative = i
