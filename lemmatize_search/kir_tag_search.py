@@ -12,11 +12,15 @@ import json
 from operator import itemgetter
 from sys import exit as sysexit
 from unidecode import unidecode
-# import kir_prepare_verbs as kv
-from ..lemmatize_search import kir_helper2 as kh
-from ..lemmatize_search import kir_tag_classes as tc
-# import kir_db_classes as dbc
-from ..lemmatize_search import kir_string_depot as sd
+
+try:
+    import kir_helper2 as kh
+    import kir_tag_classes as tc
+    import kir_string_depot as sd
+except (ImportError):
+    from ..lemmatize_search import kir_helper2 as kh
+    from ..lemmatize_search import kir_tag_classes as tc
+    from ..lemmatize_search import kir_string_depot as sd
 
 
 def reduce_simplefreq_to_lemma_collection(simple_freq_list,

@@ -9,9 +9,14 @@ Created on Sun Aug  6 23:43:14 2023
 import csv
 import re
 from unidecode import unidecode
-from ..lemmatize_search import kir_prepare_verbs as kv
-from ..lemmatize_search import kir_string_depot as sd
-from ..lemmatize_search import kir_helper2 as kh
+try:
+    import kir_prepare_verbs as kv
+    import kir_string_depot as sd
+    import kir_helper2 as kh
+except (ImportError):
+    from ..lemmatize_search import kir_prepare_verbs as kv
+    from ..lemmatize_search import kir_string_depot as sd
+    from ..lemmatize_search import kir_helper2 as kh
 
 
 def read_db_kirundi(filename=sd.ResourceNames.fn_db):

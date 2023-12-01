@@ -6,14 +6,20 @@ Created on Sat Jun  3 22:31:05 2023
 @author: doreen nixdorf
 
 it's only auxilliary for the IDE,
-Sebastian Lisken is working on the website interface'
+Sebastian Lisken was working on the website interface'
 """
 
 from sys import exit as sysexit
-from ..lemmatize_search import kir_string_depot as sd
-from ..lemmatize_search import kir_helper2 as kh
-from ..lemmatize_search import kir_tag_search as ts
-from ..lemmatize_search import kir_db_classes as dbc
+try:
+    import kir_string_depot as sd
+    import kir_helper2 as kh
+    import kir_tag_search as ts
+    import kir_db_classes as dbc
+except (ImportError):
+    from ..lemmatize_search import kir_string_depot as sd
+    from ..lemmatize_search import kir_helper2 as kh
+    from ..lemmatize_search import kir_tag_search as ts
+    from ..lemmatize_search import kir_db_classes as dbc
 
 
 def input_fnin():
@@ -191,12 +197,15 @@ rundi rurimi.
     Au moment l'interface utilisateur est rundi, mais tu peux l'échanger.
 deutsch, english, français)
 'de', 'en', 'fr' ,'rn'""")
-    while True:
-        locale = input("  : ")
-        lang = kh.set_ui_language(locale)
-        if lang == "not":
-            continue
-        break
+    # while True:
+    #     locale = input('  : ')
+    #     lang = kh.set_ui_language(locale)
+    #     if lang == "not":
+    #         continue
+    #     break
+    locale = input('  : ')
+    lang = kh.set_ui_language(locale)
+
     lang.install()
     kh._ = lang.gettext
     kh.OBSERVER.notify(kh._("\nSelect the Rundi text you want to inspect:"))

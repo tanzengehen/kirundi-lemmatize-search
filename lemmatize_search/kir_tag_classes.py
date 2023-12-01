@@ -10,9 +10,14 @@ import re
 from nltk.text import FreqDist
 from nltk.corpus import PlaintextCorpusReader
 from unidecode import unidecode
-from ..lemmatize_search import kir_string_depot as sd
-from ..lemmatize_search import kir_db_classes as dbc
-from ..lemmatize_search import kir_prepare_verbs as kv
+try:
+    import kir_string_depot as sd
+    import kir_db_classes as dbc
+    import kir_prepare_verbs as kv
+except (ImportError):
+    from ..lemmatize_search import kir_string_depot as sd
+    from ..lemmatize_search import kir_db_classes as dbc
+    from ..lemmatize_search import kir_prepare_verbs as kv
 # import kir_helper2 as kh
 
 

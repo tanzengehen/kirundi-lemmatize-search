@@ -7,15 +7,16 @@ Created on Sun May 28 07:37:34 2023
 """
 
 from ast import literal_eval
-#from time import sleep
+# from time import sleep
 import gettext
 import os.path as osp
 import time
 import json
 from abc import abstractmethod
-# import kir_tag_classes as tc
-from ..lemmatize_search import kir_string_depot as sd
-
+try:
+    import kir_string_depot as sd
+except (ImportError):
+    from ..lemmatize_search import kir_string_depot as sd
 
 # def N_(message):
 #    """if we use kh._ in loops"""

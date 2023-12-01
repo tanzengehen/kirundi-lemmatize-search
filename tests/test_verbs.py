@@ -9,9 +9,9 @@ Created on Mon Nov  6 13:12:22 2023
 # import sys
 # __package__ = sys.path[0]
 # print("In module products sys.path[0], __package__ ==", sys.path[0], __package__)
-from ..lemmatize_search import kir_prepare_verbs as kv
 
 from unittest import TestCase
+from ..lemmatize_search import kir_prepare_verbs as kv
 # import kir_prepare_verbs as kv
 
 # nosetests --with-spec --spec-color --with-coverage --cover-erase
