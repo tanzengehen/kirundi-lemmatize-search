@@ -13,7 +13,7 @@ try:
     import kir_prepare_verbs as kv
     import kir_string_depot as sd
     import kir_helper2 as kh
-except (ImportError):
+except ImportError:
     from ..lemmatize_search import kir_prepare_verbs as kv
     from ..lemmatize_search import kir_string_depot as sd
     from ..lemmatize_search import kir_helper2 as kh

@@ -10,7 +10,6 @@ from unittest import TestCase
 import os
 from ..lemmatize_search import kir_helper2 as kh
 from ..lemmatize_search import kir_string_depot as sd
-# import kir_helper2 as kh
 
 
 ####################################################
