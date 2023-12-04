@@ -1149,14 +1149,14 @@ class TestLoading(TestCase):
     def test_read_db_kirundi(self):
         """Test mapping db"""
         database = dbc.read_db_kirundi(
-            sd.ResourceNames.root + "/tests/lemmata_test.csv")
+            sd.ResourceNames.root + "/tests/test_data/lemmata_test.csv")
         self.assertEqual(len(database), 56)
 
     def test_map_db_kirundi(self):
         """Test load rundi dictionary from csv"""
 
         database = dbc.read_db_kirundi(
-            sd.ResourceNames.root + "/tests/lemmata_test.csv")
+            sd.ResourceNames.root + "/tests/test_data/lemmata_test.csv")
         db_data = dbc.map_db_kirundi(database)
         self.assertEqual(len(db_data), 8)
         self.assertEqual(len(db_data.get('adjectives')), 0)

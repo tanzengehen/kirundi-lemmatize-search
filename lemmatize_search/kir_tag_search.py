@@ -17,7 +17,7 @@ try:
     import kir_helper2 as kh
     import kir_tag_classes as tc
     import kir_string_depot as sd
-except (ImportError):
+except ImportError:
     from ..lemmatize_search import kir_helper2 as kh
     from ..lemmatize_search import kir_tag_classes as tc
     from ..lemmatize_search import kir_string_depot as sd
@@ -47,22 +47,23 @@ def reduce_simplefreq_to_lemma_collection(simple_freq_list,
     unk_still = len(collection.unk)
     kh.OBSERVER.notify(
         kh._("\nNamed Entities      : ")
-        + f"\t{unk_before-unk_still}\t\t({unk_still})")
+        + f"{unk_before-unk_still:16}\t\t({unk_still})")
     # adverbs
     unk_before = len(collection.unk)
     collection.collect_adverbs(dict_adv)
     unk_still = len(collection.unk)
     kh.OBSERVER.notify(
         kh._("adverbs etc         : ")
-        + f"{unk_before-unk_still} >> "
-        + f"{len(collection.advs)-1}\t({unk_still})")
+        + f"{unk_before-unk_still:7} >> "
+        + f"{len(collection.advs):5}\t\t({unk_still})")
     # pronouns
     unk_before = len(collection.unk)
     collection.collect_pronouns(dict_prns)
     unk_still = len(collection.unk)
     kh.OBSERVER.notify(
-        kh._("pronouns            : ") + f"{unk_before - unk_still} >> "
-        f"{len(collection.pronouns)-1}\t({unk_still})")
+        kh._("pronouns            : ")
+        + f"{unk_before - unk_still:7} >> "
+        f"{len(collection.pronouns):5}\t\t({unk_still})")
     # nouns part1
     # Translators: fill points up to 50 letters
     kh.OBSERVER.notify(
@@ -72,16 +73,16 @@ def reduce_simplefreq_to_lemma_collection(simple_freq_list,
     unk_still = len(collection.unk)
     kh.OBSERVER.notify(
         kh._("\nnouns               : ")
-        + f"{unk_before - unk_still} >> "
-        + f"{len(collection.nouns)-1}\t({unk_still})")
+        + f"{unk_before - unk_still:7} >> "
+        + f"{len(collection.nouns):5}\t\t({unk_still})")
     # adjectives
     unk_before = len(collection.unk)
     collection.collect_adjectives(dict_adj)
     unk_still = len(collection.unk)
     kh.OBSERVER.notify(
         kh._("adjektives          : ")
-        + f"{unk_before - unk_still} >> "
-        + f"{len(collection.adjs)-1}\t({unk_still})")
+        + f"{unk_before - unk_still:7} >> "
+        + f"{len(collection.adjs):5}\t\t({unk_still})")
     # verbs
     kh.OBSERVER.notify(
         kh._("sorting verbs ...................................."))
@@ -90,8 +91,8 @@ def reduce_simplefreq_to_lemma_collection(simple_freq_list,
     unk_still = len(collection.unk)
     kh.OBSERVER.notify(
         kh._("\nverbs               : ")
-        + f"{unk_before - unk_still} >> "
-        + f"{len(collection.verbs)-1}\t({unk_still})")
+        + f"{unk_before - unk_still:7} >> "
+        + f"{len(collection.verbs):5}\t\t({unk_still})")
     # nouns part2: the nouns we skipped before verbs (uku...)
     unk_before = len(collection.unk)
     collection.collect_nouns(dict_nouns2)
@@ -100,8 +101,8 @@ def reduce_simplefreq_to_lemma_collection(simple_freq_list,
     unk_still = len(collection.unk)
     kh.OBSERVER.notify(
         kh._("\nexclamations        : ")
-        + f"\t\t{unk_before - unk_still}"
-        + f"\nunknown             :\t\t\t\t({unk_still})")
+        + " "*9 + f"{unk_before - unk_still:7}"
+        + "\nunknown             :" + " "*23 + f"{unk_still}")
     # for key, value in collection.unk.items():
     #     if value != 0:
     #         collection.unk.append((key, "", "UNK", value, 1, [key, value]))
@@ -115,26 +116,27 @@ def make_lemmafreq_fromtext(mytext, data):
     """takes utf-text, maps to lemmata in db_kirundi,
     returns lemma_freq"""
     simfreq = tc.FreqSimple(mytext)
-    lemma_collection = reduce_simplefreq_to_lemma_collection(simfreq.freq, data)
+    lemma_collection = reduce_simplefreq_to_lemma_collection(simfreq.freq,
+                                                             data)
     kh.OBSERVER.notify(kh._("""\nVocabulary
-characters         : {nchar}
-tokens             : {ntokens}
-types              : {ntypes} """).format(nchar=len(mytext),
-                                          ntokens=simfreq.ntokens,
-                                          ntypes=simfreq.ntypes))
+characters         : {nchar:12}
+tokens             : {ntokens:12}
+types              : {ntypes:12} """).format(nchar=len(mytext),
+                                             ntokens=simfreq.ntokens,
+                                             ntypes=simfreq.ntypes))
     return lemma_collection
 
 
-def split_in_sentences(mytext, para=" #|* "):
+def split_in_sentences(mytext, paragraph=" <prgrph> "):
     """splits texts where [?.!;:] + space_character
     it's only a rough approach
     returns list with strings
     """
-    # set a headlines and paragraph flag: "#|*"
-    mytextn = mytext.replace("\\n", para)
+    # set a headlines and paragraph flag: "<paragraph>"
+    mytextn = mytext.replace("\\n", paragraph)
     all_sents = [mytextn, ]
     # to get a list, not a nested list
-    for seperator in [".", "?", "!", ":", ";"]:
+    for seperator in ["...", ".", "?", "!", ":", ";"]:
         storage = []
         for part in all_sents:
             newportions = part.split(seperator+" ")
@@ -149,7 +151,7 @@ def split_in_sentences(mytext, para=" #|* "):
     if len(all_sents[-1].strip()) < 2:
         all_sents.pop(-1)
     # # delete headline flags
-    # all_sents = [i.strip("#|*") for i in all_sents if i != "#|*"]
+    # all_sents = [i.strip("<prgrph>") for i in all_sents if i != <prgrph>"]
     return all_sents
 
 
@@ -159,14 +161,15 @@ def tag_word_nrmailweb(myword):
     """
     regex_email = r'^[\w.!#$%&’*+/=?^_`{|}~-]+@\w+(?:\.\w+)*$'
     regex_web = r'^(http[s]?:\/\/|www.)'
-    regex_rom = r'^M{0,3}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$'
+    # regex_rom = r'^M{0,3}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$'
+    regex_rom = r'^m{0,3}(cm|cd|d?c{0,3})(xc|xl|l?x{0,3})(ix|iv|v?i{0,3})$'
     # delete accents, lower all letters
     word = unidecode(myword.lower())
     if re.search(r"[0-9]+", word):
         tag = tc.Token(word, "NUM", word)
         return tag
     if re.search(regex_rom, word):
-        tag = tc.Token(word, "NUM_ROM", word)
+        tag = tc.Token(word, "NUM_ROM", myword)
         return tag
     if re.search(regex_web, word):
         tag = tc.Token("address_in_web", "WWW", "address_in_web")
@@ -233,13 +236,13 @@ def tag_text_with_db(mytext, dbrundi):
     percent = round(len(collection.unk) / (len(collection.unk)+n_lemmatypes)
                     * 100, 2)
     kh.OBSERVER.notify(kh._(
-        "unknown types      : {} ({}% incl. broken words, mistakes, ...)")
+        "unknown types      : {:12} ({}% incl. broken words, mistakes, ...)")
         .format(len(collection.unk), percent)
         )
     kh.OBSERVER.notify(kh._(
-        "recognized lemmata : {}").format(len(collection.known)))
+        "recognized lemmata : {:12}").format(len(collection.known)))
     # split into sentences -- roughly
-    line_end = " #|* "
+    line_end = " <paragraph> "
     sentences_list = split_in_sentences(mytext, line_end)
     punctuation = sd.punctuation()
     # punctuation = ',.;:!?(){}[]\'"´`#%&+-*/<=>@\\^°_|~'
@@ -556,12 +559,12 @@ def show_meta(fromjson):
     meta_data = fromjson.get("meta_data")
     kh.OBSERVER.notify(
         kh._("""\nStatistics
-characters               {char}\t(broken char from bad OCR: {odds})
-tokens                   {tokensbond}
-tokens (split by \')      {tokens_split}
-types                    {types}
-recognized lemmata       {lemmata}
-unknown types            {unk}""").
+characters               :{char:12}  (broken char from bad OCR: {odds})
+tokens                   :{tokensbond:12}
+tokens (when split by \') :{tokens_split:12}
+types                    :{types:12}
+recognized lemmata       :{lemmata:12}
+unknown types            :{unk:12}""").
         format(char=meta_data.get("n_char"),
                odds=meta_data.get("n_odds"),
                tokensbond=meta_data.get("n_tokens"),

@@ -451,9 +451,9 @@ class FreqMeta:
                 self.n_lemma += 1
             elif i[2] == "F":
                 self.n_extern += 1
-            elif i[2] in ["PROPN", "PROPN_CUR", "PROPN_LOC", "PROPN_NAM",
-                          "PROPN_ORG", "PROPN_PER", "PROPN_REL", "PROPN_SCI",
-                          "PROPN_THG", "PROPN_VEG"]:
+            elif i[2][:5] == "PROPN":
+                # PROPN, PROPN_CUR, PROPN_LOC, PROPN_NAM, PROPN_ORG,
+                # PROPN_PER, PROPN_REL, PROPN_SCI, PROPN_THG, PROPN_VEG, ...
                 self.n_ne += 1
 
     def __str__(self):
@@ -470,7 +470,7 @@ class FreqMeta:
 
 class Token:
     """a word in a text with its lemma and PoS-tag and
-    its positions in text and sentence
+    its position in text and sentence
     """
 
     def __init__(self, token, pos="UNK", lemma=None):

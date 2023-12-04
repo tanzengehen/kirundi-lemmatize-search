@@ -15,7 +15,7 @@ import json
 from abc import abstractmethod
 try:
     import kir_string_depot as sd
-except (ImportError):
+except ImportError:
     from ..lemmatize_search import kir_string_depot as sd
 
 # def N_(message):
@@ -111,7 +111,7 @@ OBSERVER = None
 
 
 def check_file_exits(fn_file):
-    """save energy, don't search twice
+    """save energy, don't tag or search again what already is done
     """
     # TODO check hash-values
     return osp.exists(fn_file)
@@ -145,12 +145,7 @@ def load_lines(filename):
     """returns a list of the lines of the file (utf-8)
     """
     with open(filename, encoding="utf-8") as fname:
-        text = fname.read()
-        fname.close()
-        lines_list = text.split("\n")
-        # delete empty last line
-        if lines_list[-1] == '':
-            lines_list.pop(-1)
+        lines_list = fname.readlines()
         return lines_list
 
 
@@ -173,19 +168,18 @@ class Dates:
 
 
 def load_text_fromfile(filename, en_code, line_separator="\n"):
-    """returns TextMeta with raw,pathname,text,nodds,nchars
+    """returns the text as string
     """
     with open(filename, encoding=en_code) as fname:
         text_raw = fname.read().replace("\n", line_separator)
-    #meta = tc.TextMeta(text_raw, filename)
     return text_raw
 
 
-def load_freqfett():
+def load_freqfett(filename=sd.ResourceNames.fn_freqfett):
     """reads lemma_freq from file
     returns list with str, int and tuples (str,int) per lemma
     """
-    toomuch = load_lines(sd.ResourceNames.fn_freqfett)
+    toomuch = load_lines(filename)
     # toomuch = load_lines("/depot_analyse/freq_fett.csv")
     freq_fett = []
     # from line[14275] frequence < 6
@@ -210,7 +204,7 @@ def load_freqfett():
                 # freqsum, sum of variants
                 freq.append(int(data))
             else:
-                # (variant, frequency)
+                # tuple(variant, frequency)
                 freq.append(literal_eval(data))
         freq_fett.append(freq)
     return freq_fett
@@ -277,15 +271,17 @@ def save_list(mylist, fname, sep_columns=";", sep_rows="\n"):
         # element is string or int
         elif isinstance(row, (str, int)):
             lines_in_file += str(row) + sep_rows
+        else:
+            # TODO try except
+            # Translators: debugging mode
+            OBSERVER.notify(_(
+                """Sorry, I didn't save the list that starts with:
+    {}\nI was expecting only str, int, tuple or list as list elements.""")
+                .format(mylist[:4]))
+            return
     if lines_in_file:
         with open(fname, 'w', encoding="utf-8") as file:
             file.write(lines_in_file)
-    else:
-        # TODO try except
-        # Translators: debugging mode
-        OBSERVER.notify(_("""Sorry, I didn't save the list that starts with:
-{}\nI was expecting str, int, tuple or list
-as list elements.""").format(mylist[:4]))
 
 
 def show_twenty(mylist):
@@ -321,6 +317,7 @@ def save_json(dict_list, filename):
 
 
 def show_progress(points, n_now, n_max):
+    """progress bar points"""
     more = int(n_now * 50 / n_max) - points
     OBSERVER.notify_cont(more * '.')
     points += more

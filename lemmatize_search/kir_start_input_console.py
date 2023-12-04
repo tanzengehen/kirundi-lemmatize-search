@@ -15,7 +15,7 @@ try:
     import kir_helper2 as kh
     import kir_tag_search as ts
     import kir_db_classes as dbc
-except (ImportError):
+except ImportError:
     from ..lemmatize_search import kir_string_depot as sd
     from ..lemmatize_search import kir_helper2 as kh
     from ..lemmatize_search import kir_tag_search as ts
@@ -169,26 +169,26 @@ def check_search_wtl(whichtags, whichwords):
     return notss, search
 
 
-def get_resources():
-    """load Named Entities and db_kirundi
-    """
-    # read db
-    database_rundi = dbc.read_db_kirundi(sd.ResourceNames.fn_db)
-    # map db
-    db_rundi = dbc.map_db_kirundi(database_rundi)
-    # read named entities
-    database_names = dbc.read_named_entities(
-        sd.ResourceNames.fn_named_entities)
-    # map named entities
-    db_names = dbc.map_ne(database_names)
-    db_rundi.update({"names": dbc.complete_location_language_person(db_names)})
-    return db_rundi
+# def get_resources(rundi_file=sd.ResourceNames.fn_db,
+#                   names_file=sd.ResourceNames.fn_named_entities):
+#     """load Named Entities and db_kirundi
+#     """
+#     # read db
+#     database_rundi = dbc.read_db_kirundi(rundi_file)
+#     # map db
+#     db_rundi = dbc.map_db_kirundi(database_rundi)
+#     # read named entities
+#     database_names = dbc.read_named_entities(names_file)
+#     # map named entities
+#     db_names = dbc.map_ne(database_names)
+#     db_rundi.update({"names": dbc.complete_location_language_person(db_names)})
+#     return db_rundi
 
 
 if __name__ == "__main__":
     kh.OBSERVER = kh.PrintConsole()
     # kh.SINGLE = True
-    db_rundi = get_resources()
+    db_rundi = dbc.get_resources()
     kh.OBSERVER.notify("""Ubu nyene ururimi rw'igikoresho ni kirundi.
 Pfyonda ENTER canke andika 'de', 'en' canke 'fr' iyo urashaka ko turaganira mu
 rundi rurimi.

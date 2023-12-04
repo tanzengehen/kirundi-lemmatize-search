@@ -39,6 +39,22 @@ def read_named_entities(filename=sd.ResourceNames.fn_named_entities):
     return rows
 
 
+def get_resources(rundi_file=sd.ResourceNames.fn_db,
+                  names_file=sd.ResourceNames.fn_named_entities):
+    """load Named Entities and db_kirundi
+    """
+    # read db
+    database_rundi = read_db_kirundi(rundi_file)
+    # map db
+    db_rundi = map_db_kirundi(database_rundi)
+    # read named entities
+    database_names = read_named_entities(names_file)
+    # map named entities
+    db_names = map_ne(database_names)
+    db_rundi.update({"names": complete_location_language_person(db_names)})
+    return db_rundi
+
+
 class EnEntry:
     """single Named-Entity entry mapped"""
 
@@ -828,7 +844,7 @@ def collect_names(names_and_foreign_words, freq_list):
             # persons and locations have RegEx for their possibilities
             found = regex_search(name, freq_names)
         else:
-            # all possibilities are already collected
+            # all possibilities are already readable strings
             found = string_search(name, freq_names)
         if found:
             collection.append(found)
@@ -918,6 +934,7 @@ def collect_exclamations(db_rest, freq_d):
     if collection:
         collection = kv.put_alternatives_of_same_id_together(collection)
     freq_uncollected = {x: y for x, y in freq_exc.items() if y != 0}
+    print("in dbc coll_excl:", collection[:2])
     return (collection, freq_uncollected)
 
 
