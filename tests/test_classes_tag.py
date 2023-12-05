@@ -48,13 +48,13 @@ class TestTextMeta(TestCase):
         text.set_fn_tag_and_lemma()
         self.assertEqual(text.short, "igisomwa")
         self.assertEqual(text.fn_freqlemma.split("/")[-1], "fl__igisomwa.csv")
-        self.assertEqual(text.fn_tag.split("/")[-1], "tag__igisomwa.json")
+        self.assertEqual(text.fn_tag.split("/")[-1], "tag__igisomwa.csv")
         # test initiation with given filename
         text1 = tc.TextMeta("mytext.txt")
         self.assertEqual(text1.fn_in, "mytext.txt")
         self.assertEqual(text1.short, "mytext")
         self.assertEqual(text1.fn_freqlemma.split("/")[-1], "fl__mytext.csv")
-        self.assertEqual(text1.fn_tag.split("/")[-1], "tag__mytext.json")
+        self.assertEqual(text1.fn_tag.split("/")[-1], "tag__mytext.csv")
 
     def test_set_fn_corpus(self):
         """set filenames for result of analysis in corpus mode

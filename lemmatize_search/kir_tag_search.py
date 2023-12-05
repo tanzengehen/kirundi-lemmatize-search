@@ -8,7 +8,7 @@ Created on Sat May 20 15:32:20 2023
 
 
 import re
-import json
+from ast import literal_eval
 from operator import itemgetter
 from sys import exit as sysexit
 from unidecode import unidecode
@@ -184,10 +184,16 @@ def tag_punctmarks_etc(myword):
     """finds symbols and marks
     returns Token.token .pos .lemma
     """
-    # if myword in ",.;:!?(){}[]'\"" :
-    #     tag = tc.Token(myword,myword,myword)
-    #     return tag
+    # ,.;:!?(){}[]\'"´`#%&+-*/<=>@\\^°_|~
     punctuation = sd.punctuation()
+    if myword == '"':
+        # we give citation-mark a name, because it's textmarker in csv-file
+        tag = tc.Token("cit", "SYMBOL", "cit")
+        return tag
+    if myword == ";":
+        # we give semikolon a name, because it's the separator in csv-file
+        tag = tc.Token("semikolon", "SYMBOL", "semikolon")
+        return tag
     if myword in punctuation:
         tag = tc.Token(myword, "SYMBOL", myword)
         return tag
@@ -226,10 +232,12 @@ def tag_text_with_db(mytext, dbrundi):
     returns a list of lists (lemmata sorted by PoS)
         and the tagged text with meta-data
     """
+    # collect types of text and map them to lemmata
     collection = make_lemmafreq_fromtext(mytext, dbrundi)
     collection.put_known()
     lemmatypes = prepare_lemmatypes(collection.known)
-    # Percentage of unkown types
+
+    # print more statistics: Percentage of unkown types
     n_lemmatypes = 0
     for lemma in collection.known:
         n_lemmatypes += lemma[4]
@@ -241,13 +249,14 @@ def tag_text_with_db(mytext, dbrundi):
         )
     kh.OBSERVER.notify(kh._(
         "recognized lemmata : {:12}").format(len(collection.known)))
-    # split into sentences -- roughly
+
+    # split text into sentences -- roughly
     line_end = " <paragraph> "
     sentences_list = split_in_sentences(mytext, line_end)
     punctuation = sd.punctuation()
     # punctuation = ',.;:!?(){}[]\'"´`#%&+-*/<=>@\\^°_|~'
 
-    # collect whole text
+    # tag tokens in text with lemma, PoS and position
     tagged = []
     nr_sen = -1
     nr_token = -1
@@ -397,7 +406,12 @@ def find_ngrams(wordlist_tagged, wtl, nots, questions):
             for candidate in wordlist_tagged[index+1:]:
                 # add punctuation to found string but don't count it
                 if candidate.pos == "SYMBOL":
-                    part_found += " " + candidate.token
+                    if candidate.token == "semikolon":
+                        part_found += " " + ";"
+                    elif candidate.token == "cit":
+                        part_found += ' ' + '"'
+                    else:
+                        part_found += " " + candidate.token
                     continue
                 # next token also matches
                 if (nots[n_count] != "!"
@@ -465,7 +479,7 @@ def tag_multogether(fn_in, dbrundi):
     kh.OBSERVER.notify_frequencies(whattext.fn_in,
                                    whattext.fn_freqlemma.split("/")[-1],
                                    kh.Dates.database)
-    # prepare data for json
+    # prepare data for csv
     meta_data = {"n_char": whattext.nchars,
                  "n_odds": whattext.nodds,
                  "n_tokens": text_tagged.n_tokensbond,
@@ -474,11 +488,7 @@ def tag_multogether(fn_in, dbrundi):
                  "n_unk_types": str(text_tagged.percent_unk)+" %",
                  "n_lemmata": len(lemma_lists.known())
                  }
-    jtokens = [dict(x.__dict__) for x in text_tagged.tokens]
-    kh.save_json([{"meta_data": meta_data,
-                  "Token": jtokens
-                   }
-                  ], whattext.fn_tag)
+    save_tagged_text_as_csv(meta_data, text_tagged.tokens, whattext.fn_tag)
     kh.OBSERVER.notify_tagging(whattext.fn_in,
                                whattext.fn_tag.split("/")[-1],
                                kh.Dates.database)
@@ -526,7 +536,7 @@ def tag_multiple(fn_in, dbrundi):
         kh.OBSERVER.notify_frequencies(whattext.fn_in,
                                        whattext.fn_freqlemma.split("/")[-1],
                                        kh.Dates.database)
-        # prepare data for json
+        # prepare data for csv
         meta_data = {"n_char": whattext.nchars,
                      "n_odds": whattext.nodds,
                      "n_tokens": text_tagged.n_tokensbond,
@@ -535,11 +545,7 @@ def tag_multiple(fn_in, dbrundi):
                      "n_unk_types": str(text_tagged.percent_unk)+" %",
                      "n_lemmata": len(lemma_lists.known())
                      }
-        jtokens = [dict(x.__dict__) for x in text_tagged.tokens]
-        kh.save_json([{"meta_data": meta_data,
-                      "Token": jtokens
-                       }
-                      ], whattext.fn_tag)
+        save_tagged_text_as_csv(meta_data, text_tagged.tokens, whattext.fn_tag)
         kh.OBSERVER.notify_tagging(whattext.fn_in,
                                    whattext.fn_tag.split("/")[-1],
                                    kh.Dates.database)
@@ -554,24 +560,24 @@ def tag_multiple(fn_in, dbrundi):
           )
 
 
-def show_meta(fromjson):
-    """print meta data of tagged text"""
-    meta_data = fromjson.get("meta_data")
+def show_meta(meta_data):
+    """print meta data of tagged text if tags are loaded from csv-file"""
+
     kh.OBSERVER.notify(
         kh._("""\nStatistics
-characters               :{char:12}  (broken char from bad OCR: {odds})
+characters               :{char:12}  ({odds} unreadable chars from bad OCR)
 tokens                   :{tokensbond:12}
 tokens (when split by \') :{tokens_split:12}
 types                    :{types:12}
 recognized lemmata       :{lemmata:12}
-unknown types            :{unk:12}""").
+unknown types            :{unk:15} %""").
         format(char=meta_data.get("n_char"),
                odds=meta_data.get("n_odds"),
                tokensbond=meta_data.get("n_tokens"),
                tokens_split=meta_data.get("n_tokens_split"),
                types=meta_data.get("n_types"),
                lemmata=meta_data.get("n_lemmata"),
-               unk=meta_data.get("n_unk_types")
+               unk=float(meta_data.get("n_unk_types").split()[0])
                ))
 
 
@@ -580,33 +586,35 @@ def tag_or_load_tags(fn_in, dbrundi):
     """
     whattext = tc.TextMeta(fn_in)
     kh.OBSERVER.notify(kh._("Preparing file ..."))
-    # 1. maybe the given file itself is a json file? >> already tagged >> read
-    if whattext.fn_in[-5:] == ".json":
+    pathsep = sd.ResourceNames.sep
+    # 1. maybe the given file itself is a csv file? >> already tagged >> read
+    if whattext.fn_in[-4:] == ".csv":
         try:
-            fromjson = load_json(whattext.fn_in)
+            # fromjson = load_json(whattext.fn_in)
+            meta_data, token_list = load_tagged_text(whattext.fn_in)
         except:
             kh.OBSERVER.notify(
                 kh._("Are you sure, that this is a tagged file?"))
-        text_tagged = tc.TokenMeta(fromjson.get("TokenList"))
-        show_meta(fromjson)
+        text_tagged = tc.TokenMeta(token_list)
+        show_meta(meta_data)
         return text_tagged
             # TODO get new data
-    # 2. has the given txt a tagged json variant already?
+    # 2. has the given txt a tagged csv variant already?
     # TODO check hash values
     if kh.check_file_exits(sd.ResourceNames.dir_tagged
-                           + whattext.fn_tag.split("/")[-1]):
-        # check if tagged version is younger than big lemma collection
+                           + whattext.fn_tag.split(pathsep)[-1]):
+        # check if tagged version is younger than the kirundi-database
         good_old = kh.check_time(
-            sd.ResourceNames.root+"/resources/freq_fett.csv",
+            sd.ResourceNames.root+pathsep+"resources"+pathsep+"db_cox.csv",
             whattext.fn_tag)
         if good_old:
             kh.OBSERVER.notify(
                 kh._("There is already a tagged file: (made {})").format(good_old)
-                + "\n\t" + '/'.join(whattext.fn_tag.split('/')[-4:])
+                + "\n\t" + pathsep.join(whattext.fn_tag.split(pathsep)[-4:])
                 + kh._("\nWe use this instead of tagging again.\n"))
-            fromjson = load_json(whattext.fn_tag)
-            text_tagged = tc.TokenMeta(fromjson.get("TokenList"))
-            show_meta(fromjson)
+            meta_data, token_list = load_tagged_text(whattext.fn_tag)
+            text_tagged = tc.TokenMeta(token_list)
+            show_meta(meta_data)
             return text_tagged
 
     # 3. read raw txt utf8 or utf16
@@ -623,17 +631,18 @@ def tag_or_load_tags(fn_in, dbrundi):
         if not whattext.raw:
             sysexit()
     whattext.replace_strangeletters()
+    # print("in tag_or_load:", whattext.text)
     # start whole NLP task: read, clean, tag...
     lemma_lists, text_tagged = tag_text_with_db(whattext.text, dbrundi)
     lemmafreq = lemma_lists.all_in()
 
-    # prepare data for csv file
+    # save lemmafreq in csv file
     lemmafreq.insert(0, sd.column_names_lemmafreq(), )
     kh.save_list(lemmafreq, whattext.fn_freqlemma)
-    kh.OBSERVER.notify_frequencies(whattext.fn_in.split("/")[-1],
-                                   whattext.fn_freqlemma.split("/")[-1],
+    kh.OBSERVER.notify_frequencies(whattext.fn_in.split(pathsep)[-1],
+                                   whattext.fn_freqlemma.split(pathsep)[-1],
                                    kh.Dates.database)
-    # prepare data for json
+    # save tagged text in csv
     meta_data = {"n_char": whattext.nchars,
                  "n_odds": whattext.nodds,
                  "n_tokens": text_tagged.n_tokensbond,
@@ -642,19 +651,37 @@ def tag_or_load_tags(fn_in, dbrundi):
                  "n_unk_types": str(text_tagged.percent_unk)+" %",
                  "n_lemmata": len(lemma_lists.known)
                  }
-    jtokens = [dict(x.__dict__) for x in text_tagged.tokens]
-    kh.save_json([{"meta_data": meta_data, "Token": jtokens}],
-                 whattext.fn_tag
-                 )
-    kh.OBSERVER.notify_tagging(whattext.fn_in.split("/")[-1],
-                               whattext.fn_tag.split("/")[-1],
+    save_tagged_text_as_csv(meta_data, text_tagged.tokens, whattext.fn_tag)
+    kh.OBSERVER.notify_tagging(whattext.fn_in.split(pathsep)[-1],
+                               whattext.fn_tag.split(pathsep)[-1],
                                kh.Dates.database)
     kh.OBSERVER.notify(
           kh._("\n\nTagged file saved as: \n")
-          + "\t/" + "/".join(whattext.fn_tag.split("/")[-4:])
+          + "\t"+pathsep + pathsep.join(whattext.fn_tag.split(pathsep)[-4:])
           + kh._("\nWe can use it again later.")
           )
     return text_tagged
+
+
+def save_tagged_text_as_csv(meta, tagged_text, filename):
+    """save tagged text in csv-file
+    first line: meta-data
+    second line: attribut-names for class Token
+    from third line on: tokens of the tagged text
+    """
+    if filename.split(".")[-1] != "csv":
+        filename = filename[: -len(filename.split(".")[-1])]+"csv"
+    keys = list(tagged_text[0].__dict__.keys())
+    keys = str(keys).replace(",", ";").replace("'", "")[1:-1]
+    tags = ""
+    for tagged_token in tagged_text:
+        for value in tagged_token.__dict__.values():
+            tags += str(value)+";"
+        tags += "\n"
+    with open(filename, 'w', encoding="utf-8") as file:
+        file.write(str(meta)+"\n")
+        file.write(keys+"\n")
+        file.write(tags)
 
 
 def search_or_load_search(f_in, wtl, nots, quterms, single, tagged):
@@ -707,27 +734,39 @@ def search_or_load_search(f_in, wtl, nots, quterms, single, tagged):
 
 # this function has to be in this module
 # because module kh can't import module tc
-def load_json(filename):
-    """read json-file with meta data and tagged text
+def load_tagged_text(filename):
+    """read csv-file with meta data and tagged text
     return nested dict
     """
-    with open(filename, encoding='utf-8') as file:
-        raw = json.load(file)
-    data = {}
-    for num in range(len(list(raw[0].keys()))):
-        class_name = list(raw[0].keys())[num]
-        objects = []
-        # tagged text as list of objects Token
-        if class_name == "Token":
-            for i in raw[0].get(class_name):
-                tag = tc.Token(i.get('token'), i.get('pos'), i.get('lemma'))
-                tag.set_nrs(i.get('id_sentence'), i.get('id_tokin_sen'),
-                            i.get('id_token'), i.get('id_char'),
-                            i.get('id_para'))
-                objects.append(tag)
-            data.update({"TokenList": objects})
-        # meta data as dict
-        if class_name == "meta_data":
-            meta_data = raw[0].get(class_name)
-            data.update({"meta_data": meta_data})
-    return data
+    raw = kh.load_lines(filename)
+    meta_data = literal_eval(raw[0])
+    column_keys = {key.strip(): i for i, key in enumerate(raw[1].split(";"))}
+
+    # check meta_data keys
+    for i in ['n_char', 'n_odds', 'n_tokens', 'n_tokens_split',
+              'n_types', 'n_unk_types', 'n_lemmata']:
+        if i not in meta_data.keys():
+            kh.OBSERVER.notify(kh._("Sorry, no meta-data available, \
+something's wrong with your csv"))
+            sysexit()
+    # check token keys
+    for i in ['token', 'pos', 'lemma', 'id_sentence', 'id_tokin_sen',
+              'id_token', 'id_char', 'id_para']:
+        if i not in column_keys.keys():
+            kh.OBSERVER.notify(kh._("Sorry, I can't read your csv-file as a \
+tagged text"))
+            sysexit()
+    # map tokens
+    tagged = []
+    for token_line in raw[2:]:
+        token_data = token_line.split(";")
+        tag = tc.Token(token_data[column_keys.get('token')],
+                       token_data[column_keys.get('pos')],
+                       token_data[column_keys.get('lemma')])
+        tag.set_nrs(token_data[column_keys.get('id_sentence')],
+                    token_data[column_keys.get('id_tokin_sen')],
+                    token_data[column_keys.get('id_token')],
+                    token_data[column_keys.get('id_char')],
+                    token_data[column_keys.get('id_para')])
+        tagged.append(tag)
+    return meta_data, tagged

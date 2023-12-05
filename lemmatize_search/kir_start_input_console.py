@@ -28,7 +28,7 @@ def input_fnin():
     """
     while True:
         fnin = input("  : ")
-        if fnin[-4:] != ".txt" and fnin[-5:] != ".json":
+        if fnin[-4:] not in [".txt", ".csv"]:
             if fnin == "q":
                 sysexit()
             if fnin in ["c", "C"]:
@@ -36,7 +36,7 @@ def input_fnin():
                 fnin = "c"
                 break
             # Translators: terminal only
-            kh.OBSERVER.notify(kh._("txt or json file or 'q' for 'quit'"))
+            kh.OBSERVER.notify(kh._("txt or csv file or 'q' for 'quit'"))
             continue
         if not kh.check_file_exits(fnin):
             kh.OBSERVER.notify(kh._("""This file doesn't exist. {}
@@ -169,22 +169,6 @@ def check_search_wtl(whichtags, whichwords):
     return notss, search
 
 
-# def get_resources(rundi_file=sd.ResourceNames.fn_db,
-#                   names_file=sd.ResourceNames.fn_named_entities):
-#     """load Named Entities and db_kirundi
-#     """
-#     # read db
-#     database_rundi = dbc.read_db_kirundi(rundi_file)
-#     # map db
-#     db_rundi = dbc.map_db_kirundi(database_rundi)
-#     # read named entities
-#     database_names = dbc.read_named_entities(names_file)
-#     # map named entities
-#     db_names = dbc.map_ne(database_names)
-#     db_rundi.update({"names": dbc.complete_location_language_person(db_names)})
-#     return db_rundi
-
-
 if __name__ == "__main__":
     kh.OBSERVER = kh.PrintConsole()
     # kh.SINGLE = True
@@ -205,12 +189,13 @@ deutsch, english, français)
         break
     lang.install()
     kh._ = lang.gettext
-    kh.OBSERVER.notify(kh._("\nSelect the Rundi text you want to inspect:"))
+    kh.OBSERVER.notify(kh._("\nSelect the Rundi text you want to inspect."))
     # Translators: terminal only
-    kh.OBSERVER.notify(kh._("\tc\t\t\t\t= whole tagged corpus"))
+    # kh.OBSERVER.notify(kh._("\tc\t\t\t\t= whole tagged corpus"))
     # Translators: terminal only
-    kh.OBSERVER.notify(kh._("\tpath/to/file\t\t= a single file (txt or json)"))
-    kh.OBSERVER.notify(kh._("Prefer the tagged file, if there is one already.\n"))
+    kh.OBSERVER.notify(kh._("Prefer the tagged file, if there is one already."))
+    # kh.OBSERVER.notify(kh._("path/to/file\t\t= a single file (txt or csv)"))
+    kh.OBSERVER.notify(kh._("path/to/file (txt or csv)"))
     # corpus or file, if file: ist it txt?
     f_in = input_fnin()
 

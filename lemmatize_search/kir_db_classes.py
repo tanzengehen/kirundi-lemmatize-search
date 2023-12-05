@@ -934,7 +934,7 @@ def collect_exclamations(db_rest, freq_d):
     if collection:
         collection = kv.put_alternatives_of_same_id_together(collection)
     freq_uncollected = {x: y for x, y in freq_exc.items() if y != 0}
-    print("in dbc coll_excl:", collection[:2])
+    # print("in dbc coll_excl:", collection[:2])
     return (collection, freq_uncollected)
 
 

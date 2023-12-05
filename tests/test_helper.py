@@ -132,4 +132,4 @@ class TestSaveResources(TestCase):
 
 #     def test_show_twenty(self):
 
-#     def test_load_freqfett(self):
+#     def test_load_lemmafreq(self):

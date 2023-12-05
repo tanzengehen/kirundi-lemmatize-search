@@ -140,7 +140,7 @@ class TextMeta:
                         ('\\xc2\\xa8', '¨'),
                         ('\\xc2\\xa9', '©'),
                         ('\\xc2\\xaa', 'ª'),
-                        ('\\xc2\\xab', '"'),    # «
+                        ('\\xc2\\xab', '"'),    # « left pointing double quotation mark
                         ('\\xc2\\xac', '¬'),
                         ('\\xc2\\xad', '-­'),    # soft hyphen
                         ('\\xc2\\xae', '®'),    # ® registered
@@ -157,7 +157,7 @@ class TextMeta:
                         ('\\xc2\\xb8', ','),   # ¸ cedilla
                         ('\\xc2\\xb9', '¹'),
                         ('\\xc2\\xba', '°'),   # º männlich
-                        ('\\xc2\\xbb', '"'),   # »
+                        ('\\xc2\\xbb', '"'),   # » right pointing double quotation mark
                         ('\\xc2\\xbc', '¼'),
                         ('\\xc2\\xbd', '½'),
                         ('\\xc2\\xbe', '¾'),
@@ -275,7 +275,7 @@ class TextMeta:
         myname = self.fn_in.split("/")[-1]
         short = myname.find(".")
         self.short = myname[:short]
-        self.fn_tag = root_tagg+"tag__"+self.short+".json"
+        self.fn_tag = root_tagg+"tag__"+self.short+".csv"
         self.fn_freqlemma = root_tagg+"fl__"+self.short+".csv"
 
     def set_fn_corpus(self, corpus_name):

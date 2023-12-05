@@ -11,7 +11,6 @@ from ast import literal_eval
 import gettext
 import os.path as osp
 import time
-import json
 from abc import abstractmethod
 try:
     import kir_string_depot as sd
@@ -175,12 +174,11 @@ def load_text_fromfile(filename, en_code, line_separator="\n"):
     return text_raw
 
 
-def load_freqfett(filename=sd.ResourceNames.fn_freqfett):
+def load_lemmafreq(filename=sd.ResourceNames.fn_freqfett):
     """reads lemma_freq from file
     returns list with str, int and tuples (str,int) per lemma
     """
     toomuch = load_lines(filename)
-    # toomuch = load_lines("/depot_analyse/freq_fett.csv")
     freq_fett = []
     # from line[14275] frequence < 6
     # from line[38150] only unknown words
@@ -305,15 +303,6 @@ def check_time(older, younger):
         return t_stamp
     # older is not the older one
     return False
-
-
-def save_json(dict_list, filename):
-    """saves nested dicts"""
-    if filename.split(".")[-1] != "json":
-        filename = filename[: -len(filename.split(".")[-1])]+"json"
-    with open(filename, 'w', encoding="utf-8") as file:
-        # consider: without indent it's only as half as big
-        json.dump(dict_list, file, indent=4)
 
 
 def show_progress(points, n_now, n_max):
