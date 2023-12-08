@@ -187,8 +187,8 @@ def tag_punctmarks_etc(myword):
     # ,.;:!?(){}[]\'"´`#%&+-*/<=>@\\^°_|~
     punctuation = sd.punctuation()
     if myword == '"':
-        # we give citation-mark a name, because it's textmarker in csv-file
-        tag = tc.Token("cit", "SYMBOL", "cit")
+        # we give quotation-mark a name, because it's textmarker in csv-file
+        tag = tc.Token("quotation", "SYMBOL", "quotation")
         return tag
     if myword == ";":
         # we give semikolon a name, because it's the separator in csv-file
@@ -408,7 +408,7 @@ def find_ngrams(wordlist_tagged, wtl, nots, questions):
                 if candidate.pos == "SYMBOL":
                     if candidate.token == "semikolon":
                         part_found += " " + ";"
-                    elif candidate.token == "cit":
+                    elif candidate.token == "quotation":
                         part_found += ' ' + '"'
                     else:
                         part_found += " " + candidate.token
@@ -587,26 +587,34 @@ def tag_or_load_tags(fn_in, dbrundi):
     whattext = tc.TextMeta(fn_in)
     kh.OBSERVER.notify(kh._("Preparing file ..."))
     pathsep = sd.ResourceNames.sep
-    # 1. maybe the given file itself is a csv file? >> already tagged >> read
+
+    # 1. given file itself is a csv file? >> already tagged >> read
     if whattext.fn_in[-4:] == ".csv":
-        try:
-            # fromjson = load_json(whattext.fn_in)
+        # check if given file is younger than the kirundi-database
+        good_old = kh.check_time(sd.ResourceNames.fn_db, whattext.fn_in)
+        if good_old:
             meta_data, token_list = load_tagged_text(whattext.fn_in)
-        except:
-            kh.OBSERVER.notify(
-                kh._("Are you sure, that this is a tagged file?"))
+            text_tagged = tc.TokenMeta(token_list)
+            show_meta(meta_data)
+            return text_tagged
+        kh.OBSERVER.notify(
+            kh._("""Your file is older than our version of the Rundi \
+dictionary.
+Do you want to use your file or tag again the underlying text?
+(maybe now there are less unknown words in your text)"""))
+        # TODO (input: y/n) till now: we chose the old file
+        meta_data, token_list = load_tagged_text(whattext.fn_in)
         text_tagged = tc.TokenMeta(token_list)
         show_meta(meta_data)
         return text_tagged
-            # TODO get new data
-    # 2. has the given txt a tagged csv variant already?
+
+    # 2. has the given txt-file a tagged csv variant already?
     # TODO check hash values
     if kh.check_file_exits(sd.ResourceNames.dir_tagged
                            + whattext.fn_tag.split(pathsep)[-1]):
-        # check if tagged version is younger than the kirundi-database
-        good_old = kh.check_time(
-            sd.ResourceNames.root+pathsep+"resources"+pathsep+"db_cox.csv",
-            whattext.fn_tag)
+        # check if tagged version of given file is younger
+        #     than the kirundi-database
+        good_old = kh.check_time(sd.ResourceNames.fn_db, whattext.fn_tag)
         if good_old:
             kh.OBSERVER.notify(
                 kh._("There is already a tagged file: (made {})").format(good_old)
@@ -617,14 +625,14 @@ def tag_or_load_tags(fn_in, dbrundi):
             show_meta(meta_data)
             return text_tagged
 
-    # 3. read raw txt utf8 or utf16
+    # 3. read raw txt utf8 or utf16 (there is no tagged version)
     else:
         try:
             whattext.raw = kh.load_text_fromfile(whattext.fn_in, 'utf-8')
-        except:
+        except UnicodeDecodeError:
             try:
                 whattext.raw = kh.load_text_fromfile(whattext.fn_in, 'utf-16')
-            except:
+            except UnicodeDecodeError:
                 kh.OBSERVER.notify(
                     kh._("Sorry, can't use the file: {}").format(whattext.fn_in))
                 whattext.raw = ""
@@ -739,24 +747,39 @@ def load_tagged_text(filename):
     return nested dict
     """
     raw = kh.load_lines(filename)
-    meta_data = literal_eval(raw[0])
-    column_keys = {key.strip(): i for i, key in enumerate(raw[1].split(";"))}
-
-    # check meta_data keys
-    for i in ['n_char', 'n_odds', 'n_tokens', 'n_tokens_split',
-              'n_types', 'n_unk_types', 'n_lemmata']:
-        if i not in meta_data.keys():
-            kh.OBSERVER.notify(kh._("Sorry, no meta-data available, \
-something's wrong with your csv"))
-            sysexit()
-    # check token keys
-    for i in ['token', 'pos', 'lemma', 'id_sentence', 'id_tokin_sen',
-              'id_token', 'id_char', 'id_para']:
-        if i not in column_keys.keys():
-            kh.OBSERVER.notify(kh._("Sorry, I can't read your csv-file as a \
-tagged text"))
-            sysexit()
-    # map tokens
+    # check format of tagged-text-file
+    # meta_data = literal_eval(raw[0])
+    try:
+        # first line should be a dictionary
+        meta_data = literal_eval(raw[0])
+    except (SyntaxError, TypeError, ValueError):
+        kh.OBSERVER.notify(kh._("Sorry, missing meta-data in csv-file"))
+        sysexit()
+    # check if each Metadata-attribute finds a key in the dictionary
+    try:
+        for i in ['n_char', 'n_odds', 'n_tokens', 'n_tokens_split', 'n_types',
+                  'n_unk_types', 'n_lemmata', 'datetime']:
+            if i not in meta_data.keys():
+                raise KeyError()
+    except KeyError:
+        kh.OBSERVER.notify(kh._("Sorry, wrong meta-data keys in your csv"))
+        sysexit()
+    # second line should be the column names for Token-attributes
+    try:
+        # map column-numbers to column-names
+        column_keys = {key.strip(): i
+                       for i, key in enumerate(raw[1].split(";"))
+                       }
+        # check if each Token-attribute finds a column-name
+        for i in ['token', 'pos', 'lemma', 'id_sentence', 'id_tokin_sen',
+                  'id_token', 'id_char', 'id_para']:
+            if i not in column_keys.keys():
+                raise KeyError()
+    except KeyError:
+        kh.OBSERVER.notify(kh._("Sorry, I can't read your csv-file as a \
+tagged text."))
+        sysexit()
+    # make list of mapped Tokens
     tagged = []
     for token_line in raw[2:]:
         token_data = token_line.split(";")

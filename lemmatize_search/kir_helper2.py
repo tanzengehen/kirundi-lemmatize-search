@@ -116,30 +116,6 @@ def check_file_exits(fn_file):
     return osp.exists(fn_file)
 
 
-def load_columns_fromfile(fname, upto_column=-1, separator=";"):
-    """reads first n columns of a table
-    returns a list (col_0, ... col_n)
-    """
-    liste = []
-    with open(fname, encoding="utf-8") as file:
-        for row in file:
-            row = row.replace("\n", " ")
-            if upto_column == -1:
-                liste.append(row)
-            else:
-                cell = row.split(separator)
-                cols = []
-                for col in cell[:upto_column]:
-                    cols.append(col.strip())
-                if upto_column == 1:
-                    # only 1 column > string
-                    liste.append(cols[0])
-                else:
-                    liste.append(cols)
-    # liste[0][0] = str(liste[0][0]).strip("(")
-    return liste
-
-
 def load_lines(filename):
     """returns a list of the lines of the file (utf-8)
     """

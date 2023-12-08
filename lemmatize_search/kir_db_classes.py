@@ -39,8 +39,11 @@ def read_named_entities(filename=sd.ResourceNames.fn_named_entities):
     return rows
 
 
-def get_resources(rundi_file=sd.ResourceNames.fn_db,
-                  names_file=sd.ResourceNames.fn_named_entities):
+def get_resources(
+        rundi_file=sd.ResourceNames.root+"/tests/test_data/lemmata_test.csv",
+        names_file=sd.ResourceNames.root+"/tests/test_data/names_test.csv"):
+# def get_resources(rundi_file=sd.ResourceNames.fn_db,
+#                   names_file=sd.ResourceNames.fn_named_entities):
     """load Named Entities and db_kirundi
     """
     # read db

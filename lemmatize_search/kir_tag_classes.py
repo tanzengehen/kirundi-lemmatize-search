@@ -7,6 +7,7 @@ Created on Tue Aug  1 07:39:44 2023
 """
 
 import re
+import datetime
 from nltk.text import FreqDist
 from nltk.corpus import PlaintextCorpusReader
 from unidecode import unidecode
@@ -520,6 +521,7 @@ class TokenMeta:
 
     def __init__(self, tagged_list):
         self.tokens = tagged_list
+        self.datetime = datetime.datetime.now()
         self.n_tokensbond = 0
         self.n_tokenscut = 0
         self.n_unk = 0

@@ -1,0 +1,4 @@
+{'n_char': 636, 'n_odds': 41, 'n_tokens': 94, 'n_tokens_split': 99, 'n_types': 80, 'n_unk_types': '9.09 %', 'n_lemmata': 51}
+id_token; id_chr; id_sentence; id_tokin_sen; id_para; token; pos; lemma
+0;0;0;0;0;imigenzo;NOUN;umugenzo
+1;9;0;1;0;-;SYMBOL;-

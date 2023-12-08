@@ -27,8 +27,8 @@ class ResourceNames:
     fn_named_entities = root+sep+"resources"+sep+"extern.csv"
     fn_freqfett = root+sep+"resources"+sep+"freq_fett.csv"
     # fn_db = root+sep+"resources"+sep+"db_kirundi.csv"
-    # fn_db = root+"/tests/test_lemmata.csv"
-    fn_db = root+"/resources/db_cox.csv"
+    # fn_db = root+sep+"tests"+sep+"test_lemmata.csv"
+    fn_db = root+sep+"resources"+sep+"db_cox.csv"
     fn_dates = root+sep+"resources"+sep+"dates.txt"
     dir_tagged = root+sep+"results"+sep+"tagged"+sep
     dir_searched = root+sep+"results"+sep+"searched"+sep
