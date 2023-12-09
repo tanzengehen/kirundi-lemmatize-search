@@ -23,11 +23,11 @@ There is no GUI right now.
 Run lemmatize_search/kir_start_input_console.py  
 Than choose your preferred language for using the App: Rundi, English or German.  
 And enter the path/to/txt.file you want to analyse. 
-<img src="images/kirundi_nlp1.jpg">
+<img src="images/kirundi_nlp1.jpg">  
 You'll get some statistics and a csv-file with the tagged text.  
-<img src="images/kirundi_nlp2.jpg">
+<img src="images/kirundi_nlp2.jpg">  
 Than enter your text-search-query.  
-<img src="images/kirundi_nlp3.jpg">
+<img src="images/kirundi_nlp3.jpg">  
 
 
 
