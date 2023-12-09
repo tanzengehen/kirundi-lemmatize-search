@@ -28,10 +28,8 @@ You'll get some statistics and a csv-file with the tagged text.
 <img width=60% src="images/kirundi_nlp2.jpg">  
 Than enter your text-search-query.  
 <img src="images/kirundi_nlp3.jpg">  
-If there are results you'll find a list of maximum 20 results.  
+If there are results you'll find a list of maximum 20 results in the terminal, but all results are stored in a txt-file.  
 Starting with the character number in the text, where it was found and surrounding text (previous and following 50 characters).  
-
-
 
 ## Support
 deki.kazinduzi(at)gmail.com  
