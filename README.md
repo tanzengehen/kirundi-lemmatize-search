@@ -21,15 +21,15 @@ It's written in Python3
 ## Usage
 There is no GUI right now.  
 Run lemmatize_search/kir_start_input_console.py  
-Than choose your preferred language for using the App: Rundi, English or German.  
-And enter the path/to/txt.file you want to analyse.  
+Then choose your preferred language for using the App: Rundi, English or German.  
+And enter the path/to/file.txt you want to analyse.  
 <img width=60% src="images/kirundi_nlp1.jpg">  
 You'll get some statistics and a csv-file with the tagged text.  
 <img width=60% src="images/kirundi_nlp2.jpg">  
-Than enter your text-search-query.  
+Then enter your text-search-query.  
 <img src="images/kirundi_nlp3.jpg">  
 If there are results you'll find a list of maximum 20 results in the terminal, but all results are stored in a txt-file.  
-Starting with the character number in the text, where it was found and surrounding text (previous and following 50 characters).  
+Starting with the number of the character where your searchterm was found in the text and surrounding text (previous and following 50 characters).  
 
 ## Support
 deki.kazinduzi(at)gmail.com  
@@ -44,16 +44,16 @@ There are different ways to contribute:
 This project needs a nice user-interface.  
 contact deki.kazinduzi(at)gmail.com  
 2.  
-You could check your tagged text for "UNK" and propose to identify these words as Named-entity or as a new entry for the dictionary. Please provide in this case also grammar features (Singular and Plural of nouns, respectively Infinitiv and Perfektiv of verbs, in best case also pronounciation, for Named-entites the special tag or a short description).  
+You could check your tagged text for "UNK" and propose to identify these words as Named-entity or as a new entry for the dictionary. Please provide in this case also grammar features (singular and plural of nouns, respectively infinitive and perfective of verbs, in best case also pronounciation, for Named-entites the special tag or a short description).  
 Mail your proposals to deki.kazinduzi(at)gmail.com  
 3.  
 You could check your tagged text for wrong tags and report them.  
 
 ## Authors and acknowledgment 
-code:  
+Code:  
 Doreen Nixdorf  
 
-data:  
+Data:  
 This app uses the Rundi words of the  
 "Dictionary: Kirundi-English, English-Kirundi" by Elizabeth Cox (1969),  
 digitalised and reviewed by Martin Philipps (2020),  
