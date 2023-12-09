@@ -35,13 +35,13 @@ Starting with the character number in the text, where it was found and surroundi
 deki.kazinduzi(at)gmail.com  
 
 ## Roadmap
-Make a GUI or host it on a website.  
+Let's make a GUI or host it on a website.  
 For a website an extended version of the dictionary could be used.  
 
 ## Contributing
 There are different ways to contribute:  
 1.  
-This project needs a user-interface.  
+This project needs a nice user-interface.  
 contact deki.kazinduzi(at)gmail.com  
 2.  
 You could check your tagged text for "UNK" and propose to identify these words as Named-entity or as a new entry for the dictionary. Please provide in this case also grammar features (Singular and Plural of nouns, respectively Infinitiv and Perfektiv of verbs, in best case also pronounciation, for Named-entites the special tag or a short description).  
