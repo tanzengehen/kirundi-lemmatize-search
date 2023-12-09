@@ -322,6 +322,16 @@ def tag_text_with_db(mytext, dbrundi):
             text_tagged)
 
 
+def replace_worded_symbols_back(neighbor_text):
+    """replace worded symbols back to symbols"""
+    replaced_symbols = [('semikolon', ';'),
+                        ('quotation', '"'),
+                        ('deg', '°')]
+    for i in replaced_symbols:
+        neighbor_text = neighbor_text.replace(i[0], i[1])
+    return neighbor_text
+
+
 # could be a function of a class wordlist_tagged?
 def collect_words_around_searchterm(
         index_start, found_string, wordlist_tagged):
@@ -335,6 +345,7 @@ def collect_words_around_searchterm(
     # words behind searchterm
     while char_count < 50 and index_end + neighbours < len(wordlist_tagged):
         neighbor_text = wordlist_tagged[index_end + neighbours].token+" "
+        neighbor_text = replace_worded_symbols_back(neighbor_text)
         text_around += neighbor_text
         char_count += len(neighbor_text)
         neighbours += 1
@@ -343,6 +354,7 @@ def collect_words_around_searchterm(
     # words before searchterm
     while char_count < 50 and index_start+neighbours > 0:
         neighbor_text = wordlist_tagged[index_start+neighbours].token+" "
+        neighbor_text = replace_worded_symbols_back(neighbor_text)
         text_around = neighbor_text+text_around
         char_count += len(neighbor_text)
         neighbours -= 1
