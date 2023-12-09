@@ -15,17 +15,18 @@ With this it's also possible:
 The tag will be "UNK" if it doesn't find an appropriate lemma or Named-Entity in the underlying database.
 
 ## Dependencies
-nltk, unidecode
+nltk, unidecode  
 It's written in Python3    
 
 ## Usage
 There is no GUI right now.  
-Run lemmatize_search/kir_start_input_console.py
+Run lemmatize_search/kir_start_input_console.py  
 Than choose your preferred language for using the App: Rundi, English or German.  
+<img src="images/kirundi_nlp1.jpg">
 Than enter the path/to/txt.file you want to analyse.
 You'll get a csv-file with the tagged text (when search in the text, this file will be used).  
 Than enter your text-search-query. Without GUI it's not very comfortable, sorry:
-for example: "kugenda 
+
 
 ## Support
 deki.kazinduzi(at)gmail.com  
