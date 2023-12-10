@@ -109,6 +109,42 @@ searchterms or 'q' for 'quit'"""))
     return tags
 
 
+def check_query(which_words):
+    search = []
+    notss = []
+    whichtags = []
+    show = ""
+    for interest in which_words.split():
+        print("in chreck:", interest)
+        notss.append("y")
+        # wildcard
+        if interest == "*":
+            search.append("?")
+            whichtags.append("?")
+            show += "all + "
+        # discard word/lemma
+        elif interest == "!":
+            notss.append("n")
+            interest = interest[1:]
+            show += "all except "
+        # lemma
+        if interest[:3] in ["(l)", "(L)"]:
+            search.append(interest[:3])
+            whichtags.append("l")
+            show += "(lemma)"
+        else:
+            # pos-tag
+            search.append(interest)
+            if interest in sd.PossibleTags.pt:
+                whichtags.append("t")
+            # exact word
+            else:
+                whichtags.append("w")
+            show += interest + " + "
+    kh.OBSERVER.notify(kh._(show))
+    return notss, search, whichtags
+
+
 def check_search_wtl(whichtags, whichwords):
     """check if searchterm and wtl match in length and possibilities
     """
@@ -222,18 +258,19 @@ deutsch, english, français)
         PROPN_THG, PROPN_VEG, PRP (prepositions), SYMBOL,
         UNK (unkwon to dictionary), VERB, WWW (webaddress)]
 Your searchterm"""))
-    query = input_searchterm()
-    kh.OBSERVER.notify(
-        kh._("\tOK, you are looking for a {}-gram.\n").format((len(query))))
-    # Translators: terminal only
-    kh.OBSERVER.notify(kh._("""For distinction between type, tag and lemma
-chose for each part of the searchterm a letter..."""))
-    # Translators: terminal only
-    kh.OBSERVER.notify(kh._("""\t\tW = this type
-\t\tL = all types of this lemma
-\t\tT = Part of Speech-tag
-\t\t? = wildcard"""))
-    wtl = input_wtl(len(query))
-    nots, quterms = check_search_wtl(wtl, query)
-
+#     query = input_searchterm()
+#     kh.OBSERVER.notify(
+#         kh._("\tOK, you are looking for a {}-gram.\n").format((len(query))))
+#     # Translators: terminal only
+#     kh.OBSERVER.notify(kh._("""For distinction between type, tag and lemma
+# chose for each part of the searchterm a letter..."""))
+#     # Translators: terminal only
+#     kh.OBSERVER.notify(kh._("""\t\tW = this type
+# \t\tL = all types of this lemma
+# \t\tT = Part of Speech-tag
+# \t\t? = wildcard"""))
+#     wtl = input_wtl(len(query))
+#     nots, quterms = check_search_wtl(wtl, query)
+    query = input('  : ')
+    nots, quterms, wtl = check_query(query)
     ts.search_or_load_search(f_in, wtl, nots, quterms, kh.SINGLE, tagged.tokens)

@@ -1,4 +1,4 @@
-{'n_char': 633, 'n_odds': 41, 'n_tokens': 93, 'n_tokens_split': 99, 'n_types': 79, 'n_unk_types': '12.12 %', 'n_lemmata': 48, 'datetime': (2023, 12, 8, 15, 11, 35, 284408)}
+{'n_char': 633, 'n_odds': 41, 'n_tokens': 93, 'n_tokens_split': 99, 'n_types': 79, 'n_unk_types': '12.12 %', 'n_lemmata': 48, 'db_name': 'lemmata_test', 'datetime': 'Fri Dec 8 15:11:35 2023'}
 id_token; id_char; id_sentence; id_tokin_sen; id_para; token; pos; lemma
 0;0;0;0;0;imigenzo;NOUN;umugenzo
 1;9;0;1;0;-;SYMBOL;-

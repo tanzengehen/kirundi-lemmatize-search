@@ -12,6 +12,7 @@ from ast import literal_eval
 from operator import itemgetter
 from sys import exit as sysexit
 from unidecode import unidecode
+import datetime
 
 try:
     import kir_helper2 as kh
@@ -322,14 +323,11 @@ def tag_text_with_db(mytext, dbrundi):
             text_tagged)
 
 
-def replace_worded_symbols_back(neighbor_text):
+def replace_worded_symbols_back(neighbour_word):
     """replace worded symbols back to symbols"""
-    replaced_symbols = [('semikolon', ';'),
-                        ('quotation', '"'),
-                        ('deg', '°')]
-    for i in replaced_symbols:
-        neighbor_text = neighbor_text.replace(i[0], i[1])
-    return neighbor_text
+    if neighbour_word in sd.replaced_symbols.keys():
+        return sd.replaced_symbols.get(neighbour_word)
+    return neighbour_word
 
 
 # could be a function of a class wordlist_tagged?
@@ -344,19 +342,19 @@ def collect_words_around_searchterm(
     char_count = 0
     # words behind searchterm
     while char_count < 50 and index_end + neighbours < len(wordlist_tagged):
-        neighbor_text = wordlist_tagged[index_end + neighbours].token+" "
-        neighbor_text = replace_worded_symbols_back(neighbor_text)
-        text_around += neighbor_text
-        char_count += len(neighbor_text)
+        neighbour_word = wordlist_tagged[index_end + neighbours].token
+        neighbour_word = replace_worded_symbols_back(neighbour_word)
+        text_around += neighbour_word+" "
+        char_count += len(neighbour_word)+1
         neighbours += 1
     neighbours = -1
     char_count = 0
     # words before searchterm
     while char_count < 50 and index_start+neighbours > 0:
-        neighbor_text = wordlist_tagged[index_start+neighbours].token+" "
-        neighbor_text = replace_worded_symbols_back(neighbor_text)
-        text_around = neighbor_text+text_around
-        char_count += len(neighbor_text)
+        neighbour_word = wordlist_tagged[index_start + neighbours].token
+        neighbour_word = replace_worded_symbols_back(neighbour_word)
+        text_around = neighbour_word + " " + text_around
+        char_count += len(neighbour_word)+1
         neighbours -= 1
     # cut or fill space before searchterm
     if char_count >= 50:
@@ -492,13 +490,17 @@ def tag_multogether(fn_in, dbrundi):
                                    whattext.fn_freqlemma.split("/")[-1],
                                    kh.Dates.database)
     # prepare data for csv
+    date = datetime.datetime.now()
+    print("in multog", date, date.ctime(), str(date.ctime()))
     meta_data = {"n_char": whattext.nchars,
                  "n_odds": whattext.nodds,
                  "n_tokens": text_tagged.n_tokensbond,
                  "n_tokens_split": text_tagged.n_tokenscut,
                  "n_types": text_tagged.n_types,
                  "n_unk_types": str(text_tagged.percent_unk)+" %",
-                 "n_lemmata": len(lemma_lists.known())
+                 "n_lemmata": len(lemma_lists.known()),
+                 "db_name": sd.ResourceNames.db_name,
+                 "datetime": date.ctime()
                  }
     save_tagged_text_as_csv(meta_data, text_tagged.tokens, whattext.fn_tag)
     kh.OBSERVER.notify_tagging(whattext.fn_in,
@@ -582,14 +584,16 @@ tokens                   :{tokensbond:12}
 tokens (when split by \') :{tokens_split:12}
 types                    :{types:12}
 recognized lemmata       :{lemmata:12}
-unknown types            :{unk:15} %""").
+unknown types            :{unk:15} %
+used dictionary          :   {db_name}""").
         format(char=meta_data.get("n_char"),
                odds=meta_data.get("n_odds"),
                tokensbond=meta_data.get("n_tokens"),
                tokens_split=meta_data.get("n_tokens_split"),
                types=meta_data.get("n_types"),
                lemmata=meta_data.get("n_lemmata"),
-               unk=float(meta_data.get("n_unk_types").split()[0])
+               unk=float(meta_data.get("n_unk_types").split()[0]),
+               db_name=meta_data.get("db_name")
                ))
 
 
@@ -656,20 +660,23 @@ Do you want to use your file or tag again the underlying text?
     lemma_lists, text_tagged = tag_text_with_db(whattext.text, dbrundi)
     lemmafreq = lemma_lists.all_in()
 
-    # save lemmafreq in csv file
+    # save lemma-frequency-distribution in csv file
     lemmafreq.insert(0, sd.column_names_lemmafreq(), )
     kh.save_list(lemmafreq, whattext.fn_freqlemma)
     kh.OBSERVER.notify_frequencies(whattext.fn_in.split(pathsep)[-1],
                                    whattext.fn_freqlemma.split(pathsep)[-1],
                                    kh.Dates.database)
     # save tagged text in csv
+    date = datetime.datetime.now()
     meta_data = {"n_char": whattext.nchars,
                  "n_odds": whattext.nodds,
                  "n_tokens": text_tagged.n_tokensbond,
                  "n_tokens_split": text_tagged.n_tokenscut,
                  "n_types": text_tagged.n_types,
                  "n_unk_types": str(text_tagged.percent_unk)+" %",
-                 "n_lemmata": len(lemma_lists.known)
+                 "n_lemmata": len(lemma_lists.known),
+                 "db_name": sd.ResourceNames.db_name,
+                 "datetime": date.ctime()
                  }
     save_tagged_text_as_csv(meta_data, text_tagged.tokens, whattext.fn_tag)
     kh.OBSERVER.notify_tagging(whattext.fn_in.split(pathsep)[-1],
@@ -770,7 +777,7 @@ def load_tagged_text(filename):
     # check if each Metadata-attribute finds a key in the dictionary
     try:
         for i in ['n_char', 'n_odds', 'n_tokens', 'n_tokens_split', 'n_types',
-                  'n_unk_types', 'n_lemmata', 'datetime']:
+                  'n_unk_types', 'n_lemmata', 'db_name', 'datetime']:
             if i not in meta_data.keys():
                 raise KeyError()
     except KeyError:

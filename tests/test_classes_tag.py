@@ -10,13 +10,6 @@ from unittest import TestCase
 from ..lemmatize_search import kir_tag_classes as tc
 
 # nosetests --with-spec --spec-color --with-coverage --cover-erase
-# coverage report -m
-
-
-# from nose.tools import nottest
-
-# from foo.foo import get_test_case
-# get_test_case = nottest(get_test_case)
 
 
 ###############################################################

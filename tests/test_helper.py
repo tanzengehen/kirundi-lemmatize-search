@@ -11,6 +11,8 @@ import os
 from ..lemmatize_search import kir_helper2 as kh
 from ..lemmatize_search import kir_string_depot as sd
 
+# nosetests --with-spec --spec-color --with-coverage --cover-erase
+
 
 ####################################################
 #     T E S T        UI-Language                   #

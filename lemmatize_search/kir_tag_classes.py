@@ -560,11 +560,13 @@ class TokenMeta:
         """
         lemmasoup = ""
         for i in self.tokens:
-            if i.pos != "SYMBOL":
-                if i.pos == "UNK":
-                    lemmasoup += "?"+i.lemma+" "
-                else:
-                    lemmasoup += i.lemma+" "
+            if i.pos == "UNK":
+                lemmasoup += "?"+i.lemma+" "
+            elif i.pos == "SYMBOL":
+                if i.lemma in sd.replaced_symbols.keys():
+                    lemmasoup += sd.replaced_symbols.get(i)+" "
+            else:
+                lemmasoup += i.lemma+" "
         return lemmasoup.strip()
 
     def tokensoup(self):

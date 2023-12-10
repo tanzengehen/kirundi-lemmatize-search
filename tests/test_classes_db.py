@@ -13,7 +13,6 @@ from ..lemmatize_search import kir_string_depot as sd
 
 
 # nosetests --with-spec --spec-color --with-coverage --cover-erase
-# coverage report -m
 
 
 ###############################################################

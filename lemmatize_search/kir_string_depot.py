@@ -14,22 +14,29 @@ class ResourceNames:
     """pathames for resource files
     """
 
+#     print(sys.path)
     sep = os.path.sep
     long_root = os.getcwd().split(sep)
-#     print(sys.path)
     for i, part in enumerate(long_root):
         if part == "rundi_lemmatize_search":
             relative = i
             break
     root = sep.join(os.getcwd().split(sep)[:relative+1])
+
     fn_i18n = root+sep+"i18n"
     fn_corpuslist = root+sep+"resources"+sep+"verzeichnis.txt"
     fn_named_entities = root+sep+"resources"+sep+"extern.csv"
     fn_freqfett = root+sep+"resources"+sep+"freq_fett.csv"
-    # fn_db = root+sep+"resources"+sep+"db_kirundi.csv"
-    # fn_db = root+sep+"tests"+sep+"test_lemmata.csv"
-    fn_db = root+sep+"resources"+sep+"db_cox.csv"
+    fn_db_newest = root+sep+"resources"+sep+"db_kirundi.csv"
+    fn_db_cox20 = root+sep+"resources"+sep+"db_cox.csv"
     fn_dates = root+sep+"resources"+sep+"dates.txt"
+    # fn_db depends on supplied resource
+    if os.path.exists(fn_db_newest):
+        fn_db = fn_db_newest
+        db_name = 'fn_db_newest'
+    else:
+        fn_db = fn_db_cox20
+        db_name = 'fn_db_cox20'
     dir_tagged = root+sep+"results"+sep+"tagged"+sep
     dir_searched = root+sep+"results"+sep+"searched"+sep
 
@@ -37,13 +44,13 @@ class ResourceNames:
         return f"root={self.root}, fn_namedentities={self.fn_namedentities}, "\
             + f"n_freqfett={self.fn_freqfett}, fn_db={self.fn_db}, "\
             + f"fn_dates={self.fn_dates}, dir_tagged={self.dir_tagged}, "\
-            + f"dir_searched={self.dir_searched}"
+            + f"dir_searched={self.dir_searched}, fn_i18n={self.fn_i18n}"
 
     def __repr__(self):
         return f"root={self.root}, fn_namedentities={self.fn_namedentities}, "\
             + f"n_freqfett={self.fn_freqfett}, fn_db={self.fn_db}, "\
             + f"fn_dates={self.fn_dates}, dir_tagged={self.dir_tagged}, "\
-            + f"dir_searched={self.dir_searched}"
+            + f"dir_searched={self.dir_searched}, fn_i18n={self.fn_i18n}"
 
 
 def find_relative_path(name="rundi_lemmatize_search"):
@@ -248,6 +255,13 @@ def punctuation():
     does not include currency signs
     """
     return ',.;:!?(){}[]\'"´`#%&+-*/<=>@\\^°_|~'
+
+
+# for tagging we replace some characters because they will disorganise the
+# structure of our csv files
+replaced_symbols = {'semikolon': ';',
+                    'quotation': '"',
+                    'deg': '°'}
 
 
 class Letter:
