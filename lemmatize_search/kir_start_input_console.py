@@ -115,7 +115,6 @@ def check_query(which_words):
     whichtags = []
     show = ""
     for interest in which_words.split():
-        print("in chreck:", interest)
         notss.append("y")
         # wildcard
         if interest == "*":
@@ -129,9 +128,9 @@ def check_query(which_words):
             show += "all except "
         # lemma
         if interest[:3] in ["(l)", "(L)"]:
-            search.append(interest[:3])
+            search.append(interest[3:])
             whichtags.append("l")
-            show += "(lemma)"
+            show += "(lemma)" + interest[3:]
         else:
             # pos-tag
             search.append(interest)
