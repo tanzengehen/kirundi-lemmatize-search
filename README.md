@@ -24,12 +24,18 @@ Run lemmatize_search/kir_start_input_console.py
 Then choose your preferred language for using the App: Rundi, English or German.  
 And enter the path/to/file.txt you want to analyse.  
 <img width=60% src="images/kirundi_nlp1.jpg">  
-You'll get some statistics and a csv-file with the tagged text.  
+You'll get some statistics and a csv-file with the tagged text, named "tag__filename.csv".  
+In the same folder you'll find also the frequency distribution of lemmata of the text, named "fl__filename.csv".  
 <img width=60% src="images/kirundi_nlp2.jpg">  
 Then enter your text-search-query.  
 <img src="images/kirundi_nlp3.jpg">  
 If there are results you'll find a list of maximum 20 results in the terminal, but all results are stored in a txt-file.  
-Starting with the number of the character where your searchterm was found in the text and surrounding text (previous and following 50 characters).  
+Starting with the number of the character where your searchterm was found in the text and surrounding text (previous and following 50 characters). The name of the results-file ends with your search query. In our example it's: "test_text0__(l)umugore_VERB_.txt".  
+
+Atttention:  
+Before tagging the program looks up if there is already a tagged file ("tag__filename.csv") in the folder "/results/tagged".  
+Also before a search, it will look up in the folder "/results/searched" if this search was done already.   
+That means, if you changed the text in your file delete the tag-file and the search-files of this text, because it won't refresh them. Or give your text-file an unused name.
 
 ## Support
 deki.kazinduzi(at)gmail.com  
@@ -56,9 +62,9 @@ Doreen Nixdorf
 Data:  
 This app uses the Rundi words of the  
 "Dictionary: Kirundi-English, English-Kirundi" by Elizabeth Cox (1969),  
-digitalised and reviewed by Martin Philipps (2020),  
-structured as database by Sarah Wingert (2020),   
-(extended by Evrard Ngabire, Doreen Nixdorf 2023)
+digitalised and reviewed by Martin Philipps (Bujumbura Christian University, 2020),  
+structured as database by Sarah Wingert (Bujumbura Christian University, 2020),   
+(extended by Evrard Ngabire (Deutschzentrum at University of Burundi), Doreen Nixdorf 2023)  
 
 ## License
 This work is licensed under CC BY-NC-SA 4.0
