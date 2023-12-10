@@ -8,11 +8,12 @@ Created on Sat May 20 15:32:20 2023
 
 
 import re
+import datetime
 from ast import literal_eval
 from operator import itemgetter
 from sys import exit as sysexit
 from unidecode import unidecode
-import datetime
+
 
 try:
     import kir_helper2 as kh
@@ -367,7 +368,7 @@ def collect_words_around_searchterm(
 
 
 # could be a function of a class wordlist_tagged?
-def find_thing(wordlist_tagged, wtl, questions):
+def find_thing(wordlist_tagged, wtl, question):
     """searches a wordform
     or all wordforms of a lemma
     or a tag
@@ -375,11 +376,13 @@ def find_thing(wordlist_tagged, wtl, questions):
     """
     found = []
     missings = []
-    searchword = questions[0]
+    searchword = question
     # we need the index because we want to find also the neighbour words
     for index, tagword in enumerate(wordlist_tagged):
         # tag missing?
         if not tagword.pos:
+            for i in range(index-3, index+3):
+                print("missing tag", i, wordlist_tagged[i])
             missings.append(
                 ("missing tag by word number:", index, tagword.token)
                 )
@@ -391,17 +394,26 @@ def find_thing(wordlist_tagged, wtl, questions):
     return found, missings
 
 
-def find_ngrams(wordlist_tagged, wtl, nots, questions):
+def set_query_part(query, n):
+    """update question for next token in text"""
+    yesno = query[n][0]
+    wtl = query[n][1]
+    searchword = query[n][2]
+    return yesno, wtl, searchword
+
+
+def find_ngrams(wordlist_tagged, query):
     """finds combinations of n words
     wordforms(w), tags(t), lexems(l) or jokerword(?)
     returns all matches and text around the search result
     """
     missings = []
-    ngram_length = len(questions)
+    ngram_length = len(query)
     found = []             # collection of found strings
     part_found = ""        # found string
     n_count = 0            # index suchbegriff
     for index in range(len(wordlist_tagged)-ngram_length):
+        yesno, wtl, searchword = set_query_part(query, n_count)
         # tag missing?
         if not wordlist_tagged[index].pos:
             missings.append(("missing tag by word number:",
@@ -409,9 +421,10 @@ def find_ngrams(wordlist_tagged, wtl, nots, questions):
             continue
         # found start of match
         # (we have to lower both: beginnings of sentences and tags)
-        if wordlist_tagged[index].get(wtl[n_count]).lower() == questions[0].lower():
+        if wordlist_tagged[index].get(wtl).lower() == searchword.lower():
             part_found = wordlist_tagged[index].token
             n_count = 1
+            yesno, wtl, searchword = set_query_part(query, n_count)
             # collect matches till full-match or mismatch of next token
             for candidate in wordlist_tagged[index+1:]:
                 # add punctuation to found string but don't count it
@@ -420,17 +433,19 @@ def find_ngrams(wordlist_tagged, wtl, nots, questions):
                         part_found += " " + ";"
                     elif candidate.token == "quotation":
                         part_found += ' ' + '"'
+                    elif candidate.token == "deg":
+                        part_found += ' ' + '°'
                     else:
                         part_found += " " + candidate.token
                     continue
                 # next token also matches
-                if (nots[n_count] != "!"
-                        and (wtl[n_count] == "?"
-                             or candidate.get(wtl[n_count]).lower() ==
-                             questions[n_count].lower())) \
-                    or (nots[n_count] == "!"
-                        and candidate.get(wtl[n_count]).lower() !=
-                        questions[n_count].lower()):
+                if (yesno != "!"
+                        and (wtl == "?"
+                             or candidate.get(wtl).lower() ==
+                             searchword.lower())) \
+                    or (yesno == "!"
+                        and candidate.get(wtl).lower() !=
+                        searchword.lower()):
 
                     # add token and count it
                     part_found += " " + candidate.token
@@ -443,6 +458,7 @@ def find_ngrams(wordlist_tagged, wtl, nots, questions):
                         part_found = ""
                         n_count = 0
                         break
+                    yesno, wtl, searchword = set_query_part(query, n_count)
                 # next token doesn't match
                 else:
                     part_found = ""
@@ -454,12 +470,14 @@ def find_ngrams(wordlist_tagged, wtl, nots, questions):
 def go_search(tagged_list, whattodo):
     """search in single text
     """
-    if len(whattodo.wtl) == 1:
+    if len(whattodo.query) == 1:
         found = find_thing(
-            tagged_list, whattodo.wtl[0], whattodo.questions)
+            tagged_list, whattodo.query[0][1], whattodo.query[0][2])
     else:
+        # found = find_ngrams(
+        #     tagged_list, whattodo.wtl, whattodo.nots, whattodo.questions)
         found = find_ngrams(
-            tagged_list, whattodo.wtl, whattodo.nots, whattodo.questions)
+            tagged_list, whattodo.query)
     if found:
         # tag missing?
         if found[1]:
@@ -711,10 +729,11 @@ def save_tagged_text_as_csv(meta, tagged_text, filename):
         file.write(tags)
 
 
-def search_or_load_search(f_in, wtl, nots, quterms, single, tagged):
+def search_or_load_search(f_in, quterms, single, tagged):
     """main
     """
-    whattodo = sd.Search(f_in, wtl, nots, quterms)
+    # whattodo = sd.Search(f_in, wtl, nots, quterms)
+    whattodo = sd.Search(f_in, quterms)
     # check if search was already done before
     already_done = kh.check_file_exits(sd.ResourceNames.dir_searched
                                        + whattodo.fn_search.split("/")[-1])

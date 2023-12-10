@@ -294,13 +294,12 @@ class Search:
     """query and filenames for result, frequency distributions and tagged text
     """
 
-    def __init__(self, f_in, wtl, nots, quterms):
+    # def __init__(self, f_in, wtl, nots, quterms):
+    def __init__(self, f_in, query):
         self.fn_in = f_in
-        self.wtl = wtl
-        self.nots = nots
-        self.questions = quterms
+        self.query = query
         self.short = ""
-        self.fn_search = self.set_fnsearch()
+        self.fn_search, self.short = self.set_fnsearch(f_in, query)
 
     def __str__(self):
         return f"wtl={self.wtl}, questions={self.questions}, \
@@ -310,25 +309,28 @@ class Search:
         return f"wtl={self.wtl}, questions={self.questions}, \
             nots={self.nots}, short={self.short}"
 
-    def set_fnsearch(self):
+    def set_fnsearch(self, f_in, query):
         """combine filename of analysed file and search-terms for making
         a filename to store the search results
         """
         search = ""
-        for i, quest in enumerate(self.questions):
-            if self.wtl[i] == "lemma":
-                que = "(l)"+quest
+        # query format: list of tuples (yes/no, lemma/tag/word/wildcard, word)
+        for i in query:
+            yesno = i[0]
+            wtl = i[1]
+            searchword = i[2]
+            if wtl == "token":
+                question = "(exact)"+searchword+"_"
             else:
-                que = quest
-            if self.nots[i] == "!":
-                search += "!"+que+"_"
+                question = searchword+"_"
+            if yesno == "n":
+                search += "!"+question
             else:
-                search += que+"_"
-        myname = self.fn_in.split("/")[-1]
+                search += question+"_"
+        myname = f_in.split(os.path.sep)[-1]
         short = myname.find(".")
-        self.short = myname[:short]
-        fn = ResourceNames.dir_searched+self.short+"__"+search+".txt"
-        return fn
+        fn = ResourceNames.dir_searched+myname[:short]+"__"+search+".txt"
+        return fn, myname[:short]
 
 
 # TODO check with TextMeta.set_corpuscategories

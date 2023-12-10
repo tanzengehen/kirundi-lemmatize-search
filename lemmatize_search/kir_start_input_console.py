@@ -73,135 +73,41 @@ Write searchterm again please"""))
     return searchterm
 
 
-def input_wtl(lengths):
-    """specify if a word in the searchstring should be seen as
-    word, tag or lemma
-    """
-    while True:
-        short = input("  : ")
-        short = short.replace(" ", "").lower()
-        if not short:
-            # Translators: terminal only
-            kh.OBSERVER.notify(
-                kh._("""please enter the 'wtl' combination for your
-searchterms or 'q' for 'quit'"""))
-            continue
-        if short == 'q':
-            sysexit()
-        for i in short:
-            if i not in "wlt?":
-                # Translators: terminal only
-                kh.OBSERVER.notify(
-                    kh._("\tonly 'w', '!w', 't', '!t', 'l', '!l' or '?'"))
-                again = True
-                break
-            again = False
-        if again is True:
-            continue
-        if len(short) != lengths:
-            # Translatorse: terminal only
-            kh.OBSERVER.notify(
-                kh._("Hm, not as many as searchterms... Please again."))
-            continue
-        break
-    kind_of_search = {"w": "token", "t": "pos", "l": "lemma", "?": "?"}
-    tags = [kind_of_search.get(i) for i in short]
-    return tags
-
-
-def check_query(which_words):
-    search = []
-    notss = []
-    whichtags = []
+def figure_out_query(which_words):
+    """figure the searchterm out
+    return list of tuples:
+    (to exclude or not, word/tag/lemma/wildcard, searchword)"""
+    quest = []
     show = ""
-    for interest in which_words.split():
-        notss.append("y")
-        # wildcard
-        if interest == "*":
-            search.append("?")
-            whichtags.append("?")
-            show += "all + "
-        # discard word/lemma
-        elif interest == "!":
-            notss.append("n")
+    for interest in which_words:
+        whichtag = ""
+        # discard this word/tag/lemma
+        if interest[0] == "!":
+            yesno = "n"
             interest = interest[1:]
             show += "all except "
-        # lemma
-        if interest[:3] in ["(l)", "(L)"]:
-            search.append(interest[3:])
-            whichtags.append("l")
-            show += "(lemma)" + interest[3:]
         else:
-            # pos-tag
-            search.append(interest)
-            if interest in sd.PossibleTags.pt:
-                whichtags.append("t")
-            # exact word
-            else:
-                whichtags.append("w")
-            show += interest + " + "
-    kh.OBSERVER.notify(kh._(show))
-    return notss, search, whichtags
-
-
-def check_search_wtl(whichtags, whichwords):
-    """check if searchterm and wtl match in length and possibilities
-    """
-    possible = sd.PossibleTags
-    search = []
-    notss = []
-    show = ""
-    for i, interest in enumerate(whichtags):
+            yesno = "y"
+        # exact word
+        if interest[0] == "/":
+            interest = interest[1:]
+            whichtag = "token"
+            show += "(exact)" + interest + " + "
         # wildcard
-        if interest == "?":
-            notss.append("y")
-            search.append("?")
-            # Translators: terminal only
-            show += kh._("all + ")
-            if whichwords[i] != '*':
-                # it should be * but we don't ask again, only warn
-                # Translators: terminal only
-                kh.OBSERVER.notify(kh._("mismatch: wildcard {}.").format(i+1))
-                # Translators: terminal only
-                yesno = input(kh._("I go with the wildcard. Y/N : "))
-                # Translators: terminal only
-                if yesno not in kh._("yY"):
-                    # Translators: terminal only
-                    kh.OBSERVER.notify(kh._("Start again"))
-                    sysexit()
-        # not wildcard
-        else:
-            # not this word, tag or lemma
-            if whichwords[i][0] == "!":
-                notss.append("!")
-                show += kh._("all except ")
-                whichwords[i] = whichwords[i].strip("!")
-            else:
-                notss.append("y")
-            # tag
-            if interest == "pos":
-                # PoS tags always in uppercase
-                whichwords[i] = whichwords[i].upper()
-                if whichwords[i] in possible.pt:
-                    search.append(whichwords[i])
-                    show += whichwords[i]+" + "
-                else:
-                    # Translators: terminal only
-                    kh.OBSERVER.notify(
-                        kh._("Invalid tag: {}. There will be no result.")
-                        .format(whichwords[i]))
-                    sysexit()
-            # word or lemma
-            else:
-                search.append(whichwords[i])
-                # lemma
-                if interest == "lemma":
-                    show += whichwords[i]+"(lemma) + "
-                # word
-                else:
-                    show += whichwords[i]+" + "
-    kh.OBSERVER.notify("\n"+kh._("Query = {}\n").format(show[:-3]))
-    return notss, search
+        if interest == "*":
+            whichtag = "?"
+            show += "anything + "
+        # pos-tag
+        elif interest.upper() in sd.PossibleTags.pt:
+            whichtag = "pos"
+            show += interest + " + "
+        # lemma
+        elif whichtag == "":
+            whichtag = "lemma"
+            show += "(lemma)" + interest + " + "
+        quest.append((yesno, whichtag, interest))
+    kh.OBSERVER.notify(kh._(show[:-3]))
+    return quest
 
 
 if __name__ == "__main__":
@@ -246,9 +152,11 @@ deutsch, english, français)
     kh.OBSERVER.notify(kh._("""\nWhat are you looking for?
     Divide searchterms with space characters.
     You can put a '!' before a !word or !tag, if you want to exclude it.
-    You can place a separate '*' for a wildcard.
+    You can place a separate '*' to set one token as wildcard.
+    You can place a '/' before a /word, if you want to find exact this word,
+    else the word will be taken as a lemma and all wordforms will be found.
 
-    Possible PoS-tags:
+    You can use these tags:
         [ADJ, ADV, CONJ, EMAIL, F(foreign word), INTJ, NI, NOUN,
         NUM, NUM_ROM (roman number), PRON (pronouns), PROPN,
         PROPN_CUR, PROPN_LOC (geographical place),
@@ -256,8 +164,8 @@ deutsch, english, français)
         PROPN_PER (group of persons), PROPN_REL, PROPN_SCI,
         PROPN_THG, PROPN_VEG, PRP (prepositions), SYMBOL,
         UNK (unkwon to dictionary), VERB, WWW (webaddress)]
-Your searchterm"""))
-#     query = input_searchterm()
+Now enter our searchterm"""))
+    query = input_searchterm()
 #     kh.OBSERVER.notify(
 #         kh._("\tOK, you are looking for a {}-gram.\n").format((len(query))))
 #     # Translators: terminal only
@@ -270,6 +178,9 @@ Your searchterm"""))
 # \t\t? = wildcard"""))
 #     wtl = input_wtl(len(query))
 #     nots, quterms = check_search_wtl(wtl, query)
-    query = input('  : ')
-    nots, quterms, wtl = check_query(query)
-    ts.search_or_load_search(f_in, wtl, nots, quterms, kh.SINGLE, tagged.tokens)
+
+    kh.OBSERVER.notify(kh._(
+        "\tOK, you are looking for a {}-gram.\n").format((len(query))))
+    search = figure_out_query(query)
+    # ts.search_or_load_search(f_in, wtl, nots, quterms, kh.SINGLE, tagged.tokens)
+    ts.search_or_load_search(f_in, search, kh.SINGLE, tagged.tokens)
