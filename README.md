@@ -30,7 +30,7 @@ In the same folder you'll find also the frequency distribution of lemmata of the
 Then enter your text-search-query.  
 <img src="images/kirundi_nlp3.jpg">  
 If there are results you'll find a list of maximum 20 results in the terminal, but all results are stored in a txt-file.  
-Starting with the number of the character where your search term was found in the text and surrounding text (previous and following 50 characters). The name of the results-file ends with your search query. In our example it's: "test_text0__umugore_VERB_.txt".  
+Starting with the number of the token where your search term was found in the text and surrounding text (previous and following 50 characters). The name of the results-file ends with your search query. In our example it's: "test_text0__umugore_VERB_.txt".  
 
 Atttention:  
 Before tagging the program looks up if there is already a tagged file ("tag__filename.csv") in the folder "/results/tagged".  
