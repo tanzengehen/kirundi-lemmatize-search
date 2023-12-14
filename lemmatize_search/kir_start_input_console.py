@@ -164,7 +164,7 @@ deutsch, english, français)
         PROPN_PER (group of persons), PROPN_REL, PROPN_SCI,
         PROPN_THG, PROPN_VEG, PRP (prepositions), SYMBOL,
         UNK (unkwon to dictionary), VERB, WWW (webaddress)]
-Now enter our searchterm"""))
+Now enter our search term"""))
     query = input_searchterm()
 #     kh.OBSERVER.notify(
 #         kh._("\tOK, you are looking for a {}-gram.\n").format((len(query))))

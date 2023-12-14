@@ -36,10 +36,12 @@ class TextMeta:
         self.nodds = ""
         self.nchars = None
         self.fn_short = ""
-        self.fn_tag = ""
+        self.fn_norm = ""
         self.fn_freqlemma = ""
+        self.fn_tag = ""
+        self.lemmasoup = ""
         if fn_in:
-            self.set_fn_tag_and_lemma()
+            self.set_fn_outs()
 
     def __str__(self):
         textset = bool(self.text)
@@ -49,9 +51,10 @@ class TextMeta:
 
     def __repr__(self):
         textset = bool(self.text)
-        return f"FileMeta: fileid={self.fileid}, pathname={self.fn_in}, "\
-               f"text={textset}, nodd={self.nodds},"\
-               f" nchar={self.nchars}, fn_tag={self.fn_tag}"
+        return f"FileMeta: fileid={self.fileid}, fn_in={self.fn_in}, "\
+               f"raw={self.raw}, text={textset}, nodd={self.nodds}, "\
+               f" nchar={self.nchars}, fn_short={self.fn_short}, "\
+               f"fn_tag={self.fn_tag}, fn_freqlemma={self.fn_freqlemma}"
 
     def set_corpuscategories(self, pathname):
         """extracts categories from filenames of files in university-corpus
@@ -267,25 +270,33 @@ class TextMeta:
         self.nodds = n_mistakes
         self.nchars = len(self.text)
 
-    def set_fn_tag_and_lemma(self):
+    def set_fn_outs(self):
         """set path to filenames where lemma-frequency-distribution and
         tagged text will later be stored
-        lemmafreq in csv-format, tagged text in json-format
+        lemmafreq and tagged text in csv-format,
+        normalised text and lemma_soup as txt
         """
-        root_tagg = sd.ResourceNames.dir_tagged
-        myname = self.fn_in.split("/")[-1]
+        root_tagged = sd.ResourceNames.dir_tagged
+        myname = self.fn_in.split(sd.ResourceNames.sep)[-1]
         short = myname.find(".")
         self.short = myname[:short]
-        self.fn_tag = root_tagg+"tag__"+self.short+".csv"
-        self.fn_freqlemma = root_tagg+"fl__"+self.short+".csv"
+        self.fn_norm = root_tagged+"norm__"+self.short+".txt"
+        self.fn_freqlemma = root_tagged+"fl__"+self.short+".csv"
+        self.fn_tag = root_tagged+"tag__"+self.short+".csv"
+        self.fn_lemmasoup = root_tagged+"lemma__"+self.short+".txt"
 
     def set_fn_corpus(self, corpus_name):
         """set filenames for results in corpus mode
         """
-        self.fn_tag = sd.ResourceNames.dir_tagged + \
-            corpus_name + "/tag__" + self.short + ".json"
-        self.fn_freqlemma = sd.ResourceNames.dir_tagged + \
-            corpus_name + "/fl__" + self.short + ".csv"
+        sep = sd.ResourceNames.sep
+        self.fn_norm = sd.ResourceNames.dir_tagged +\
+            corpus_name + sep + "norm__" + self.short + ".txt"
+        self.fn_freqlemma = sd.ResourceNames.dir_tagged +\
+            corpus_name + sep + "fl__" + self.short + ".csv"
+        self.fn_tag = sd.ResourceNames.dir_tagged +\
+            corpus_name + sep + "tag__" + self.short + ".csv"
+        self.fn_lemmasoup = sd.ResourceNames.dir_tagged +\
+            corpus_name + sep + "lemma__" + self.short + ".txt"
 
 
 class FreqSimple:
@@ -427,7 +438,7 @@ class Collection:
         # attention: adds found exclamations because some are mapped to adverbs
         found_here, self.unk = dbc.collect_exclamations(db_rest, self.unk)
         self.advs += found_here
-        self.adv = kv.put_alternatives_of_same_id_together(self.advs)
+        self.advs = kv.put_alternatives_of_same_id_together(self.advs)
 
 
 class FreqMeta:

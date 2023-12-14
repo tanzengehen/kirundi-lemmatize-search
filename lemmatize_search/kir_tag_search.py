@@ -229,6 +229,17 @@ def prepare_lemmatypes(lemmafreq_known):
     return dict_known
 
 
+def check_position_in_text(text, word, position):
+    """map word in wordlist to its position in cleaned text"""
+    if text[position:position+len(word)] != word:
+        corr = -len(word)-1
+        while text[position+corr:position+corr+len(word)] != word:
+            corr += 1
+        position += corr
+        # print("in check_position: word:", word, "corr=", corr)
+    return position
+
+
 def tag_text_with_db(mytext, dbrundi):
     """uses kirundi_db, makes lemma_freq_list of the text,
     returns a list of lists (lemmata sorted by PoS)
@@ -238,7 +249,6 @@ def tag_text_with_db(mytext, dbrundi):
     collection = make_lemmafreq_fromtext(mytext, dbrundi)
     collection.put_known()
     lemmatypes = prepare_lemmatypes(collection.known)
-
     # print more statistics: Percentage of unkown types
     n_lemmatypes = 0
     for lemma in collection.known:
@@ -274,6 +284,7 @@ def tag_text_with_db(mytext, dbrundi):
         nr_word_in_sen = -1
         # collect sentence
         for word in words:
+            # print("word", word)
             if word == line_end.strip():
                 nr_para += 1
                 nr_sen += 1
@@ -281,39 +292,41 @@ def tag_text_with_db(mytext, dbrundi):
                 continue
             nr_word_in_sen += 1
             nr_token += 1
+
             # check for emails, webaddress, number, roman number
             # returns for email and webaddress alias
-            tag1 = tag_word_nrmailweb(word)
-            if tag1:
-                tag1.set_nrs(nr_sen, nr_word_in_sen, nr_token, nr_char,
-                             nr_para)
-                tagged.append(tag1)
-                nr_char += len(tag1.token)+1
+            tag = tag_word_nrmailweb(word)
+            if tag:
+                nr_char = check_position_in_text(mytext, word, nr_char)
+                tag.set_nrs(nr_sen, nr_word_in_sen, nr_token, nr_char, nr_para)
+                tagged.append(tag)
+                # print("in tag_or_load:", nr_char, "'"+tag.token+"'", len(tag.token))
+                nr_char += len(tag.token)+1
+                # print("next:", nr_char)
                 continue
-            # now we split types by punctuation (w'umuryango.)
+
+            # now we split types by punctuation
+            # (w'umuryango. -> w ' umuryango . )
             wordwithoutsign = word.replace("'", " ' ")
             for p_mark in punctuation:
                 storage = wordwithoutsign.replace(p_mark, f" {p_mark} ")
                 wordwithoutsign = storage
             word_or_char = wordwithoutsign.split()
-            # word or single character ?
+            # word or letter/punctuation ?
             for w_or_c in word_or_char:
                 # check for punctuation
-                tag2 = tag_punctmarks_etc(w_or_c)
-                if tag2:
-                    tag2.set_nrs(nr_sen, nr_word_in_sen, nr_token, nr_char,
-                                 nr_para)
-                    tagged.append(tag2)
-                    # TO DO nr_char is not correct because
-                    # we don't know if with whitespace or not
-                    nr_char += len(tag2.token)
-                else:
+                tag = tag_punctmarks_etc(w_or_c)
+                if not tag:
                     # check for lemma
-                    tag3 = tag_lemma(w_or_c, lemmatypes)
-                    tag3.set_nrs(nr_sen, nr_word_in_sen, nr_token, nr_char,
-                                 nr_para)
-                    tagged.append(tag3)
-                    nr_char += len(tag3.token)+1
+                    tag = tag_lemma(w_or_c, lemmatypes)
+                nr_char = check_position_in_text(mytext, w_or_c, nr_char)
+                tag.set_nrs(nr_sen, nr_word_in_sen, nr_token, nr_char, nr_para)
+                tagged.append(tag)
+                # print("in tag_or_load:", nr_char, "'"+tag.token+"'", len(tag.token), w_or_c)
+                nr_char += len(w_or_c)+1
+                # print("next:", nr_char)
+
+
         # progress bar ;-)
         points, sent_count = kh.show_progress(points,
                                               sent_count,
@@ -390,11 +403,11 @@ def find_thing(wordlist_tagged, wtl, question):
         if searchword.lower() == tagword.get(wtl).lower():
             with_neighbors = collect_words_around_searchterm(
                 index, tagword.token, wordlist_tagged)
-            found.append((index, with_neighbors))
+            found.append((tagword.id_char, with_neighbors))
     return found, missings
 
 
-def set_query_part(query, n):
+def setquery_nextpart(query, n):
     """update question for next token in text"""
     yesno = query[n][0]
     wtl = query[n][1]
@@ -413,7 +426,7 @@ def find_ngrams(wordlist_tagged, query):
     part_found = ""        # found string
     n_count = 0            # index suchbegriff
     for index in range(len(wordlist_tagged)-ngram_length):
-        yesno, wtl, searchword = set_query_part(query, n_count)
+        yesno, wtl, searchword = setquery_nextpart(query, n_count)
         # tag missing?
         if not wordlist_tagged[index].pos:
             missings.append(("missing tag by word number:",
@@ -424,7 +437,7 @@ def find_ngrams(wordlist_tagged, query):
         if wordlist_tagged[index].get(wtl).lower() == searchword.lower():
             part_found = wordlist_tagged[index].token
             n_count = 1
-            yesno, wtl, searchword = set_query_part(query, n_count)
+            yesno, wtl, searchword = setquery_nextpart(query, n_count)
             # collect matches till full-match or mismatch of next token
             for candidate in wordlist_tagged[index+1:]:
                 # add punctuation to found string but don't count it
@@ -454,11 +467,12 @@ def find_ngrams(wordlist_tagged, query):
                     if n_count == ngram_length:
                         with_neighbors = collect_words_around_searchterm(
                                             index, part_found, wordlist_tagged)
-                        found.append([index, with_neighbors])
+                        found.append([wordlist_tagged[index].id_char,
+                                      with_neighbors])
                         part_found = ""
                         n_count = 0
                         break
-                    yesno, wtl, searchword = set_query_part(query, n_count)
+                    yesno, wtl, searchword = setquery_nextpart(query, n_count)
                 # next token doesn't match
                 else:
                     part_found = ""
@@ -474,8 +488,6 @@ def go_search(tagged_list, whattodo):
         found = find_thing(
             tagged_list, whattodo.query[0][1], whattodo.query[0][2])
     else:
-        # found = find_ngrams(
-        #     tagged_list, whattodo.wtl, whattodo.nots, whattodo.questions)
         found = find_ngrams(
             tagged_list, whattodo.query)
     if found:
@@ -677,6 +689,10 @@ Do you want to use your file or tag again the underlying text?
     # start whole NLP task: read, clean, tag...
     lemma_lists, text_tagged = tag_text_with_db(whattext.text, dbrundi)
     lemmafreq = lemma_lists.all_in()
+
+    # save cleaned text in txt file "src__filename.txt"
+    with open(whattext.fn_norm, 'w', encoding="utf-8") as file:
+        file.write(whattext.text)
 
     # save lemma-frequency-distribution in csv file
     lemmafreq.insert(0, sd.column_names_lemmafreq(), )
