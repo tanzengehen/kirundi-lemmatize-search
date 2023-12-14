@@ -25,12 +25,14 @@ Then choose your preferred language for using the App: Rundi, English or German.
 And enter the path/to/file.txt you want to analyse.  
 <img width=60% src="images/kirundi_nlp1.jpg">  
 You'll get some statistics and a csv-file with the tagged text, named "tag__filename.csv".  
-In the same folder you'll find also the frequency distribution of lemmata of the text, named "fl__filename.csv".  
+In the same folder you'll find also the frequency distribution of lemmata of the text, named "fl__filename.csv" and a file with the normalised text, named "norm__filename.txt".   
 <img width=60% src="images/kirundi_nlp2.jpg">  
 Then enter your text-search-query.  
 <img src="images/kirundi_nlp3.jpg">  
 If there are results you'll find a list of maximum 20 results in the terminal, but all results are stored in a txt-file.  
-Starting with the number of the token where your search term was found in the text and surrounding text (previous and following 50 characters). The name of the results-file ends with your search query. In our example it's: "test_text0__umugore_VERB_.txt".  
+The name of the results-file ends with your search query. In our example it's: "test_text0__umugore_VERB_.txt".  
+Each result includes a number followed by your search term with surrounding text (previous and following 50 characters). 
+The number indicates the position where your search term starts in the normalised text.
 
 Atttention:  
 Before tagging the program looks up if there is already a tagged file ("tag__filename.csv") in the folder "/results/tagged".  
