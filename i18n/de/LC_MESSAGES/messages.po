@@ -387,4 +387,4 @@ msgstr ""
 
 #: tests/test_helper.py:29 tests/test_helper.py:36 tests/test_helper.py:50
 msgid "Are you sure, that this is a tagged file?"
-msgstr "Bist du sicher, dass das ein etikettierter Text ist?"
+msgstr "Ist das ganz sicher eine Datei mit Etiketten?"
