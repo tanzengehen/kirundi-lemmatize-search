@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Ingenzura-ikirundi 1.0\n"
 "Report-Msgid-Bugs-To: deki.kazinduzi@gmail.com\n"
-"POT-Creation-Date: 2023-11-07 22:16+0100\n"
+"POT-Creation-Date: 2023-12-21 15:19+0100\n"
 "PO-Revision-Date: 2023-09-09 21:37+0200\n"
 "Last-Translator: Sebastian Lisken <EMAIL@ADDRESS>\n"
 "Language: en_GB\n"
@@ -17,101 +17,99 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.12.1\n"
+"Generated-By: Babel 2.13.1\n"
 
-#: py/kir_analyse_input_console.py:35
-msgid "txt or json file or 'q' for 'quit'"
+#: lemmatize_search/kir_helper2.py:251
+msgid ""
+"Sorry, I didn't save the list that starts with:\n"
+"    {}\n"
+"I was expecting only str, int, tuple or list as list elements."
 msgstr ""
 
-#: py/kir_analyse_input_console.py:38
+#: lemmatize_search/kir_prepare_verbs.py:135
+msgid "lemma has no stem in database: ID {}"
+msgstr ""
+
+#: lemmatize_search/kir_prepare_verbs.py:584
+msgid "{}: perfective? -{}"
+msgstr ""
+
+#: lemmatize_search/kir_prepare_verbs.py:641
+msgid ""
+"\n"
+"\t\ttried to add passiv to\n"
+"perfective but unknown letter before y"
+msgstr ""
+
+#: lemmatize_search/kir_prepare_verbs.py:888
+msgid ""
+"Attention: filter proverbs out doesn't work with '{}'. Check also its "
+"alternatives in the database."
+msgstr ""
+
+#: lemmatize_search/kir_prepare_verbs.py:921
+msgid "filter passiv out doesn't work': {}"
+msgstr ""
+
+#: lemmatize_search/kir_start_input_console.py:39
+msgid "txt or csv file or 'q' for 'quit'"
+msgstr ""
+
+#: lemmatize_search/kir_start_input_console.py:42
 msgid ""
 "This file doesn't exist. {}\n"
 "Try again"
 msgstr ""
 
-#: py/kir_analyse_input_console.py:55
+#: lemmatize_search/kir_start_input_console.py:59
 msgid "please give me a searchterm"
 msgstr ""
 
-#: py/kir_analyse_input_console.py:61
+#: lemmatize_search/kir_start_input_console.py:65
 msgid ""
 "'*' only for words, not for letters.\n"
 "Write searchterm again please"
 msgstr ""
 
-#: py/kir_analyse_input_console.py:82
-msgid ""
-"please enter the 'wtl' combination for your\n"
-"searchterms or 'q' for 'quit'"
-msgstr ""
-
-#: py/kir_analyse_input_console.py:91
-msgid "\tonly 'w', '!w', 't', '!t', 'l', '!l' or '?'"
-msgstr ""
-
-#: py/kir_analyse_input_console.py:100
-msgid "Hm, not as many as searchterms... Please again."
-msgstr ""
-
-#: py/kir_analyse_input_console.py:121
-msgid "all + "
-msgstr ""
-
-#: py/kir_analyse_input_console.py:125
-msgid "mismatch: wildcard {}."
-msgstr ""
-
-#: py/kir_analyse_input_console.py:127
-msgid "I go with the wildcard. Y/N : "
-msgstr ""
-
-#: py/kir_analyse_input_console.py:129
-msgid "yY"
-msgstr ""
-
-#: py/kir_analyse_input_console.py:131
-msgid "Start again"
-msgstr ""
-
-#: py/kir_analyse_input_console.py:138
+#: lemmatize_search/kir_start_input_console.py:88
 msgid "all except "
 msgstr ""
 
-#: py/kir_analyse_input_console.py:152
-msgid "Invalid tag: {}. There will be no result."
+#: lemmatize_search/kir_start_input_console.py:95
+msgid "(exact) + "
 msgstr ""
 
-#: py/kir_analyse_input_console.py:164
-msgid "Query = {}\n"
+#: lemmatize_search/kir_start_input_console.py:99
+msgid "anything + "
 msgstr ""
 
-#: py/kir_analyse_input_console.py:197
+#: lemmatize_search/kir_start_input_console.py:133
 msgid ""
 "\n"
-"Select the Rundi text you want to inspect:"
+"Select the Rundi text you want to inspect."
 msgstr ""
 
-#: py/kir_analyse_input_console.py:199
-msgid "\tc\t\t\t\t= whole tagged corpus"
+#: lemmatize_search/kir_start_input_console.py:137
+msgid "Prefer the tagged file, if there is one already: 'tag__file.csv'"
 msgstr ""
 
-#: py/kir_analyse_input_console.py:201
-msgid "\tpath/to/file\t\t= a single file (txt or json)"
+#: lemmatize_search/kir_start_input_console.py:140
+msgid "path/to/file"
 msgstr ""
 
-#: py/kir_analyse_input_console.py:202
-msgid "Prefer the tagged file, if there is one already.\n"
-msgstr ""
-
-#: py/kir_analyse_input_console.py:215
+#: lemmatize_search/kir_start_input_console.py:154
 msgid ""
 "\n"
 "What are you looking for?\n"
 "    Divide searchterms with space characters.\n"
 "    You can put a '!' before a !word or !tag, if you want to exclude it.\n"
-"    You can place a separate '*' for a wildcard.\n"
+"    You can place a separate '*' to set one token as wildcard.\n"
+"    You can place a '/' before a /word, if you want to find exact this "
+"word,\n"
+"    else the word will be taken as a lemma and all wordforms will be "
+"found.\n"
 "\n"
-"    Possible PoS-tags:\n"
+"    You can use these tags:\n"
 "        [ADJ, ADV, CONJ, EMAIL, F(foreign word), INTJ, NI, NOUN,\n"
 "        NUM, NUM_ROM (roman number), PRON (pronouns), PROPN,\n"
 "        PROPN_CUR, PROPN_LOC (geographical place),\n"
@@ -119,215 +117,191 @@ msgid ""
 "        PROPN_PER (group of persons), PROPN_REL, PROPN_SCI,\n"
 "        PROPN_THG, PROPN_VEG, PRP (prepositions), SYMBOL,\n"
 "        UNK (unkwon to dictionary), VERB, WWW (webaddress)]\n"
-"Your searchterm"
+"Now enter our search term"
 msgstr ""
 
-#: py/kir_analyse_input_console.py:231
+#: lemmatize_search/kir_start_input_console.py:184
 msgid "\tOK, you are looking for a {}-gram.\n"
 msgstr ""
 
-#: py/kir_analyse_input_console.py:233
-msgid ""
-"For distinction between type, tag and lemma\n"
-"chose for each part of the searchterm a letter..."
-msgstr ""
-
-#: py/kir_analyse_input_console.py:236
-msgid ""
-"\t\tW = this type\n"
-"\t\tL = all types of this lemma\n"
-"\t\tT = Part of Speech-tag\n"
-"\t\t? = wildcard"
-msgstr ""
-
-#: py/kir_helper2.py:285
-msgid ""
-"Sorry, I didn't save the list that starts with:\n"
-"{}\n"
-"I was expecting str, int, tuple or list\n"
-"as list elements."
-msgstr ""
-
-#: py/kir_prepare_verbs.py:68
-msgid "lemma has no stem in database: ID{}"
-msgstr ""
-
-#: py/kir_prepare_verbs.py:528
-msgid "perfective is lost: {}"
-msgstr ""
-
-#: py/kir_prepare_verbs.py:536
-msgid "{}: perfective? -{}"
-msgstr ""
-
-#: py/kir_prepare_verbs.py:578
-msgid ""
-"\n"
-"\t\ttried to add passiv to\n"
-"perfective but unknown letter before y"
-msgstr ""
-
-#: py/kir_prepare_verbs.py:826
-msgid "filter proverbs out doesn't work': {}"
-msgstr ""
-
-#: py/kir_prepare_verbs.py:858
-msgid "filter passiv out doesn't work': {}"
-msgstr ""
-
-#: py/kir_tag_search.py:39
+#: lemmatize_search/kir_tag_search.py:45
 msgid "sorting Named Entities ..........................."
 msgstr ""
 
-#: py/kir_tag_search.py:45
+#: lemmatize_search/kir_tag_search.py:51
 msgid ""
 "\n"
 "Named Entities      : "
 msgstr ""
 
-#: py/kir_tag_search.py:52
+#: lemmatize_search/kir_tag_search.py:58
 msgid "adverbs etc         : "
 msgstr ""
 
-#: py/kir_tag_search.py:60
+#: lemmatize_search/kir_tag_search.py:66
 msgid "pronouns            : "
 msgstr ""
 
-#: py/kir_tag_search.py:65
+#: lemmatize_search/kir_tag_search.py:72
 msgid "sorting nouns ...................................."
 msgstr ""
 
-#: py/kir_tag_search.py:70
+#: lemmatize_search/kir_tag_search.py:77
 msgid ""
 "\n"
 "nouns               : "
 msgstr ""
 
-#: py/kir_tag_search.py:78
+#: lemmatize_search/kir_tag_search.py:85
 msgid "adjektives          : "
 msgstr ""
 
-#: py/kir_tag_search.py:83
+#: lemmatize_search/kir_tag_search.py:90
 msgid "sorting verbs ...................................."
 msgstr ""
 
-#: py/kir_tag_search.py:88
+#: lemmatize_search/kir_tag_search.py:95
 msgid ""
 "\n"
 "verbs               : "
 msgstr ""
 
-#: py/kir_tag_search.py:98
+#: lemmatize_search/kir_tag_search.py:105
 msgid ""
 "\n"
 "exclamations        : "
 msgstr ""
 
-#: py/kir_tag_search.py:115
+#: lemmatize_search/kir_tag_search.py:124
 msgid ""
 "\n"
 "Vocabulary\n"
-"characters         : {nchar}\n"
-"tokens             : {ntokens}\n"
-"types              : {ntypes} "
+"characters         : {nchar:12}\n"
+"tokens             : {ntokens:12}\n"
+"types              : {ntypes:12} "
 msgstr ""
 
-#: py/kir_tag_search.py:231
-msgid "unknown types      : {} ({}%)"
+#: lemmatize_search/kir_tag_search.py:261
+#, python-format
+msgid "unknown types      : {:12} ({}% incl. broken words, mistakes, ...)"
 msgstr ""
 
-#: py/kir_tag_search.py:233
-msgid "recognized lemmata : {}"
+#: lemmatize_search/kir_tag_search.py:265
+msgid "recognized lemmata : {:12}"
 msgstr ""
 
-#: py/kir_tag_search.py:253
+#: lemmatize_search/kir_tag_search.py:283
 msgid ""
 "\n"
 "tagging text, this may take some moments ........."
 msgstr ""
 
-#: py/kir_tag_search.py:436
+#: lemmatize_search/kir_tag_search.py:516
 msgid "Error: missing tag"
 msgstr ""
 
-#: py/kir_tag_search.py:479 py/kir_tag_search.py:543
+#: lemmatize_search/kir_tag_search.py:560
+#: lemmatize_search/kir_tag_search.py:622
 msgid ""
 "\n"
 "\n"
 "All tagged files saved in: \n"
 msgstr ""
 
-#: py/kir_tag_search.py:481 py/kir_tag_search.py:545
+#: lemmatize_search/kir_tag_search.py:563
+#: lemmatize_search/kir_tag_search.py:624
 msgid ""
 "\n"
 "We can use them again later."
 msgstr ""
 
-#: py/kir_tag_search.py:488
+#: lemmatize_search/kir_tag_search.py:570
 msgid "Wir wühlen uns durch die Dateien..."
 msgstr ""
 
-#: py/kir_tag_search.py:553
+#: lemmatize_search/kir_tag_search.py:632
 msgid ""
 "\n"
 "Statistics\n"
-"characters               {char}\t(broken char from bad OCR: {odds})\n"
-"tokens                   {tokensbond}\n"
-"tokens (split by ')      {tokens_split}\n"
-"types                    {types}\n"
-"recognized lemmata       {lemmata}\n"
-"unknown types            {unk}"
+"characters               :{char:12}  ({odds} unreadable chars from bad "
+"OCR)\n"
+"tokens                   :{tokensbond:12}\n"
+"tokens (when split by ') :{tokens_split:12}\n"
+"types                    :{types:12}\n"
+"recognized lemmata       :{lemmata:12}\n"
+"unknown types            :{unk:15} %\n"
+"used dictionary          :   {db_name}\n"
+"short filename           :   {short_fn}"
 msgstr ""
 
-#: py/kir_tag_search.py:574
+#: lemmatize_search/kir_tag_search.py:657
 msgid "Preparing file ..."
 msgstr ""
 
-#: py/kir_tag_search.py:581
-msgid "Are you sure, that this is a tagged file?"
+#: lemmatize_search/kir_tag_search.py:670
+msgid ""
+"Your file is older than our version of the Rundi dictionary.\n"
+"Do you want to use your file or tag again the underlying text?\n"
+"(maybe now there are less unknown words in your text)"
 msgstr ""
 
-#: py/kir_tag_search.py:596
+#: lemmatize_search/kir_tag_search.py:689
 msgid "There is already a tagged file: (made {})"
 msgstr ""
 
-#: py/kir_tag_search.py:598
+#: lemmatize_search/kir_tag_search.py:691
 msgid ""
 "\n"
 "We use this instead of tagging again.\n"
 msgstr ""
 
-#: py/kir_tag_search.py:613
+#: lemmatize_search/kir_tag_search.py:706
 msgid "Sorry, can't use the file: {}"
 msgstr ""
 
-#: py/kir_tag_search.py:646
+#: lemmatize_search/kir_tag_search.py:744
 msgid ""
 "\n"
 "\n"
 "Tagged file saved as: \n"
 msgstr ""
 
-#: py/kir_tag_search.py:648
+#: lemmatize_search/kir_tag_search.py:746
 msgid ""
 "\n"
 "We can use it again later."
 msgstr ""
 
-#: py/kir_tag_search.py:662
+#: lemmatize_search/kir_tag_search.py:783
 msgid "You searched this already"
 msgstr ""
 
-#: py/kir_tag_search.py:689
+#: lemmatize_search/kir_tag_search.py:814
 msgid ""
-"\n"
-"Hit 1-20 (out of {}). All results are saved in file:"
+"All results are saved in file:\n"
+"\t"
 msgstr ""
 
-#: py/kir_tag_search.py:698
+#: lemmatize_search/kir_tag_search.py:822
 msgid ""
 "\n"
 "No results for this query."
+msgstr ""
+
+#: lemmatize_search/kir_tag_search.py:838
+msgid "Sorry, missing meta-data in csv-file"
+msgstr ""
+
+#: lemmatize_search/kir_tag_search.py:847
+msgid "Sorry, wrong meta-data keys in your csv"
+msgstr ""
+
+#: lemmatize_search/kir_tag_search.py:861
+msgid "Sorry, I can't read your csv-file as a tagged text."
+msgstr ""
+
+#: tests/test_helper.py:29 tests/test_helper.py:36 tests/test_helper.py:50
+msgid "Are you sure, that this is a tagged file?"
 msgstr ""
 
 #~ msgid "Kubera ko ataco watoye nahejeje."
@@ -965,5 +939,151 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "Sorry, unknown format."
+#~ msgstr ""
+
+#~ msgid "txt or json file or 'q' for 'quit'"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "please enter the 'wtl' combination for your\n"
+#~ "searchterms or 'q' for 'quit'"
+#~ msgstr ""
+
+#~ msgid "\tonly 'w', '!w', 't', '!t', 'l', '!l' or '?'"
+#~ msgstr ""
+
+#~ msgid "Hm, not as many as searchterms... Please again."
+#~ msgstr ""
+
+#~ msgid "all + "
+#~ msgstr ""
+
+#~ msgid "mismatch: wildcard {}."
+#~ msgstr ""
+
+#~ msgid "I go with the wildcard. Y/N : "
+#~ msgstr ""
+
+#~ msgid "yY"
+#~ msgstr ""
+
+#~ msgid "Start again"
+#~ msgstr ""
+
+#~ msgid "all except "
+#~ msgstr ""
+
+#~ msgid "Invalid tag: {}. There will be no result."
+#~ msgstr ""
+
+#~ msgid "Query = {}\n"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "\n"
+#~ "Select the Rundi text you want to inspect:"
+#~ msgstr ""
+
+#~ msgid "\tc\t\t\t\t= whole tagged corpus"
+#~ msgstr ""
+
+#~ msgid "\tpath/to/file\t\t= a single file (txt or json)"
+#~ msgstr ""
+
+#~ msgid "Prefer the tagged file, if there is one already.\n"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "\n"
+#~ "What are you looking for?\n"
+#~ "    Divide searchterms with space characters.\n"
+#~ "    You can put a '!' before "
+#~ "a !word or !tag, if you want "
+#~ "to exclude it.\n"
+#~ "    You can place a separate '*' for a wildcard.\n"
+#~ "\n"
+#~ "    Possible PoS-tags:\n"
+#~ "        [ADJ, ADV, CONJ, EMAIL, F(foreign word), INTJ, NI, NOUN,\n"
+#~ "        NUM, NUM_ROM (roman number), PRON (pronouns), PROPN,\n"
+#~ "        PROPN_CUR, PROPN_LOC (geographical place),\n"
+#~ "        PROPN_NAM (personal name), PROPN_ORG,\n"
+#~ "        PROPN_PER (group of persons), PROPN_REL, PROPN_SCI,\n"
+#~ "        PROPN_THG, PROPN_VEG, PRP (prepositions), SYMBOL,\n"
+#~ "        UNK (unkwon to dictionary), VERB, WWW (webaddress)]\n"
+#~ "Your searchterm"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "For distinction between type, tag and lemma\n"
+#~ "chose for each part of the searchterm a letter..."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "\t\tW = this type\n"
+#~ "\t\tL = all types of this lemma\n"
+#~ "\t\tT = Part of Speech-tag\n"
+#~ "\t\t? = wildcard"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Sorry, I didn't save the list that starts with:\n"
+#~ "{}\n"
+#~ "I was expecting str, int, tuple or list\n"
+#~ "as list elements."
+#~ msgstr ""
+
+#~ msgid "lemma has no stem in database: ID{}"
+#~ msgstr ""
+
+#~ msgid "perfective is lost: {}"
+#~ msgstr ""
+
+#~ msgid "filter proverbs out doesn't work': {}"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "\n"
+#~ "Vocabulary\n"
+#~ "characters         : {nchar}\n"
+#~ "tokens             : {ntokens}\n"
+#~ "types              : {ntypes} "
+#~ msgstr ""
+
+#~ msgid "unknown types      : {} ({}%)"
+#~ msgstr ""
+
+#~ msgid "recognized lemmata : {}"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "\n"
+#~ "Statistics\n"
+#~ "characters               {char}\t(broken char from bad OCR: {odds})\n"
+#~ "tokens                   {tokensbond}\n"
+#~ "tokens (split by ')      {tokens_split}\n"
+#~ "types                    {types}\n"
+#~ "recognized lemmata       {lemmata}\n"
+#~ "unknown types            {unk}"
+#~ msgstr ""
+
+#~ msgid "path/to/file (txt or csv)"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "\n"
+#~ "Statistics\n"
+#~ "characters               :{char:12}  ({odds} "
+#~ "unreadable chars from bad OCR)\n"
+#~ "tokens                   :{tokensbond:12}\n"
+#~ "tokens (when split by ') :{tokens_split:12}\n"
+#~ "types                    :{types:12}\n"
+#~ "recognized lemmata       :{lemmata:12}\n"
+#~ "unknown types            :{unk:15} %\n"
+#~ "used dictionary          :   {db_name}"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "\n"
+#~ "Hit 1-20 (out of {}). All results are saved in file:"
 #~ msgstr ""
 

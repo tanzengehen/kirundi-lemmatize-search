@@ -85,26 +85,26 @@ def figure_out_query(which_words):
         if interest[0] == "!":
             yesno = "n"
             interest = interest[1:]
-            show += "all except "
+            show += kh._("all except ")
         else:
             yesno = "y"
         # exact word
         if interest[0] == "/":
             interest = interest[1:]
             whichtag = "token"
-            show += "(exact)" + interest + " + "
+            show += kh._(interest + "(exact) + ")
         # wildcard
         if interest == "*":
             whichtag = "?"
-            show += "anything + "
+            show += kh._("anything + ")
         # pos-tag
         elif interest.upper() in sd.PossibleTags.pt:
             whichtag = "pos"
-            show += interest + " + "
+            show += interest.upper() + " + "
         # lemma
         elif whichtag == "":
             whichtag = "lemma"
-            show += "(lemma)" + interest + " + "
+            show += interest + "(lemma) + "
         quest.append((yesno, whichtag, interest))
     kh.OBSERVER.notify(kh._(show[:-3]))
     return quest
@@ -134,18 +134,20 @@ deutsch, english, français)
     # Translators: terminal only
     # kh.OBSERVER.notify(kh._("\tc\t\t\t\t= whole tagged corpus"))
     # Translators: terminal only
-    kh.OBSERVER.notify(kh._("Prefer the tagged file, if there is one already."))
+    kh.OBSERVER.notify(kh._(
+        "Prefer the tagged file, if there is one already: 'tag__file.csv'"))
     # kh.OBSERVER.notify(kh._("path/to/file\t\t= a single file (txt or csv)"))
-    kh.OBSERVER.notify(kh._("path/to/file (txt or csv)"))
+    kh.OBSERVER.notify(kh._("path/to/file"))
     # corpus or file, if file: ist it txt?
     f_in = input_fnin()
-
+    # TODO for corpus input
     if f_in == "c":
         # f_in = sd.ResourceNames.root+"resources/meta_bbc.txt"
         f_in = sd.ResourceNames.dir_tagged+"bbc/tag__bbcall.json"
         if f_in[-12:] == "meta_bbc.txt":
             ts.tag_multogether(f_in, db_rundi)
             sysexit()
+    # single text input
     else:
         tagged = ts.tag_or_load_tags(f_in, db_rundi)
     # Translators: terminal only
@@ -182,5 +184,4 @@ Now enter our search term"""))
     kh.OBSERVER.notify(kh._(
         "\tOK, you are looking for a {}-gram.\n").format((len(query))))
     search = figure_out_query(query)
-    # ts.search_or_load_search(f_in, wtl, nots, quterms, kh.SINGLE, tagged.tokens)
     ts.search_or_load_search(f_in, search, kh.SINGLE, tagged.tokens)

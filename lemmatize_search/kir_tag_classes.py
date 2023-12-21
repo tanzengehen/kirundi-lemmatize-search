@@ -277,26 +277,24 @@ class TextMeta:
         normalised text and lemma_soup as txt
         """
         root_tagged = sd.ResourceNames.dir_tagged
-        myname = self.fn_in.split(sd.ResourceNames.sep)[-1]
-        short = myname.find(".")
-        self.short = myname[:short]
-        self.fn_norm = root_tagged+"norm__"+self.short+".txt"
-        self.fn_freqlemma = root_tagged+"fl__"+self.short+".csv"
-        self.fn_tag = root_tagged+"tag__"+self.short+".csv"
-        self.fn_lemmasoup = root_tagged+"lemma__"+self.short+".txt"
+        self.fn_short = sd.short_input_filename(self.fn_in)
+        self.fn_norm = root_tagged+"norm__"+self.fn_short+".txt"
+        self.fn_freqlemma = root_tagged+"fl__"+self.fn_short+".csv"
+        self.fn_tag = root_tagged+"tag__"+self.fn_short+".csv"
+        self.fn_lemmasoup = root_tagged+"lemma__"+self.fn_short+".txt"
 
     def set_fn_corpus(self, corpus_name):
         """set filenames for results in corpus mode
         """
         sep = sd.ResourceNames.sep
         self.fn_norm = sd.ResourceNames.dir_tagged +\
-            corpus_name + sep + "norm__" + self.short + ".txt"
+            corpus_name + sep + "norm__" + self.fn_short + ".txt"
         self.fn_freqlemma = sd.ResourceNames.dir_tagged +\
-            corpus_name + sep + "fl__" + self.short + ".csv"
+            corpus_name + sep + "fl__" + self.fn_short + ".csv"
         self.fn_tag = sd.ResourceNames.dir_tagged +\
-            corpus_name + sep + "tag__" + self.short + ".csv"
+            corpus_name + sep + "tag__" + self.fn_short + ".csv"
         self.fn_lemmasoup = sd.ResourceNames.dir_tagged +\
-            corpus_name + sep + "lemma__" + self.short + ".txt"
+            corpus_name + sep + "lemma__" + self.fn_short + ".txt"
 
 
 class FreqSimple:
@@ -500,14 +498,17 @@ class Token:
 
     def __str__(self):
         return f"'{self.token}', PoS-tag={self.pos}, lemma='{self.lemma}', " \
-                + f"id_token={self.id_token}"
+                + f"id_token={self.id_token}, id_char={self.id_char}, "\
+                + f"id_sentence={self.id_sentence}, "\
+                + f"id_token_in_sentence={self.id_tokin_sen}, "\
+                + f"id_paragraph={self.id_para})"
 
     def __repr__(self):
         return f"Token ({self.token}/{self.pos}/{self.lemma},"\
-                + f"\n\t\tchar={self.id_char}, token={self.id_token}, "\
-                + f"sentence={self.id_sentence}, "\
-                + f"word_in_sentence={self.id_tokin_sen}, "\
-                + f"paragraph={self.id_para}"
+                + f"\n\t\tid_char={self.id_char}, id_token={self.id_token}, "\
+                + f"id_sentence={self.id_sentence}, "\
+                + f"id_tokin_sen={self.id_tokin_sen}, "\
+                + f"id_para={self.id_para})"
 
     def set_nrs(self, isentence, iword_in_sentence, itoken, ichar, ipara):
         """stores position of the token"""
@@ -517,7 +518,7 @@ class Token:
         self.id_char = ichar
         self.id_para = ipara
 
-    def get(self, tag_str="lemma"):
+    def get_wtl(self, tag_str="lemma"):
         """call the tags when not knowing before which one to call"""
         if tag_str == "token":
             return self.token

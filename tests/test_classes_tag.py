@@ -41,21 +41,35 @@ class TestTextMeta(TestCase):
         text.fn_in = "imana/ishimwe/naronse/igisomwa.txt"
         # test
         text.set_fn_outs()
-        self.assertEqual(text.short, "igisomwa")
+        self.assertEqual(text.fn_short, "igisomwa")
         self.assertEqual(text.fn_freqlemma.split("/")[-1], "fl__igisomwa.csv")
         self.assertEqual(text.fn_tag.split("/")[-1], "tag__igisomwa.csv")
         self.assertEqual(text.fn_norm.split("/")[-1], "norm__igisomwa.txt")
         self.assertEqual(text.fn_lemmasoup.split("/")[-1], "lemma__igisomwa.txt")
 
-    def test_set_fn_outs_with_fn(self):
-        """set filenames with initialisation
+    def test_set_fn_outs_with_fntxt(self):
+        """set filenames with initialisation with input-filename-txt
         for result of analysis in single mode
         filename for normalised text, lemma-frequency-distribution, tagged text
         and lemma_soup"""
         # test initiation with given filename
         text1 = tc.TextMeta("foo/mytext.txt")
         self.assertEqual(text1.fn_in, "foo/mytext.txt")
-        self.assertEqual(text1.short, "mytext")
+        self.assertEqual(text1.fn_short, "mytext")
+        self.assertEqual(text1.fn_freqlemma.split("/")[-1], "fl__mytext.csv")
+        self.assertEqual(text1.fn_tag.split("/")[-1], "tag__mytext.csv")
+        self.assertEqual(text1.fn_norm.split("/")[-1], "norm__mytext.txt")
+        self.assertEqual(text1.fn_lemmasoup.split("/")[-1], "lemma__mytext.txt")
+
+    def test_set_fn_outs_with_fncsv(self):
+        """set filenames with initialisation with input-filename-csv
+        for result of analysis in single mode
+        filename for normalised text, lemma-frequency-distribution, tagged text
+        and lemma_soup"""
+        # test initiation with given filename
+        text1 = tc.TextMeta("foo/tag__mytext.csv")
+        self.assertEqual(text1.fn_in, "foo/tag__mytext.csv")
+        self.assertEqual(text1.fn_short, "mytext")
         self.assertEqual(text1.fn_freqlemma.split("/")[-1], "fl__mytext.csv")
         self.assertEqual(text1.fn_tag.split("/")[-1], "tag__mytext.csv")
         self.assertEqual(text1.fn_norm.split("/")[-1], "norm__mytext.txt")
@@ -65,7 +79,7 @@ class TestTextMeta(TestCase):
         """set filenames for result of analysis in corpus mode
         filename for lemma-frequency-distribution and name for tagged text"""
         text = tc.TextMeta()
-        text.short = "amakuru_mashasha"
+        text.fn_short = "amakuru_mashasha"
         text.set_fn_corpus("bbc")
         self.assertEqual(text.fn_freqlemma[-29:],
                          "/bbc/fl__amakuru_mashasha.csv")

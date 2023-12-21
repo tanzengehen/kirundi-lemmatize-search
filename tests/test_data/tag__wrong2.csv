@@ -1,4 +1,4 @@
 [id_token, id_char, id_sentence, id_tokin_sen, id_para, token, pos, lemma]
 {'n_char': 633, 'n_odds': 41, 'n_tokena': 93, 'n_tokens_split': 99, 'n_types': 79, 'n_unk_types': '12.12 %', 'n_lemmata': 48}
-0;0;0;0;0;imigenzo;NOUN;umugenzo
-1;9;0;1;0;-;SYMBOL;-
+0;0;0;0;0;imigenzo;NOUN;umugenzo;
+1;9;0;1;0;-;SYMBOL;-;

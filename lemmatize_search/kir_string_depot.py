@@ -264,6 +264,13 @@ replaced_symbols = {'semikolon': ';',
                     'deg': '°'}
 
 
+def replace_worded_symbols_back(word):
+    """replace worded symbols back to symbols"""
+    if word in replaced_symbols.keys():
+        return replaced_symbols.get(word)
+    return word
+
+
 class Letter:
     """group letters for class marker variants
     """
@@ -290,47 +297,55 @@ def breakdown_consonants(mystring):
     return mystring
 
 
+def short_input_filename(filename):
+    """extracts from path/to/file.end the 'file' part and if necessary cuts
+    the starting 'tag__' off"""
+    myname = filename.split(ResourceNames.sep)[-1]
+    if myname.startswith("tag__"):
+        myname = myname[5:]
+    short = myname.find(".")
+    fn_short = myname[:short]
+    return fn_short
+
+
 class Search:
     """query and filenames for result, frequency distributions and tagged text
     """
 
-    # def __init__(self, f_in, wtl, nots, quterms):
-    def __init__(self, f_in, query):
-        self.fn_in = f_in
+    def __init__(self, fn_in, query):
         self.query = query
-        self.short = ""
-        self.fn_search, self.short = self.set_fnsearch(f_in, query)
+        self.fn_search = self.set_fnsearch(fn_in, query)
 
     def __str__(self):
-        return f"wtl={self.wtl}, questions={self.questions}, \
-            nots={self.nots}, short={self.short}"
+        return f"query={self.query}, fn_search={self.fn_search}"
 
     def __repr__(self):
-        return f"wtl={self.wtl}, questions={self.questions}, \
-            nots={self.nots}, short={self.short}"
+        return f"query={self.query}, fn_search={self.fn_search}"
 
-    def set_fnsearch(self, f_in, query):
+    def set_fnsearch(self, fn_in, query):
         """combine filename of analysed file and search-terms for making
         a filename to store the search results
         """
+        fn_short = short_input_filename(fn_in)
         search = ""
         # query format: list of tuples (yes/no, lemma/tag/word/wildcard, word)
+        # print("in sd.set_fn_search query", query)
         for i in query:
             yesno = i[0]
             wtl = i[1]
             searchword = i[2]
             if wtl == "token":
-                question = "(exact)"+searchword+"_"
+                question = searchword+"(exact)"+"_"
+            elif wtl == "lemma":
+                question = searchword+"(lemma)"+"_"
             else:
                 question = searchword+"_"
             if yesno == "n":
                 search += "!"+question
             else:
-                search += question+"_"
-        myname = f_in.split(os.path.sep)[-1]
-        short = myname.find(".")
-        fn = ResourceNames.dir_searched+myname[:short]+"__"+search+".txt"
-        return fn, myname[:short]
+                search += question
+        fn_search = ResourceNames.dir_searched+fn_short+"__"+search+".txt"
+        return fn_search
 
 
 # TODO check with TextMeta.set_corpuscategories

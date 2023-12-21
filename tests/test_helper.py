@@ -10,6 +10,7 @@ from unittest import TestCase
 import os
 from ..lemmatize_search import kir_helper2 as kh
 from ..lemmatize_search import kir_string_depot as sd
+from ..lemmatize_search import kir_start_input_console as ic
 
 # nosetests --with-spec --spec-color --with-coverage --cover-erase
 
@@ -56,10 +57,10 @@ class TestUiLanguage(TestCase):
 
 
 ####################################################
-#     T E S T       L O A D I N G  FILES           #
+#     T E S T       S A V I N G  FILES             #
 ####################################################
 class TestSaveResources(TestCase):
-    """Test cases for reading resources
+    """Test cases for saving nested list or tuple
     """
 
     def test_save_list(self):
@@ -125,13 +126,47 @@ class TestSaveResources(TestCase):
         self.assertEqual(text[3], "my text much||much||more||\n")
         os.remove(fname)
 
-#     def test_save_tagged_text_as_csv(self):
+#     def test_save_tagged_text_as_csv(self): is indirect tested as part of tag_ot_load
 
-
-#     def test_load_tags_from_csv(self):
+####################################################
+#     T E S T       L O A D I N G  FILES           #
+####################################################
+#     def test_load_tagged_text(self):
 
 #     def test_load_meta_file(self):
 
 #     def test_show_twenty(self):
 
 #     def test_load_lemmafreq(self):
+
+    
+####################################################
+#     T E S T       C H E C K  INPUT               #
+####################################################
+class TestGetQuery(TestCase):
+    """Test cases for check the search-query
+    """
+
+    # def test_input_searchterm(self):
+    #     question = ic.input_searchterm()
+    #     # input = "verb !noun * /mu !/foo umuntu"
+    #     self.assertEqual(len(question), 6)
+    #     self.assertEqual(question,
+    #                      ['verb', '!noun', '*', '/mu', '!/foo', 'umuntu'])
+
+    # def test_input_searchterm_asterix_inside(self):
+    #     question1 = ic.input_searchterm("verb !noun /m*u !/foo")
+    #     self.assertEqual(len(question1), 4)
+    #     self.assertEqual(question1, [])
+
+    def test_figure_out_query(self):
+        question = ic.figure_out_query(
+            ['verb', '!noun', '*', '/mu', '!/foo', 'umuntu'])
+        self.assertEqual(question,
+                         [('y', 'pos', 'verb'),
+                          ('n', 'pos', 'noun'),
+                          ('y', '?', '*'),
+                          ('y', 'token', 'mu'),
+                          ('n', 'token', 'foo'),
+                          ('y', 'lemma', 'umuntu')
+                          ])

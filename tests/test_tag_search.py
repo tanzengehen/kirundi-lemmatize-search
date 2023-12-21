@@ -49,8 +49,8 @@ class TestLemmafreqFromText(TestCase):
         self.assertEqual(len(db_test.get('names')), 5)
         # test
         test_collection = ts.make_lemmafreq_fromtext(text, db_test)
-        # for i in test_collection.advs:
-        #     print("in test_tag make:", i)
+        for i in test_collection.advs:
+            print("in test_tag make:", i)
         self.assertEqual(len(test_collection.adjs), 0)
         self.assertEqual(len(test_collection.advs), 7)
         self.assertEqual(len(test_collection.names), 1)
@@ -332,6 +332,52 @@ class TestTagText(TestCase):
 
 
 ###############################################################
+#       TEST      S A V E     T A G G E D   T E X T           #
+###############################################################
+class TestSaveTaggedTextAsCsv(TestCase):
+    """Test Save tagged text as csv
+    """
+
+    def test_save_tagged_text_as_csv(self):
+        """Test Save tagged text as csv"""
+        # prepare
+        meta = {"n_char": 2345,
+                     "n_odds": 3,
+                     "n_tokens": 4711,
+                     "n_tokens_split": 4712,
+                     "n_types": 815,
+                     "n_unk_types": "10.7%",
+                     "n_lemmata": 248,
+                     "db_name": "nonsense",
+                     "datetime": 'Wed Dec 20 03:56:15 2023'
+                     }
+        filename = sd.ResourceNames.dir_tagged + "tag__test_file.csv"
+        text = ["Ndarukunda", "cane", "ururimi", "kirundi"]
+        collection =  {"ndarukunda": ['VERB', 'gukunda', 3143],
+                       "cane": ['ADV', 'cane', 314],
+                       "ururimi": ['NOUN', 'ururimi', 31],
+                       "kirundi": ['PROPN_LANG', 'ikirundi', 3]}
+        taglist = []
+        for i, word in enumerate(text):
+            token = ts.tag_lemma(word, collection)
+            token.id_char = i*5
+            token.id_token = i
+            token.id_sentence = 0
+            token.id_tokin_sen = i
+            token.id_para = 0
+            taglist.append(token)
+        if os.path.exists(filename):
+            os.remove(filename)
+        self.assertFalse(os.path.exists(filename))
+        # test    
+        ts.save_tagged_text_as_csv(meta, taglist, filename)
+        self.assertTrue(os.path.exists(filename))
+        
+        # clean up
+        os.remove(filename)
+        self.assertFalse(os.path.exists(filename))
+
+###############################################################
 #       TEST       L O A D   T A G G E D   T o k e n s        #
 ###############################################################
 class TestLoadTags(TestCase):
@@ -397,3 +443,227 @@ class TestLoadTags(TestCase):
 ###############################################################
 #       TEST          S E A R C H                             #
 ###############################################################
+class TestSearch(TestCase):
+    """Test Search words in the text
+    """
+
+    def test_search_initiation(self):
+        """Test initiate class Search"""
+        test_search = sd.Search(
+            "foo/bar.txt", [('y', 'pos', 'verb'),
+                            ('n', 'pos', 'noun'),
+                            ('y', '?', '*'),
+                            ('y', 'token', 'mu'),
+                            ('n', 'token', 'foo'),
+                            ('y', 'lemma', 'umuntu')])
+        self.assertEqual(
+            test_search.query, [('y', 'pos', 'verb'),
+                                ('n', 'pos', 'noun'),
+                                ('y', '?', '*'),
+                                ('y', 'token', 'mu'),
+                                ('n', 'token', 'foo'),
+                                ('y', 'lemma', 'umuntu')])
+        filename = test_search.fn_search.split(sd.ResourceNames.sep)[-1]
+        self.assertEqual(
+            filename,
+            "bar__verb_!noun_*_mu(exact)_!foo(exact)_umuntu(lemma)_.txt")
+
+    def test_replace_worded_symbols_back(self):
+        """Test replace worded symbols back to the symbols"""
+        self.assertEqual(sd.replace_worded_symbols_back("semikolon"), ';')
+        self.assertEqual(sd.replace_worded_symbols_back("quotation"), '"')
+        self.assertEqual(sd.replace_worded_symbols_back("deg"), '°')
+
+    def test_setquery_nextpart(self):
+        """Test Set next token of search query"""
+        query = [('y', 'pos', 'verb'),
+                 ('n', 'pos', 'noun'),
+                 ('y', '?', '*')
+                 ]
+        self.assertEqual(ts.setquery_nextpart(query, 2), ('y', '?', '*'))
+
+    def test_collect_words_around_searchterm_middle(self):
+        """Test Collect up to 50 characters before and after search term """
+        tagged = ts.load_tagged_text(TESTPATH+"tag__test_text0.csv")
+        token_list = tagged[1]
+        index = 0
+        for i, token in enumerate(token_list):
+            if token.token == "agakoko":
+                index = i
+                break
+        self.assertEqual(index, 43)
+        text_around = ts.collect_words_around_searchterm(
+            index, "agakoko", token_list
+            )
+        self.assertEqual(len(text_around), 129)
+        self.assertEqual(
+            text_around,
+            ('   u mutangaro w - úmuryango . Sé yába yibangikanije     '
+             + 'agakoko        '
+             + 'karímwo ifu y - ámasáka cânké y - úbúro . Yafáta utubabi ')
+            )
+
+    def test_collect_words_around_searchterm_textend(self):
+        """Test Collect up to 50 characters around search term,
+        at the end of the text (after search term is only a stop-point)"""
+        # prepare
+        tagged = ts.load_tagged_text(TESTPATH+"tag__test_text0.csv")
+        token_list = tagged[1]
+        index = 0
+        for i, token in enumerate(token_list):
+            if token.token == "inká":
+                index = i
+                break
+        self.assertEqual(index, 131)
+        # test
+        text_around = ts.collect_words_around_searchterm(
+            index, "inká", token_list
+            )
+        self.assertEqual(len(text_around), 70)
+        self.assertEqual(
+            text_around,
+            ('  gutaha , ku batunzi , nya mugóre yagénda agábanye     '
+             + 'inká        . ')
+            )
+
+    def test_find_thing__lemma(self):
+        """Test Find all tokens mapped to a certain lemma"""
+        # prepare
+        tagged = ts.load_tagged_text(TESTPATH+"tag__test_text0.csv")
+        token_list = tagged[1]
+        self.assertEqual(len(token_list), 133)
+        # test
+        found = ts.find_thing(token_list, 'lemma', "umuvyeyi")
+        self.assertEqual(len(found[0]), 4)
+        self.assertEqual(
+            found[0],
+            [('35', '                          - 32 - Ubwa 11deg Kuramutsa'
+              + '     abavyéyi        '
+              + '. Iyó umugóre ajé kuramutsa abavyéyi ubwa mbere , '),
+             ('71', '   eg Kuramutsa abavyéyi . Iyó umugóre ajé kuramutsa'
+              + '     abavyéyi        '
+              + 'ubwa mbere , abáje bikoreye báca mw - irémbo nawá '),
+             ('477', '   é akarába iyo fu mu gahánga ka sé ati " Kwíbonera'
+              + '     abavyéyi        '
+              + '" . Nyina wíwé akagira gúrtyo nyéne ati " Kwíbonera '),
+             ('626', '  ukobwa wíwé nawé akamúraba iyo fu ati " Kwíbonera'
+              + '     abavyéyi        "'
+              + ' . Mu gutaha , ku batunzi , nya mugóre yagénda agábanye ')]
+            )
+
+    def test_find_thing__token_no_hit(self):
+        """Test Don't find absent tokens even it's a lemma and this lemma
+        got some hits"""
+        # prepare
+        tagged = ts.load_tagged_text(TESTPATH+"tag__test_text0.csv")
+        token_list = tagged[1]
+        self.assertEqual(len(token_list), 133)
+        # test
+        found = ts.find_thing(token_list, 'token', "umuvyeyi")
+        self.assertEqual(len(found[0]), 0)
+
+    def test_find_thing__pos(self):
+        """Test Find all tokens mapped to a certain Part-of-Speech tag"""
+        # prepare
+        tagged = ts.load_tagged_text(TESTPATH+"tag__test_text0.csv")
+        token_list = tagged[1]
+        self.assertEqual(len(token_list), 133)
+        # test
+        found = ts.find_thing(token_list, 'pos', "PRON")
+        print(found[0])
+        self.assertEqual(len(found[0]), 14)
+
+    def test_find_thing__pos_missing(self):
+        """Test Warn if a Part-of-Speech tag is missing"""
+        # prepare
+        tagged = ts.load_tagged_text(TESTPATH+"tag__test_text0.csv")
+        token_list = tagged[1][9:17]
+        self.assertEqual(token_list[0].token, "Iyó")
+        self.assertEqual(token_list[-1].token, ",")
+        self.assertEqual(token_list[5].token, "ubwa")
+        token_list[5].pos = ""
+        # test
+        found = ts.find_thing(token_list, 'lemma', "kuramutsa")
+        self.assertEqual(len(found[1]), 1)
+        self.assertEqual(found[1],
+                         [('missing tag by word number:', 5, 'ubwa')]
+                         )
+
+    def test_find_ngrams__notpronoun_noun(self):
+        """Test Find a 2-gram, first part is a not-this-token"""
+        # prepare
+        tagged = ts.load_tagged_text(TESTPATH+"tag__test_text0.csv")
+        token_list = tagged[1]
+        # test
+        found = ts.find_ngrams(token_list,
+                               [('n', 'pos', 'PRON'),
+                                ('y', 'pos', 'NOUN')])
+        print(found[0])
+        self.assertEqual(len(found[0]), 18)
+
+    def test_find_ngrams__pronoun_noun(self):
+        """Test Find a 2-gram, ignore symbols between them: y'amasaka"""
+        # prepare
+        tagged = ts.load_tagged_text(TESTPATH+"tag__test_text0.csv")
+        token_list = tagged[1]
+        # test
+        found = ts.find_ngrams(token_list,
+                               [('y', 'pos', 'PRON'),
+                                ('y', 'pos', 'NOUN')])
+        print(found[0])
+        self.assertEqual(len(found[0]), 5)
+
+    def test_find_ngrams__nya_noun_verb(self):
+        """Test Find a 3-gram"""
+        # prepare
+        tagged = ts.load_tagged_text(TESTPATH+"tag__test_text0.csv")
+        token_list = tagged[1]
+        # test
+        found = ts.find_ngrams(token_list,
+                               [('y', 'token', 'nya'),
+                                ('y', 'pos', 'NOUN'),
+                                ('y', 'pos', 'VERB')])
+        print(found[0])
+        self.assertEqual(len(found[0]), 2)
+
+    def test_find_ngrams__mu_all_all_noun(self):
+        """Test Find a 4-gram including wildcard, don't count symbols"""
+        # prepare
+        tagged = ts.load_tagged_text(TESTPATH+"tag__test_text0.csv")
+        token_list = tagged[1]
+        # test
+        found = ts.find_ngrams(token_list,
+                               [('y', 'lemma', 'mu'),
+                                ('y', '?', '*'),
+                                ('y', '?', '*'),
+                                ('y', 'pos', 'NOUN')])
+        print(found[0])
+        self.assertEqual(len(found[0]), 2)
+
+    def test_find_ngrams__noun_smybol(self):
+        """Test Find a 2-gram including symbol"""
+        # prepare
+        tagged = ts.load_tagged_text(TESTPATH+"tag__test_text0.csv")
+        token_list = tagged[1]
+        # test
+        found = ts.find_ngrams(token_list,
+                               [('y', 'pos', 'NOUN'),
+                                ('y', 'pos', 'SYMBOL')])
+        print(found[0])
+        self.assertEqual(len(found[0]), 10)
+
+    def test_find_ngrams__noun_quotation_smybol(self):
+        """Test Find a 3-gram including symbol"""
+        # prepare
+        tagged = ts.load_tagged_text(TESTPATH+"tag__test_text0.csv")
+        token_list = tagged[1]
+        # test
+        found = ts.find_ngrams(token_list,
+                               [('y', 'pos', 'NOUN'),
+                                ('y', 'token', '"'),
+                                ('y', 'pos', 'SYMBOL')])
+        print(found[0])
+        self.assertEqual(len(found[0]), 4)
+
+    # def test_go_search(self):
+        

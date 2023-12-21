@@ -108,7 +108,8 @@ def reduce_simplefreq_to_lemma_collection(simple_freq_list,
     # for key, value in collection.unk.items():
     #     if value != 0:
     #         collection.unk.append((key, "", "UNK", value, 1, [key, value]))
-    unk = [(key, "", "UNK", value, 1, [key, value]) for key, value in collection.unk.items()]
+    unk = [(key, "", "UNK", value, 1, [key, value])
+           for key, value in collection.unk.items()]
     unk.sort(key=lambda x: x[3], reverse=True)
     collection.unk = unk
     return collection
@@ -231,12 +232,14 @@ def prepare_lemmatypes(lemmafreq_known):
 
 def check_position_in_text(text, word, position):
     """map word in wordlist to its position in cleaned text"""
+    check_loops = 0
     if text[position:position+len(word)] != word:
         corr = -len(word)-1
-        while text[position+corr:position+corr+len(word)] != word:
+        while (text[position+corr:position+corr+len(word)] != word
+               and check_loops < 2*len(word)):
+            check_loops += 1
             corr += 1
         position += corr
-        # print("in check_position: word:", word, "corr=", corr)
     return position
 
 
@@ -300,7 +303,6 @@ def tag_text_with_db(mytext, dbrundi):
                 nr_char = check_position_in_text(mytext, word, nr_char)
                 tag.set_nrs(nr_sen, nr_word_in_sen, nr_token, nr_char, nr_para)
                 tagged.append(tag)
-                # print("in tag_or_load:", nr_char, "'"+tag.token+"'", len(tag.token))
                 nr_char += len(tag.token)+1
                 # print("next:", nr_char)
                 continue
@@ -322,10 +324,7 @@ def tag_text_with_db(mytext, dbrundi):
                 nr_char = check_position_in_text(mytext, w_or_c, nr_char)
                 tag.set_nrs(nr_sen, nr_word_in_sen, nr_token, nr_char, nr_para)
                 tagged.append(tag)
-                # print("in tag_or_load:", nr_char, "'"+tag.token+"'", len(tag.token), w_or_c)
                 nr_char += len(w_or_c)+1
-                # print("next:", nr_char)
-
 
         # progress bar ;-)
         points, sent_count = kh.show_progress(points,
@@ -335,13 +334,6 @@ def tag_text_with_db(mytext, dbrundi):
         text_tagged.percent_unk = percent
     return (collection,
             text_tagged)
-
-
-def replace_worded_symbols_back(neighbour_word):
-    """replace worded symbols back to symbols"""
-    if neighbour_word in sd.replaced_symbols.keys():
-        return sd.replaced_symbols.get(neighbour_word)
-    return neighbour_word
 
 
 # could be a function of a class wordlist_tagged?
@@ -357,7 +349,7 @@ def collect_words_around_searchterm(
     # words behind searchterm
     while char_count < 50 and index_end + neighbours < len(wordlist_tagged):
         neighbour_word = wordlist_tagged[index_end + neighbours].token
-        neighbour_word = replace_worded_symbols_back(neighbour_word)
+        neighbour_word = sd.replace_worded_symbols_back(neighbour_word)
         text_around += neighbour_word+" "
         char_count += len(neighbour_word)+1
         neighbours += 1
@@ -366,7 +358,7 @@ def collect_words_around_searchterm(
     # words before searchterm
     while char_count < 50 and index_start+neighbours > 0:
         neighbour_word = wordlist_tagged[index_start + neighbours].token
-        neighbour_word = replace_worded_symbols_back(neighbour_word)
+        neighbour_word = sd.replace_worded_symbols_back(neighbour_word)
         text_around = neighbour_word + " " + text_around
         char_count += len(neighbour_word)+1
         neighbours -= 1
@@ -381,7 +373,7 @@ def collect_words_around_searchterm(
 
 
 # could be a function of a class wordlist_tagged?
-def find_thing(wordlist_tagged, wtl, question):
+def find_thing(wordlist_tagged, wtl, searchword):
     """searches a wordform
     or all wordforms of a lemma
     or a tag
@@ -389,20 +381,20 @@ def find_thing(wordlist_tagged, wtl, question):
     """
     found = []
     missings = []
-    searchword = question
     # we need the index because we want to find also the neighbour words
     for index, tagword in enumerate(wordlist_tagged):
         # tag missing?
         if not tagword.pos:
-            for i in range(index-3, index+3):
-                print("missing tag", i, wordlist_tagged[i])
+            print("missing tag", index, tagword)
             missings.append(
                 ("missing tag by word number:", index, tagword.token)
                 )
-            continue
-        if searchword.lower() == tagword.get(wtl).lower():
+        if unidecode(searchword.lower()) \
+           == unidecode(tagword.get_wtl(wtl).lower()):
+            token = sd.replace_worded_symbols_back(tagword.token)
             with_neighbors = collect_words_around_searchterm(
-                index, tagword.token, wordlist_tagged)
+                index, token, wordlist_tagged
+                )
             found.append((tagword.id_char, with_neighbors))
     return found, missings
 
@@ -424,7 +416,7 @@ def find_ngrams(wordlist_tagged, query):
     ngram_length = len(query)
     found = []             # collection of found strings
     part_found = ""        # found string
-    n_count = 0            # index suchbegriff
+    n_count = 0            # index search term
     for index in range(len(wordlist_tagged)-ngram_length):
         yesno, wtl, searchword = setquery_nextpart(query, n_count)
         # tag missing?
@@ -432,38 +424,66 @@ def find_ngrams(wordlist_tagged, query):
             missings.append(("missing tag by word number:",
                              index, wordlist_tagged[index].token))
             continue
-        # found start of match
-        # (we have to lower both: beginnings of sentences and tags)
-        if wordlist_tagged[index].get(wtl).lower() == searchword.lower():
+        # ignore symbols if not specially asked for
+        if (wordlist_tagged[index].pos == "SYMBOL" and
+           searchword != "SYMBOL"):
+            continue
+        # find start of match
+        # 1. it is what it should be
+        if ((yesno == "y"
+             # (we have to lower both: beginnings of sentences and tags)
+             and unidecode(wordlist_tagged[index].get_wtl(wtl).lower())
+                == unidecode(searchword.lower())
+             )
+            # 2. or it's not what it shouldn't be
+            or (yesno == "n"
+                and unidecode(wordlist_tagged[index].get_wtl(wtl).lower())
+                != unidecode(searchword.lower())
+                )):
             part_found = wordlist_tagged[index].token
+            sd.replace_worded_symbols_back(part_found)
+            # check next tokens
             n_count = 1
             yesno, wtl, searchword = setquery_nextpart(query, n_count)
             # collect matches till full-match or mismatch of next token
             for candidate in wordlist_tagged[index+1:]:
-                # add punctuation to found string but don't count it
+                # check fpor symbols
+                # and add them to found-string
+                # but don't count it if not asked for
                 if candidate.pos == "SYMBOL":
-                    if candidate.token == "semikolon":
-                        part_found += " " + ";"
-                    elif candidate.token == "quotation":
-                        part_found += ' ' + '"'
-                    elif candidate.token == "deg":
-                        part_found += ' ' + '°'
-                    else:
-                        part_found += " " + candidate.token
+                    # check if asked for a single symbol or asked in general
+                    # (but not '*')
+                    if (searchword == "SYMBOL"
+                       or searchword in ',.;:!?(){}[]\'"´`#%&+-/<=>@\\^°_|~'):
+                        n_count += 1
+                        # check if it is the full match already
+                        if n_count == ngram_length:
+                            with_neighbors = collect_words_around_searchterm(
+                                                index,
+                                                part_found,
+                                                wordlist_tagged)
+                            found.append([wordlist_tagged[index].id_char,
+                                          with_neighbors])
+                            part_found = ""
+                            n_count = 0
+                            break
+                        yesno, wtl, searchword = setquery_nextpart(query, n_count)
+                    part_found += " " + sd.replace_worded_symbols_back(candidate.token)
                     continue
-                # next token also matches
-                if (yesno != "!"
-                        and (wtl == "?"
-                             or candidate.get(wtl).lower() ==
+                # check other tokens than symbols (matches)
+                if (yesno == "y"
+                       # wildcard or positive match 
+                    and (wtl == "?"
+                             or candidate.get_wtl(wtl).lower() ==
                              searchword.lower())) \
-                    or (yesno == "!"
-                        and candidate.get(wtl).lower() !=
-                        searchword.lower()):
-
+                    or (yesno == "n"
+                        and unidecode(candidate.get_wtl(wtl).lower()) !=
+                        unidecode(searchword.lower())
+                        ):
                     # add token and count it
-                    part_found += " " + candidate.token
+                    part_found += " " + sd.replace_worded_symbols_back(candidate.token)
                     n_count += 1
-                    # full match
+                    # check if it is the full match already
                     if n_count == ngram_length:
                         with_neighbors = collect_words_around_searchterm(
                                             index, part_found, wordlist_tagged)
@@ -538,7 +558,8 @@ def tag_multogether(fn_in, dbrundi):
                                kh.Dates.database)
     kh.OBSERVER.notify(
           kh._("\n\nAll tagged files saved in: \n")
-          + "\t/" + "/".join(whattext.fn_tag.split("/")[-5:-1])+"/tag__bbcall.json"
+          + "\t/" + "/".join(whattext.fn_tag.split("/")[-5:-1])
+          + "/tag__bbcall.json"
           + kh._("\nWe can use them again later."))
 
 
@@ -615,7 +636,8 @@ tokens (when split by \') :{tokens_split:12}
 types                    :{types:12}
 recognized lemmata       :{lemmata:12}
 unknown types            :{unk:15} %
-used dictionary          :   {db_name}""").
+used dictionary          :   {db_name}
+short filename           :   {short_fn}""").
         format(char=meta_data.get("n_char"),
                odds=meta_data.get("n_odds"),
                tokensbond=meta_data.get("n_tokens"),
@@ -623,7 +645,8 @@ used dictionary          :   {db_name}""").
                types=meta_data.get("n_types"),
                lemmata=meta_data.get("n_lemmata"),
                unk=float(meta_data.get("n_unk_types").split()[0]),
-               db_name=meta_data.get("db_name")
+               db_name=meta_data.get("db_name"),
+               short_fn=meta_data.get("short_fn")
                ))
 
 
@@ -710,7 +733,8 @@ Do you want to use your file or tag again the underlying text?
                  "n_unk_types": str(text_tagged.percent_unk)+" %",
                  "n_lemmata": len(lemma_lists.known),
                  "db_name": sd.ResourceNames.db_name,
-                 "datetime": date.ctime()
+                 "datetime": date.ctime(),
+                 "fn_short": whattext.fn_short
                  }
     save_tagged_text_as_csv(meta_data, text_tagged.tokens, whattext.fn_tag)
     kh.OBSERVER.notify_tagging(whattext.fn_in.split(pathsep)[-1],
@@ -745,14 +769,15 @@ def save_tagged_text_as_csv(meta, tagged_text, filename):
         file.write(tags)
 
 
-def search_or_load_search(f_in, quterms, single, tagged):
+def search_or_load_search(fn_in, quterms, single, tagged):
     """main
     """
     # whattodo = sd.Search(f_in, wtl, nots, quterms)
-    whattodo = sd.Search(f_in, quterms)
+    whattodo = sd.Search(fn_in, quterms)
     # check if search was already done before
+    sep = sd.ResourceNames.sep
     already_done = kh.check_file_exits(sd.ResourceNames.dir_searched
-                                       + whattodo.fn_search.split("/")[-1])
+                                       + whattodo.fn_search.split(sep)[-1])
     if already_done:
         result = kh.load_lines(whattodo.fn_search)
         kh.OBSERVER.notify(kh._("You searched this already"))
@@ -781,11 +806,14 @@ def search_or_load_search(f_in, quterms, single, tagged):
             # searches in the tagged file
             result = go_search(tagged, whattodo)
     if result:
+        if len(result) < 20:
+            maximal_20 = len(result)
+        else:
+            maximal_20 = 20
         kh.OBSERVER.notify(
-            kh._("\nHit 1-20 (out of {}). All results are saved in file:")
-            .format(len(result))
-            + "\n\t"
-            + f'/{"/".join(whattodo.fn_search.split("/")[-3:])}\n')
+            kh._(f"\nHit 1-{maximal_20} (out of {len(result)}). "
+                 + "All results are saved in file:\n\t")
+            + f'/{sep.join(whattodo.fn_search.split(sep)[-3:])}\n')
         kh.show_twenty(result)
         # save results as txt
         if not already_done:
