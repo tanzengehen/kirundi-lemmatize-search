@@ -105,7 +105,7 @@ def reduce_simplefreq_to_lemma_collection(simple_freq_list,
         kh._("\nexclamations        : ")
         + " "*9 + f"{unk_before - unk_still:7}"
         + "\nunknown             :" + " "*23 + f"{unk_still}")
-    
+    # the rest is unknown
     unk = [(key, "", "UNK", value, 1, [key, value])
            for key, value in collection.unk.items()]
     unk.sort(key=lambda x: x[3], reverse=True)
@@ -483,7 +483,7 @@ def find_ngrams(wordlist_tagged, query):
                     continue
                 # check other tokens than symbols (matches)
                 if (yesno == "y"
-                       # wildcard or positive match 
+                       # wildcard or positive match
                     and (wtl == "?"
                              or candidate.get_wtl(wtl).lower() ==
                              searchword.lower())) \
@@ -550,7 +550,7 @@ def tag_multogether(fn_in, dbrundi):
                                    kh.Dates.database)
     # prepare data for csv
     date = datetime.datetime.now()
-    print("in multog", date, date.ctime(), str(date.ctime()))
+    # print("in multog", date, date.ctime(), str(date.ctime()))
     meta_data = {"n_char": whattext.nchars,
                  "n_odds": whattext.nodds,
                  "n_tokens": text_tagged.n_tokensbond,
@@ -720,7 +720,6 @@ Do you want to use your file or tag again the underlying text?
         if not whattext.raw:
             sysexit()
     whattext.replace_strangeletters()
-    # print("in tag_or_load:", whattext.text)
     # start whole NLP task: read, clean, tag...
     lemma_lists, text_tagged = tag_text_with_db(whattext.text, dbrundi)
     lemmafreq = lemma_lists.all_in()
@@ -757,20 +756,19 @@ Do you want to use your file or tag again the underlying text?
           + "\t"+pathsep + pathsep.join(whattext.fn_tag.split(pathsep)[-4:])
           + kh._("\nWe can use it again later.")
           )
-    # TODO save lemmasoup here, but how testing without waiting for y/n?
-    kh.OBSERVER.notify(kh._(
-        """\nDo you want to save a lemma-version of the text?
-    (tokens replaced by lemmata) y/n"""))
-    l_soup = input("  : ")
-    if l_soup in ["y", "Y", "yes", "ego", "ja", "j", "oui"]:
-        lemmasoup = text_tagged.lemmasoup()
-        print(lemmasoup)
-        with open(whattext.fn_lemmasoup, 'w', encoding="utf-8") as file:
-            file.write(lemmasoup)
-        kh.OBSERVER.notify(
-            kh._("Saved as:\n\t")
-            + pathsep + pathsep.join(whattext.fn_lemmasoup.split(pathsep)[-4:])
-            )
+    # TODO we save lemmasoup here, because how testing without waiting for y/n?
+    # kh.OBSERVER.notify(kh._(
+    #     """\nDo you want to save a lemma-version of the text?
+    # (tokens replaced by lemmata) y/n"""))
+    # l_soup = input("  : ")
+    # if l_soup in ["y", "Y", "yes", "ego", "ja", "j", "oui"]:
+    lemmasoup = text_tagged.lemmasoup()
+    with open(whattext.fn_lemmasoup, 'w', encoding="utf-8") as file:
+        file.write(lemmasoup)
+    kh.OBSERVER.notify(
+        kh._("Lemma-version of the text saved as:\n\t")
+        + pathsep + pathsep.join(whattext.fn_lemmasoup.split(pathsep)[-4:])
+        )
     return text_tagged
 
 
@@ -856,7 +854,6 @@ def load_tagged_text(filename):
     """
     raw = kh.load_lines(filename)
     # check format of tagged-text-file
-    # meta_data = literal_eval(raw[0])
     try:
         # first line should be a dictionary
         meta_data = literal_eval(raw[0])
