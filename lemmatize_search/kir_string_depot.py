@@ -7,6 +7,7 @@ Created on Sun Aug  6 15:10:18 2023
 """
 
 import os
+import time
 # import sys
 
 
@@ -33,10 +34,14 @@ class ResourceNames:
     # fn_db depends on supplied resource
     if os.path.exists(fn_db_newest):
         fn_db = fn_db_newest
-        db_name = 'fn_db_newest'
+        tic = os.path.getmtime(fn_db_newest)
+        tic_object = time.strptime(time.ctime(tic))
+        tic_date = time.strftime("%y%m%d", tic_object)
+        # version saved in tag__text
+        db_version = 'fn_db_'+tic_date
     else:
         fn_db = fn_db_cox20
-        db_name = 'fn_db_cox20'
+        db_version = 'fn_db_cox20'
     dir_tagged = root+sep+"results"+sep+"tagged"+sep
     dir_searched = root+sep+"results"+sep+"searched"+sep
 
@@ -165,36 +170,21 @@ encodings = [
 ]
 
 
-class CorpusCategories:
-    """categories of corpus from University
-    """
-    cc = ['1920s', '1940s', '1950s', '1960s', '1970s',
-          '1980s', '1990s', '2000s', '2010s', 'ORAL', 'WRITTEN',
-          'Chansons', 'Poésie', 'Théâtre', 'Contes', 'Romans', 'Magazines',
-          'Nouvelles', 'Informations', 'Culture_traditionnelle',
-          'Éducation', 'Santé', 'Société', 'Écologie', 'Paix', 'Lois',
-          'Politique', 'Histoire', 'Religion']
-
-    def __str__(self):
-        return f"categories = {self.cc}"
-
-    def __repr__(self):
-        return f"cc = {self.cc}"
+# categories of corpus from University
+corpus_categories = ['1920s', '1940s', '1950s', '1960s', '1970s', '1980s',
+                     '1990s', '2000s', '2010s', 'ORAL', 'WRITTEN', 'Chansons',
+                     'Poésie', 'Théâtre', 'Contes', 'Romans', 'Magazines',
+                     'Nouvelles', 'Informations', 'Culture_traditionnelle',
+                     'Éducation', 'Santé', 'Société', 'Écologie', 'Paix',
+                     'Lois', 'Politique', 'Histoire', 'Religion']
 
 
-class PossibleTags:
-    """Part-of-Speech tags the program uses
-    """
-    pt = ["ADJ", "ADV", "CONJ", "EMAIL", "F", "INTJ", "NI", "NOUN",
-          "NUM", "NUM_ROM", "PRON", "PROPN", "PROPN_CUR", "PROPN_LOC",
-          "PROPN_NAM", "PROPN_ORG", "PROPN_PER", "PROPN_REL", "PROPN_SCI",
-          "PROPN_THG", "PROPN_VEG", "PREP", "SYMBOL", "UNK", "VERB", "WWW"]
-
-    def __str__(self):
-        return f"tags = {self.pt}"
-
-    def __repr__(self):
-        return f"pt = {self.pt}"
+# Part-of-Speech tags the program uses
+possible_tags = ["ADJ", "ADV", "CONJ", "EMAIL", "F", "INTJ", "NI", "NOUN",
+                 "NUM", "NUM_ROM", "PRON", "PROPN", "PROPN_CUR", "PROPN_LOC",
+                 "PROPN_NAM", "PROPN_ORG", "PROPN_PER", "PROPN_REL",
+                 "PROPN_SCI", "PROPN_THG", "PROPN_VEG", "PREP", "SYMBOL",
+                 "UNK", "VERB", "WWW"]
 
 
 class NounPrepositions:

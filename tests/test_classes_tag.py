@@ -7,9 +7,15 @@ Created on Mon Nov 13 16:25:02 2023
 """
 
 from unittest import TestCase
+from unidecode import unidecode
 from ..lemmatize_search import kir_tag_classes as tc
+from ..lemmatize_search import kir_string_depot as sd
+from ..lemmatize_search import kir_tag_search as ts
 
 # nosetests --with-spec --spec-color --with-coverage --cover-erase
+
+SEP = sd.ResourceNames.sep
+TESTPATH = sd.ResourceNames.root+SEP+"tests"+SEP+"test_data"+SEP
 
 
 ###############################################################
@@ -17,7 +23,7 @@ from ..lemmatize_search import kir_tag_classes as tc
 ###############################################################
 class TestTextMeta(TestCase):
     """Test cases for TextMeta
-    first statistics of loaded textfile"""
+    some statistics of loaded textfile"""
 
     def test_replace_strangeletters(self):
         """Test replace non UTF-8 characters from bad OCR
@@ -305,3 +311,145 @@ class TestToken(TestCase):
         self.assertEqual(token.id_token, 345)
         self.assertEqual(token.id_char, 1287)
         self.assertEqual(token.id_para, 15)
+
+
+###############################################################
+#       TEST       T o k e n s    M E T A                     #
+###############################################################
+class TestTokensMeta(TestCase):
+    """Test case for Token in texts
+    """
+
+    def test_initiate_tokenlist__firsttime(self):
+        """Test TokensMeta before saving"""
+        tagged = ts.load_tagged_text(TESTPATH+"tag__test_text0.csv")
+        token_list = tagged[1]
+        print("first token=", token_list[0])
+        self.assertEqual(len(token_list), 133)
+        types = {unidecode(i.token.lower()) for i in token_list
+                 if i.pos not in ["SYMBOL", "NUM"]}
+        print("types:", len(types))
+        self.assertEqual(len(types), 65)
+        dont_count = {i.token for i in token_list
+                      if i.pos in ["SYMBOL", "NUM"]}
+        print("symbols+numbers types=", len(dont_count), dont_count)
+        self.assertEqual(len(dont_count), 6)
+        unknown = {i.lemma for i in token_list if i.pos == "UNK"}
+        print("unknown types=", len(unknown), unknown)
+        self.assertEqual(len(unknown), 7)
+        pos = {i.pos for i in token_list}
+        print("different pos", pos)
+        percent = round(len(unknown) / (len(types)-len(dont_count)) * 100, 2)
+        print(percent, "% unknown")
+        lemmata = {i.lemma for i in token_list
+                   if i.pos not in ["UNK", "SYMBOL", "NUM"]}
+        print("lemmata:", len(lemmata))
+        self.assertEqual(len(lemmata), 48)
+        # test
+        tokensmeta = tc.TokensMeta(token_list)
+        tokensmeta.count_tokens()
+        self.assertEqual(tokensmeta.tokens, token_list)
+        # self.assertEqual(tokensmeta.datetime, datetime.datetime.now()
+        self.assertEqual(tokensmeta.n_tokensbond, 93)
+        self.assertEqual(tokensmeta.n_tokenscut, 99)
+        self.assertEqual(tokensmeta.n_unk, 7)
+        # it's different from next test because we read tokenlist from file
+        # instead of making a really new one: '11deg' is treated different
+        self.assertAlmostEqual(percent, 11.86, 1)
+        self.assertEqual(tokensmeta.n_types, 65)
+        self.assertEqual(tokensmeta.n_lemmata, 48)
+
+    def test_initiate_tokenlist__read_from_file(self):
+        """Test TokensMeta read from saved file"""
+        meta, token_list = ts.load_tagged_text(TESTPATH+"tag__test_text0.csv")
+        # token_list = tagged[1]
+        print(meta, token_list[0])
+        self.assertEqual(len(token_list), 133)
+        types = {i.token for i in token_list}
+        print(len(types))
+        lemmata = {i.lemma for i in token_list}
+        print(lemmata)
+        # test
+        tokensmeta = tc.TokensMeta(token_list)
+        tokensmeta.put_meta_already_done_before(meta)
+        self.assertEqual(tokensmeta.tokens, token_list)
+        # self.assertEqual(tokensmeta.datetime, datetime.datetime.now()
+        self.assertEqual(tokensmeta.n_tokensbond, 93)
+        self.assertEqual(tokensmeta.n_tokenscut, 99)
+        self.assertEqual(tokensmeta.n_unk, None)
+        self.assertEqual(tokensmeta.percent_unk, '10.77 %')
+        self.assertEqual(tokensmeta.n_types, 65)
+        self.assertEqual(tokensmeta.n_lemmata, 48)
+
+    def test_lemmasoup(self):
+        """Test Make lemma soup from list of tagged tokens"""
+        # prepare
+        # we re only interested in a token_list
+        throw_away, token_list = ts.load_tagged_text(TESTPATH+"tag__test_text0.csv")
+        # print("in test lemmasoup: tagged meta=", meta)
+        # self.assertEqual(
+        #     meta,
+        #     {'n_char': 633, 'n_odds': 41, 'n_tokens': 93, 'n_tokens_split': 99,
+        #      'n_types': 65, 'n_unk_types': '10.77 %', 'n_lemmata': 48,
+        #      'db_version': 'lemmata_test',
+        #      'time_tagged': 'Fri Dec 8 15:11:35 2023',
+        #      'fn_short': 'test_text0'})
+        print("in test lemmasoup: length token_list=", len(token_list))
+        self.assertEqual(len(token_list), 133)
+        tokens_meta = tc.TokensMeta(token_list)
+        tokens_meta.count_tokens()
+        print("in test tokens_meta=", tokens_meta)
+        happy_result = "umugenzo - 32 -\nkuba 11deg kuramutsa umuvyeyi ."\
+            "\n\niyo umugore kuja kuramutsa umuvyeyi kuba kubera , kuja "\
+            "kwikorera guca mu - irembo _nawa , guca mu icanzo , _agasanga "\
+            "gusa , -iwe , mu _mutangaro -a - umuryango . gusa kuba "\
+            "kubangikanya -o-o -ri ifu -a - amasaka canke -a - uburo . "\
+            "gufata _utubabi -a - umumanda na - _-o - umurinzi gukoza muri "\
+            '_nya ifu gukaraba mu _gahanga -a - _umukobwa -iwe -ti " '\
+            'kwibonera umwana " . _nya umwigeme -iwe nawe gukaraba iyo ifu mu'\
+            ' _gahanga -a gusa -ti " kwibonera umuvyeyi " . nyina -iwe kugira'\
+            ' -rtyo nyene -ti " kwibonera umwana " , _umukobwa -iwe nawe '\
+            'kuraba iyo ifu -ti " kwibonera umuvyeyi " . mu gutaha , ku '\
+            'umutunzi , _nya umugore kugenda kugabanya inka .'
+        # test
+        lemmasoup = tokens_meta.lemmasoup()
+        print("lemmasoup:", lemmasoup)
+        self.assertEqual(lemmasoup, happy_result)
+
+    def test_possoup(self):
+        """Test Make PoS-soup from list of tagged tokens"""
+        # prepare
+        tagged = ts.load_tagged_text(TESTPATH+"tag__test_text0.csv")
+        tokens = tc.TokensMeta(tagged[1])
+        happy_result = 'NOUN - NUM -\nVERB NUM VERB NOUN .\n\nCONJ NOUN VERB '\
+            'VERB NOUN VERB VERB , VERB VERB VERB PREP - NOUN UNK , VERB '\
+            'PREP NOUN , UNK VERB , PRON , PREP UNK PRON - NOUN . VERB VERB '\
+            'VERB PRON VERB NOUN PRON - NOUN CONJ PRON - NOUN . VERB UNK '\
+            'PRON - NOUN CONJ - PRON - PROPN_VEG VERB PREP UNK NOUN VERB '\
+            'PREP UNK PRON - UNK PRON VERB " VERB NOUN " . UNK NOUN PRON '\
+            'INTJ VERB CONJ NOUN PREP UNK PRON VERB VERB " VERB NOUN " . '\
+            'NOUN PRON VERB PRON NOUN VERB " VERB NOUN " , UNK PRON INTJ '\
+            'VERB CONJ NOUN VERB " VERB NOUN " . PREP VERB , PREP NOUN , '\
+            'UNK NOUN VERB VERB NOUN .'
+        # test
+        possoup = tokens.possoup()
+        self.assertEqual(possoup, happy_result)
+
+    def test_remake_text(self):
+        """Test Remake text from list of tagged tokens"""
+        # prepare
+        tagged = ts.load_tagged_text(TESTPATH+"tag__test_text0.csv")
+        tokens = tc.TokensMeta(tagged[1])
+        happy_result = 'imigenzo - 32 -\nUbwa 11deg Kuramutsa abavyéyi.\n\n'\
+            'Iyó umugóre ajé kuramutsa abavyéyi ubwa mbere, abáje bikoreye '\
+            'báca mw-irémbo nawá, agaca mu canzo, agasanga sé, wíwé, mu '\
+            'mutangaro w-úmuryango. Sé yába yibangikanije agakoko karímwo '\
+            'ifu y-ámasáka cânké y-úbúro. Yafáta utubabi tw-úmumândá '\
+            'n-utw-úmurinzi agakoza murí nya fu akarába mu gahanga '\
+            'k-úmukobwa wíwé ati "Kwíbonera abâna". Nya mwígeme wíwé nawé '\
+            'akarába iyo fu mu gahánga ka sé ati "Kwíbonera abavyéyi". Nyina '\
+            'wíwé akagira gúrtyo nyéne ati "Kwíbonera abâna", umukobwa wíwé '\
+            'nawé akamúraba iyo fu ati "Kwíbonera abavyéyi". Mu gutaha, ku '\
+            'batunzi, nya mugóre yagénda agábanye inká.'
+        re_text = tokens.remake_text()
+        self.assertEqual(re_text, happy_result)

@@ -8,6 +8,7 @@ Created on Sun Aug  6 23:43:14 2023
 
 import csv
 import re
+from sys import exit as sysexit
 from unidecode import unidecode
 try:
     import kir_prepare_verbs as kv
@@ -20,23 +21,37 @@ except ImportError:
 
 
 def read_db_kirundi(filename=sd.ResourceNames.fn_db):
-    """reads db_kirundi"""
+    """reads csv db_kirundi"""
     rows = []
+    missed_columns = kh.check_csv_column_names(
+        filename,
+        ['id', 'kirundi0', 'prefix', 'stem', 'stem_perf',
+         'plural', 'pluralFull', 'type',
+         'kirundi0_a', 'prefix_a', 'stem_a', 'stem_perf_a'])
+    if missed_columns:
+        kh.show_missing_column_names(filename, missed_columns)
+        sysexit()
     with open(filename, encoding="utf-8") as csv_file:
         csv_reader = csv.DictReader(csv_file, delimiter=";")
         for entry in csv_reader:
             rows.append(kv.RundiDictEntry(entry))
-    return rows
+        return rows
 
 
 def read_named_entities(filename=sd.ResourceNames.fn_named_entities):
-    """reads names and foreign words"""
+    """reads csv with names and foreign words"""
     rows = []
+    missed_columns = kh.check_csv_column_names(
+        filename,
+        ['entry', 'PoS', 'alternatives'])
+    if missed_columns:
+        kh.show_missing_column_names(filename, missed_columns)
+        sysexit()
     with open(filename, encoding="utf-8") as csv_file:
         csv_reader = csv.DictReader(csv_file, delimiter=";")
         for entry in csv_reader:
             rows.append(EnEntry(entry))
-    return rows
+        return rows
 
 
 # def get_resources(

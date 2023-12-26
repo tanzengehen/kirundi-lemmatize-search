@@ -105,9 +105,7 @@ def reduce_simplefreq_to_lemma_collection(simple_freq_list,
         kh._("\nexclamations        : ")
         + " "*9 + f"{unk_before - unk_still:7}"
         + "\nunknown             :" + " "*23 + f"{unk_still}")
-    # for key, value in collection.unk.items():
-    #     if value != 0:
-    #         collection.unk.append((key, "", "UNK", value, 1, [key, value]))
+    
     unk = [(key, "", "UNK", value, 1, [key, value])
            for key, value in collection.unk.items()]
     unk.sort(key=lambda x: x[3], reverse=True)
@@ -253,17 +251,17 @@ def tag_text_with_db(mytext, dbrundi):
     collection.put_known()
     lemmatypes = prepare_lemmatypes(collection.known)
     # print more statistics: Percentage of unkown types
-    n_lemmatypes = 0
-    for lemma in collection.known:
-        n_lemmatypes += lemma[4]
-    percent = round(len(collection.unk) / (len(collection.unk)+n_lemmatypes)
-                    * 100, 2)
-    kh.OBSERVER.notify(kh._(
-        "unknown types      : {:12} ({}% incl. broken words, mistakes, ...)")
-        .format(len(collection.unk), percent)
-        )
-    kh.OBSERVER.notify(kh._(
-        "recognized lemmata : {:12}").format(len(collection.known)))
+    # n_known_types = 0
+    # for lemma in collection.known:
+    #     n_known_types += lemma[4]
+    # percent = round(len(collection.unk) / (len(collection.unk)+n_known_types)
+    #                 * 100, 2)
+    # kh.OBSERVER.notify(kh._(
+    #     "unknown types      : {:12} ({}% incl. broken words, mistakes, ...)")
+    #     .format(len(collection.unk), percent)
+    #     )
+    # kh.OBSERVER.notify(kh._(
+    #     "recognized lemmata : {:12}").format(len(collection.known)))
 
     # split text into sentences -- roughly
     line_end = " <paragraph> "
@@ -330,8 +328,21 @@ def tag_text_with_db(mytext, dbrundi):
         points, sent_count = kh.show_progress(points,
                                               sent_count,
                                               len(sentences_list))
-        text_tagged = tc.TokenMeta(tagged)
-        text_tagged.percent_unk = percent
+    text_tagged = tc.TokensMeta(tagged)
+    text_tagged.count_tokens()
+    kh.OBSERVER.notify(kh._(
+        "\nunknown types      : {:12} ({}% incl. broken words, mistakes, ...)")
+        .format(text_tagged.n_unk, text_tagged.percent_unk)
+        )
+    kh.OBSERVER.notify(kh._(
+        "recognized lemmata : {:12}").format(len(collection.known)))
+    # # TODO
+    # print("\nin tag text vergleich n_lemma", text_tagged.n_lemmata, len(collection.known))
+    # print("vergleich types", text_tagged.n_types, (len(collection.unk)+n_known_types))
+    # print("vergleich unbekannt", text_tagged.n_unk, len(collection.unk))
+    # print("vergleich prozente", text_tagged.percent_unk, percent)
+    # text_tagged.n_lemmata = len(collection.known)
+    # text_tagged.percent_unk = percent
     return (collection,
             text_tagged)
 
@@ -510,14 +521,12 @@ def go_search(tagged_list, whattodo):
     else:
         found = find_ngrams(
             tagged_list, whattodo.query)
-    if found:
-        # tag missing?
-        if found[1]:
-            kh.OBSERVER.notify(kh._("Error: missing tag"))
-            for i in found[1]:
-                kh.OBSERVER.notify(i)
-        return found[0]
-    return found
+    # tag missing?
+    if found[1]:
+        kh.OBSERVER.notify(kh._("Error: missing tag"))
+        for i in found[1]:
+            kh.OBSERVER.notify(i)
+    return found[0]
 
 
 def tag_multogether(fn_in, dbrundi):
@@ -663,7 +672,8 @@ def tag_or_load_tags(fn_in, dbrundi):
         good_old = kh.check_time(sd.ResourceNames.fn_db, whattext.fn_in)
         if good_old:
             meta_data, token_list = load_tagged_text(whattext.fn_in)
-            text_tagged = tc.TokenMeta(token_list)
+            text_tagged = tc.TokensMeta(token_list)
+            text_tagged.put_meta_already_done_before(meta_data)
             show_meta(meta_data)
             return text_tagged
         kh.OBSERVER.notify(
@@ -673,7 +683,8 @@ Do you want to use your file or tag again the underlying text?
 (maybe now there are less unknown words in your text)"""))
         # TODO (input: y/n) till now: we chose the old file
         meta_data, token_list = load_tagged_text(whattext.fn_in)
-        text_tagged = tc.TokenMeta(token_list)
+        text_tagged = tc.TokensMeta(token_list)
+        text_tagged.put_meta_already_done_before(meta_data)
         show_meta(meta_data)
         return text_tagged
 
@@ -686,11 +697,12 @@ Do you want to use your file or tag again the underlying text?
         good_old = kh.check_time(sd.ResourceNames.fn_db, whattext.fn_tag)
         if good_old:
             kh.OBSERVER.notify(
-                kh._("There is already a tagged file: (made {})").format(good_old)
+                kh._("There is already a tagged file: (made {good_old})")
                 + "\n\t" + pathsep.join(whattext.fn_tag.split(pathsep)[-4:])
                 + kh._("\nWe use this instead of tagging again.\n"))
             meta_data, token_list = load_tagged_text(whattext.fn_tag)
-            text_tagged = tc.TokenMeta(token_list)
+            text_tagged = tc.TokensMeta(token_list)
+            text_tagged.put_meta_already_done_before(meta_data)
             show_meta(meta_data)
             return text_tagged
 
@@ -702,8 +714,8 @@ Do you want to use your file or tag again the underlying text?
             try:
                 whattext.raw = kh.load_text_fromfile(whattext.fn_in, 'utf-16')
             except UnicodeDecodeError:
-                kh.OBSERVER.notify(
-                    kh._("Sorry, can't use the file: {}").format(whattext.fn_in))
+                kh.OBSERVER.notify(kh._(
+                    "Sorry, can't use the file: {}").format(whattext.fn_in))
                 whattext.raw = ""
         if not whattext.raw:
             sysexit()
@@ -732,8 +744,8 @@ Do you want to use your file or tag again the underlying text?
                  "n_types": text_tagged.n_types,
                  "n_unk_types": str(text_tagged.percent_unk)+" %",
                  "n_lemmata": len(lemma_lists.known),
-                 "db_name": sd.ResourceNames.db_name,
-                 "datetime": date.ctime(),
+                 "db_version": sd.ResourceNames.db_version,
+                 "time_tagged": date.ctime(),
                  "fn_short": whattext.fn_short
                  }
     save_tagged_text_as_csv(meta_data, text_tagged.tokens, whattext.fn_tag)
@@ -745,6 +757,20 @@ Do you want to use your file or tag again the underlying text?
           + "\t"+pathsep + pathsep.join(whattext.fn_tag.split(pathsep)[-4:])
           + kh._("\nWe can use it again later.")
           )
+    # TODO save lemmasoup here, but how testing without waiting for y/n?
+    kh.OBSERVER.notify(kh._(
+        """\nDo you want to save a lemma-version of the text?
+    (tokens replaced by lemmata) y/n"""))
+    l_soup = input("  : ")
+    if l_soup in ["y", "Y", "yes", "ego", "ja", "j", "oui"]:
+        lemmasoup = text_tagged.lemmasoup()
+        print(lemmasoup)
+        with open(whattext.fn_lemmasoup, 'w', encoding="utf-8") as file:
+            file.write(lemmasoup)
+        kh.OBSERVER.notify(
+            kh._("Saved as:\n\t")
+            + pathsep + pathsep.join(whattext.fn_lemmasoup.split(pathsep)[-4:])
+            )
     return text_tagged
 
 
@@ -840,7 +866,7 @@ def load_tagged_text(filename):
     # check if each Metadata-attribute finds a key in the dictionary
     try:
         for i in ['n_char', 'n_odds', 'n_tokens', 'n_tokens_split', 'n_types',
-                  'n_unk_types', 'n_lemmata', 'db_name', 'datetime']:
+                  'n_unk_types', 'n_lemmata', 'db_version', 'time_tagged']:
             if i not in meta_data.keys():
                 raise KeyError()
     except KeyError:

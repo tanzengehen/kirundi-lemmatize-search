@@ -7,6 +7,7 @@ Created on Tue Nov  7 06:36:50 2023
 """
 
 import os
+import shutil
 # import datetime
 from unittest import TestCase
 from ..lemmatize_search import kir_string_depot as sd
@@ -238,12 +239,14 @@ class TestTagText(TestCase):
         self.assertEqual(len(lemma_lists.unk), 8)
         self.assertEqual(len(lemma_lists.known), 48)
 
+    # TODO how to avoid to enter y/n - or isn't it a unittest anymore?
     def test_tag_or_load_tags__txt_utf8(self):
         """Test Tag text-file: txt utf8
         check against """
         # prepare
         for i in ["tag__test_text0.csv",
-                  "norm__test_text0.txt"]:
+                  "norm__test_text0.txt",
+                  "lemma__test_text0.txt"]:
             if os.path.exists(sd.ResourceNames.dir_tagged + i):
                 os.remove(sd.ResourceNames.dir_tagged + i)
             self.assertFalse(os.path.exists(sd.ResourceNames.dir_tagged + i))
@@ -284,15 +287,19 @@ class TestTagText(TestCase):
         # clean up
         for i in ["tag__test_text0.csv",
                   "fl__test_text0.csv",
-                  "norm__test_text0.txt"]:
-            os.remove(sd.ResourceNames.dir_tagged + i)
+                  "norm__test_text0.txt",
+                  "lemma__test_text0.txt"]:
+            if os.path.exists(sd.ResourceNames.dir_tagged + i):
+                os.remove(sd.ResourceNames.dir_tagged + i)
             self.assertFalse(os.path.exists(sd.ResourceNames.dir_tagged + i))
 
+    # TODO how to avoid to enter y/n - or isn't it a unittest anymore?
     def test_tag_or_load_tags__txt_utf16(self):
         """Test Tag text-file: txt utf16"""
         # prepare
         for i in ["tag__test_utf16.csv",
-                  "norm__test_utf16.txt"]:
+                  "norm__test_utf16.txt",
+                  "lemma__test_utf16.txt"]:
             if os.path.exists(sd.ResourceNames.dir_tagged + i):
                 os.remove(sd.ResourceNames.dir_tagged + i)
             self.assertFalse(os.path.exists(sd.ResourceNames.dir_tagged + i))
@@ -326,8 +333,10 @@ class TestTagText(TestCase):
         # clean up
         for i in ["tag__test_utf16.csv",
                   "fl__test_utf16.csv",
-                  "norm__test_utf16.txt"]:
-            os.remove(sd.ResourceNames.dir_tagged + i)
+                  "norm__test_utf16.txt",
+                  "lemma__test_utf16.txt"]:
+            if os.path.exists(sd.ResourceNames.dir_tagged + i):
+                os.remove(sd.ResourceNames.dir_tagged + i)
             self.assertFalse(os.path.exists(sd.ResourceNames.dir_tagged + i))
 
 
@@ -342,21 +351,21 @@ class TestSaveTaggedTextAsCsv(TestCase):
         """Test Save tagged text as csv"""
         # prepare
         meta = {"n_char": 2345,
-                     "n_odds": 3,
-                     "n_tokens": 4711,
-                     "n_tokens_split": 4712,
-                     "n_types": 815,
-                     "n_unk_types": "10.7%",
-                     "n_lemmata": 248,
-                     "db_name": "nonsense",
-                     "datetime": 'Wed Dec 20 03:56:15 2023'
-                     }
+                "n_odds": 3,
+                "n_tokens": 4711,
+                "n_tokens_split": 4712,
+                "n_types": 815,
+                "n_unk_types": "10.7%",
+                "n_lemmata": 248,
+                "db_name": "nonsense",
+                "datetime": 'Wed Dec 20 03:56:15 2023'
+                }
         filename = sd.ResourceNames.dir_tagged + "tag__test_file.csv"
         text = ["Ndarukunda", "cane", "ururimi", "kirundi"]
-        collection =  {"ndarukunda": ['VERB', 'gukunda', 3143],
-                       "cane": ['ADV', 'cane', 314],
-                       "ururimi": ['NOUN', 'ururimi', 31],
-                       "kirundi": ['PROPN_LANG', 'ikirundi', 3]}
+        collection = {"ndarukunda": ['VERB', 'gukunda', 3143],
+                      "cane": ['ADV', 'cane', 314],
+                      "ururimi": ['NOUN', 'ururimi', 31],
+                      "kirundi": ['PROPN_LANG', 'ikirundi', 3]}
         taglist = []
         for i, word in enumerate(text):
             token = ts.tag_lemma(word, collection)
@@ -369,13 +378,13 @@ class TestSaveTaggedTextAsCsv(TestCase):
         if os.path.exists(filename):
             os.remove(filename)
         self.assertFalse(os.path.exists(filename))
-        # test    
+        # test
         ts.save_tagged_text_as_csv(meta, taglist, filename)
         self.assertTrue(os.path.exists(filename))
-        
         # clean up
         os.remove(filename)
         self.assertFalse(os.path.exists(filename))
+
 
 ###############################################################
 #       TEST       L O A D   T A G G E D   T o k e n s        #
@@ -387,12 +396,13 @@ class TestLoadTags(TestCase):
     def test_load_tagged_text(self):
         """Test load tagged text from csv"""
         meta, tagged_text = ts.load_tagged_text(TESTPATH+"tag__test_text0.csv")
-        self.assertEqual(len(meta), 9)
+        self.assertEqual(len(meta), 10)
         self.assertEqual(
             meta,
             {'n_char': 633, 'n_odds': 41, 'n_tokens': 93, 'n_tokens_split': 99,
-             'n_types': 79, 'n_unk_types': '12.12 %', 'n_lemmata': 48,
-             'db_name': 'lemmata_test', 'datetime': 'Fri Dec 8 15:11:35 2023'})
+             'n_types': 65, 'n_unk_types': '10.77 %', 'n_lemmata': 48,
+             'db_version': 'lemmata_test', 'time_tagged': 'Fri Dec 8 15:11:35 2023',
+             'fn_short': 'test_text0'})
         self.assertEqual(len(tagged_text), 133)
 
     def test_load_tagged_text__wrong_csv(self):
@@ -665,5 +675,126 @@ class TestSearch(TestCase):
         print(found[0])
         self.assertEqual(len(found[0]), 4)
 
-    # def test_go_search(self):
-        
+    def test_go_search_ngram(self):
+        """Test go_search with 2-gram"""
+        # prepare
+        tagged = ts.load_tagged_text(TESTPATH+"tag__test_text0.csv")
+        token_list = tagged[1]
+        whatsearch = sd.Search("foo/bar.txt",
+                               [('y', 'pos', 'NOUN'),
+                                ('y', 'pos', 'Verb')])
+        # test
+        found = ts.go_search(token_list, whatsearch)
+        print(found)
+        self.assertEqual(len(found), 8)
+        self.assertEqual(found[-1],
+                         ['672',
+                          '  íbonera abavyéyi " . Mu gutaha , ku batunzi , '
+                          + 'nya     mugóre yagénda        agábanye inká . '])
+
+    def test_go_search_1gram(self):
+        """Test go_search with 1-gram"""
+        # prepare
+        tagged = ts.load_tagged_text(TESTPATH+"tag__test_text0.csv")
+        token_list = tagged[1]
+        whatsearch = sd.Search("foo/bar.txt",
+                               [('y', 'lemma', 'umwana')])
+        # test
+        found = ts.go_search(token_list, whatsearch)
+        print(found)
+        self.assertEqual(len(found), 2)
+        self.assertEqual(found[-1],
+                         ('551', '  . Nyina wíwé akagira gúrtyo nyéne ati "'
+                          + ' Kwíbonera     abâna        " , umukobwa wíwé '
+                          + 'nawé akamúraba iyo fu ati " Kwíbonera '))
+
+    def test_go_search_no_result(self):
+        """Test go_search for no result"""
+        # prepare
+        tagged = ts.load_tagged_text(TESTPATH+"tag__test_text0.csv")
+        token_list = tagged[1]
+        whatsearch = sd.Search("foo/bar.txt",
+                               [('y', 'token', 'sinzokwibagira')])
+        # test
+        found = ts.go_search(token_list, whatsearch)
+        print(found)
+        self.assertFalse(found)
+
+# https://stackovercoder.com.de/programming/4219717/how-to-assert-output-with-nosetest-unittest-in-python
+    # def test_go_search_missing_tag(self):
+    #     # prepare
+    #     tagged = ts.load_tagged_text(TESTPATH+"tag__test_text0.csv")
+    #     token_list = tagged[1]
+    #     token_list[4].pos = ""
+    #     whatsearch = sd.Search("foo/bar.txt",
+    #                            [('y', 'lemma', 'umwana')])
+    #     # test
+    #     found = ts.go_search(token_list, whatsearch)
+    #     print("\nfound:", found)
+    #     self.assertEqual(len(found), 2)
+    #     # self.assertEqual(
+    #     #    fakeOutput,
+    #     #    "('missing tag by word number:', 4, 'Ubwa')")
+
+    def test_search_or_load_search__search(self):
+        """Test search or load search"""
+        # prepare
+        if os.path.exists(sd.ResourceNames.dir_searched
+                          + "bar__umwana(lemma)_.txt"):
+            os.remove(sd.ResourceNames.dir_searched
+                      + "bar__umwana(lemma)_.txt")
+        self.assertFalse(os.path.exists(sd.ResourceNames.dir_searched
+                                        + "bar__umwana(lemma)_.txt"))
+        tagged = ts.load_tagged_text(TESTPATH+"tag__test_text0.csv")
+        token_list = tagged[1]
+        fn_in = "foo/bar.txt"
+        quterms = [('y', 'lemma', 'umwana')]
+        single = True
+        # test
+        ts.search_or_load_search(fn_in, quterms, single, token_list)
+        self.assertTrue(os.path.exists(sd.ResourceNames.dir_searched
+                                       + "bar__umwana(lemma)_.txt"))
+        searchresult = kh.load_lines(sd.ResourceNames.dir_searched
+                                     + "bar__umwana(lemma)_.txt")
+        self.assertEqual(len(searchresult), 2)
+        self.assertEqual(
+            searchresult[1],
+            '551;  . Nyina wíwé akagira gúrtyo nyéne ati " Kwíbonera'
+            + '     abâna        '
+            + '" , umukobwa wíwé nawé akamúraba iyo fu ati " Kwíbonera ;\n')
+        # clean up
+        os.remove(sd.ResourceNames.dir_searched
+                  + "bar__umwana(lemma)_.txt")
+        self.assertFalse(os.path.exists(sd.ResourceNames.dir_searched
+                                        + "bar__umwana(lemma)_.txt"))
+
+    def test_search_or_load_search__load(self):
+        """Test search or load search"""
+        # prepare
+        self.assertTrue(os.path.exists(
+            TESTPATH+"test_text0__NOUN_wíwé(exact)_.txt"))
+        shutil.copy(TESTPATH+"test_text0__NOUN_wíwé(exact)_.txt",
+                    sd.ResourceNames.dir_searched
+                    + "test_text0__NOUN_wíwé(exact)_.txt")
+        token_list = [1, 2, 3]
+        fn_in = "tag__test_text0.csv"
+        quterms = [('y', 'pos', 'NOUN'), ('y', 'token', 'wíwé')]
+        single = True
+        # test
+        ts.search_or_load_search(fn_in, quterms, single, token_list)
+        self.assertTrue(os.path.exists(sd.ResourceNames.dir_searched
+                                       + "test_text0__NOUN_wíwé(exact)_.txt"))
+        searchresult = kh.load_lines(sd.ResourceNames.dir_searched
+                                     + "test_text0__NOUN_wíwé(exact)_.txt")
+        self.assertEqual(len(searchresult), 2)
+        print(searchresult)
+        self.assertEqual(
+            searchresult[1],
+            '496;    fu mu gahánga ka sé ati " Kwíbonera abavyéyi " .'
+            + '     Nyina wíwé        '
+            + 'akagira gúrtyo nyéne ati " Kwíbonera abâna " , umukobwa ;\n')
+        # clean up
+        os.remove(sd.ResourceNames.dir_searched
+                  + "test_text0__NOUN_wíwé(exact)_.txt")
+        self.assertFalse(os.path.exists(sd.ResourceNames.dir_searched
+                                        + "test_text0__NOUN_wíwé(exact)_.txt"))

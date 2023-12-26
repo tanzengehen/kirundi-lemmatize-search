@@ -8,6 +8,7 @@ Created on Sun May 28 07:37:34 2023
 
 from ast import literal_eval
 # from time import sleep
+import csv
 import gettext
 import os.path as osp
 import time
@@ -288,6 +289,20 @@ def show_progress(points, n_now, n_max):
     points += more
     n_now += 1
     return points, n_now
+
+
+def check_csv_column_names(filename, columns):
+    """check if column names correspond to required attributes"""
+    with open(filename, encoding="utf-8") as csv_file:
+        csv_reader = csv.DictReader(csv_file, delimiter=";")
+        missed_columns = [i for i in columns if i not in csv_reader.fieldnames]
+    return missed_columns
+
+
+def show_missing_column_names(filename, missed_columns):
+    """print list of missing column names"""
+    for missed in missed_columns:
+        OBSERVER.notify(_(f"missing column in {filename}: '{missed}'"))
 
 
 lang = set_ui_language("de")

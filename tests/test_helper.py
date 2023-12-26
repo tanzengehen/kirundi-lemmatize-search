@@ -126,7 +126,7 @@ class TestSaveResources(TestCase):
         self.assertEqual(text[3], "my text much||much||more||\n")
         os.remove(fname)
 
-#     def test_save_tagged_text_as_csv(self): is indirect tested as part of tag_ot_load
+#     def test_save_tagged_text_as_csv(self): is indirect tested as part of tag_or_load
 
 ####################################################
 #     T E S T       L O A D I N G  FILES           #

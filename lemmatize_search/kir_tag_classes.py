@@ -39,7 +39,7 @@ class TextMeta:
         self.fn_norm = ""
         self.fn_freqlemma = ""
         self.fn_tag = ""
-        self.lemmasoup = ""
+        self.fn_lemmasoup = ""
         if fn_in:
             self.set_fn_outs()
 
@@ -527,7 +527,7 @@ class Token:
         return self.lemma
 
 
-class TokenMeta:
+class TokensMeta:
     """list of all tokens in a text
     """
 
@@ -536,11 +536,10 @@ class TokenMeta:
         self.datetime = datetime.datetime.now()
         self.n_tokensbond = 0
         self.n_tokenscut = 0
-        self.n_unk = 0
-        self.percent_unk = None
-        self.n_types = len({i.token for i in self.tokens})
-        self.n_lemmata = len({i.lemma for i in self.tokens})
-        self._count_tokens()
+        self.n_unk = None
+        self.n_types = 0
+        self.n_lemmata = 0
+        self.percent_unk = 0
 
     def __str__(self):
         return f"Tokens={self.n_tokensbond} Tokens(cut)={self.n_tokenscut} "\
@@ -550,10 +549,11 @@ class TokenMeta:
         return f"n_tokenscut={self.n_tokenscut} n_types={self.n_types} "\
              + f"n_lemmata={self.n_lemmata}"
 
-    def _count_tokens(self):
-        """counts tokens, cut_tokens, unknowns
+    def count_tokens(self):
+        """count tokens and produce meta data
+        when tagged first time
         """
-        bond, cut, unk = 0, 0, 0
+        bond, cut = 0, 0
         for i, tok in enumerate(self.tokens[1:], 1):
             if tok.id_token != self.tokens[i-1].id_token:
                 bond += 1
@@ -561,54 +561,102 @@ class TokenMeta:
                 cut += 1
         self.n_tokensbond = bond
         self.n_tokenscut = cut
-        for i in self.tokens:
-            unk += 1
-        self.n_unk = unk
+        # for counting unknown we count its lemma instead of unknown token 
+        # because its lemma is already unidecode(token.lower())
+        self.n_unk = len({unidecode(i.token.lower()) for i in self.tokens
+                          if i.pos == "UNK"})
+        self.n_types = len({unidecode(i.token.lower()) for i in self.tokens
+                            if i.pos not in ["SYMBOL", "NUM"]})
+        self.n_lemmata = len({i.lemma for i in self.tokens
+                              if i.pos not in ["UNK", "SYMBOL", "NUM"]})
+        self.percent_unk = round(self.n_unk / self.n_types * 100, 2)
 
+    def put_meta_already_done_before(self, meta_dict):
+        """read meta data from dictionary
+        when read from file (don't count them again, just read the result)"""
+        self.datetime = meta_dict.get('datetime')
+        self.n_tokensbond = meta_dict.get('n_tokens')
+        self.n_tokenscut = meta_dict.get('n_tokens_split')
+        self.n_types = meta_dict.get('n_types')
+        self.n_lemmata = meta_dict.get('n_lemmata')
+        self.percent_unk = meta_dict.get('n_unk_types')
+
+    # TODO when deliver?
     def lemmasoup(self):
         """replaces tokens in the text by its lemma if known,
-        marks unknown types with '?'
-        (skips SYMBOL)
+        marks unknown types with '_'
         """
         lemmasoup = ""
+        paragraph = 0
         for i in self.tokens:
             if i.pos == "UNK":
-                lemmasoup += "?"+i.lemma+" "
-            elif i.pos == "SYMBOL":
-                if i.lemma in sd.replaced_symbols.keys():
-                    lemmasoup += sd.replaced_symbols.get(i)+" "
+                lemma = "_"+i.lemma
+            elif i.pos == "SYMBOL" and i.lemma in sd.replaced_symbols.keys():
+                lemma = sd.replace_worded_symbols_back(i.lemma)
             else:
-                lemmasoup += i.lemma+" "
-        return lemmasoup.strip()
+                lemma = i.lemma
+
+            # separate paragraphs
+            while paragraph < int(i.id_para):
+                lemmasoup = lemmasoup.strip(" ") + "\n"
+                paragraph += 1
+            lemmasoup += lemma + " "
+        return lemmasoup.strip(" ")
 
     def tokensoup(self):
-        """deletes tokens with PoS 'SYMBOL'
+        """deletes stopwords and tokens with PoS 'SYMBOL'
         """
         tokensoup = ""
         for i in self.tokens:
             if i.pos != "SYMBOL":
-                tokensoup += i.token+" "
+                tokensoup += unidecode(i.token).lower()+" "
         return tokensoup.strip()
 
     def possoup(self):
         """replaces tokens in an text by its PoS-tag if known
         """
         possoup = ""
+        paragraph = 0
         for i in self.tokens:
-            possoup += i.pos+" "
-        return possoup.strip()
+            if i.pos == "SYMBOL":
+                if i.lemma in sd.replaced_symbols.keys():
+                    pos = sd.replace_worded_symbols_back(i.lemma)
+                else:
+                    pos = i.token
+            else:
+                pos = i.pos
+            # separate paragraphs
+            if paragraph == i.id_para:
+                possoup += pos
+            else:
+                # empty lines aren't tokens, hence maybe we add numerous
+                while paragraph < int(i.id_para):
+                    possoup = possoup.strip(" ") + "\n"
+                    paragraph += 1
+            possoup += pos + " "
+        return possoup.strip(" ")
 
     def remake_text(self):
-        """makes out of json the text again
+        """makes out of csv the text again
         """
         text = self.tokens[0].token
         for i, tok in enumerate(self.tokens[1:], 1):
+            # re-replace some symbols
+            if tok.pos == "SYMBOL" and tok.lemma in sd.replaced_symbols.keys():
+                token = sd.replace_worded_symbols_back(tok.lemma)
+            else:
+                token = tok.token
+
             # end of line
             if tok.id_para > self.tokens[i-1].id_para:
-                text += "\n" + tok.token
+                paragraph = int(self.tokens[i-1].id_para)
+                while paragraph < int(tok.id_para):
+                    text += "\n"
+                    paragraph += 1
+                text += token
             # put tokens with apostrophe in it together again
             elif self.tokens[i-1].id_tokin_sen == tok.id_tokin_sen:
-                text += tok.token
+                text += token
             else:
-                text += " " + tok.token
+                text += " " + token
         return text

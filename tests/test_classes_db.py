@@ -13,6 +13,8 @@ from ..lemmatize_search import kir_string_depot as sd
 
 
 # nosetests --with-spec --spec-color --with-coverage --cover-erase
+SEP = sd.ResourceNames.sep
+TESTPATH = sd.ResourceNames.root+SEP+"tests"+SEP+"test_data"+SEP
 
 
 ###############################################################
@@ -1117,15 +1119,13 @@ class TestLoading(TestCase):
     """Test loading Named Entities respective rundi dictionary"""
 
     def test_read_named_entities(self):
-        """Test mapping db"""
-        database = dbc.read_named_entities(
-            sd.ResourceNames.root+"/resources/ne_test.csv")
+        """Test load Named Entities from csv"""
+        database = dbc.read_named_entities(TESTPATH + "ne_test.csv")
         self.assertEqual(len(database), 45)
 
     def test_map_ne(self):
-        """Test load Named Entities from csv"""
-        database = dbc.read_named_entities(
-            sd.ResourceNames.root+"/resources/ne_test.csv")
+        """Test Sort Named Entities into Part of Speech lists"""
+        database = dbc.read_named_entities(TESTPATH + "ne_test.csv")
         ne_data = dbc.map_ne(database)
         self.assertEqual(len(ne_data), 5)
         self.assertEqual(len(ne_data.get('loc')), 10)
@@ -1145,17 +1145,20 @@ class TestLoading(TestCase):
         self.assertEqual(ne_data.get('foreign')[0].pos, 'F')
         self.assertEqual(ne_data.get('foreign')[1].lemma, 'concert')
 
+    def test_check_colums__named_entities(self):
+        """Test Fail loading Named Entities with wrong column names"""
+        self.assertRaises(
+            SystemExit,
+            dbc.read_named_entities, TESTPATH + "tag__wrong1.csv")
+
     def test_read_db_kirundi(self):
-        """Test mapping db"""
-        database = dbc.read_db_kirundi(
-            sd.ResourceNames.root + "/tests/test_data/lemmata_test.csv")
+        """Test Load Rundi dictionary from csv"""
+        database = dbc.read_db_kirundi(TESTPATH + "lemmata_test.csv")
         self.assertEqual(len(database), 56)
 
     def test_map_db_kirundi(self):
-        """Test load rundi dictionary from csv"""
-
-        database = dbc.read_db_kirundi(
-            sd.ResourceNames.root + "/tests/test_data/lemmata_test.csv")
+        """Test Sort db_kirundi into Part-of-Speech lists"""
+        database = dbc.read_db_kirundi(TESTPATH + "lemmata_test.csv")
         db_data = dbc.map_db_kirundi(database)
         self.assertEqual(len(db_data), 8)
         self.assertEqual(len(db_data.get('adjectives')), 0)
@@ -1174,6 +1177,11 @@ class TestLoading(TestCase):
         self.assertEqual(
             len(db_data.get('verbs')[0].comb), 2)
 
+    def test_check_colums__db_kirundi(self):
+        """Test Fail loading Rundi dictionary with wrong column names"""
+        self.assertRaises(
+            SystemExit,
+            dbc.read_db_kirundi, TESTPATH + "tag__wrong1.csv")
 
 # def create_test_db():
     # nrs = ids from lemmafreq of text_test.txt

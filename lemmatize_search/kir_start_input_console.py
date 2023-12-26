@@ -98,7 +98,7 @@ def figure_out_query(which_words):
             whichtag = "?"
             show += kh._("anything + ")
         # pos-tag
-        elif interest.upper() in sd.PossibleTags.pt:
+        elif interest.upper() in sd.possible_tags:
             whichtag = "pos"
             show += interest.upper() + " + "
         # lemma
@@ -150,6 +150,7 @@ deutsch, english, français)
     # single text input
     else:
         tagged = ts.tag_or_load_tags(f_in, db_rundi)
+    
     # Translators: terminal only
     kh.OBSERVER.notify(kh._("""\nWhat are you looking for?
     Divide searchterms with space characters.
