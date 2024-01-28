@@ -50,7 +50,7 @@ deki.kazinduzi(at)gmail.com
 
 ## Roadmap
 Let's host it on a website.  
-An extended version of the dictionary could be used.  
+The extended version of the dictionary could be used there.  
 
 ## Contributing
 There are different ways to contribute:  
