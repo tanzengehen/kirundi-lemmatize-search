@@ -15,7 +15,7 @@ With this it's also possible:
 The tag will be "UNK" if it doesn't find an appropriate lemma or Named-Entity in the underlying database.
 
 ## Dependencies
-nltk, unidecode  
+nltk, unidecode, pyqt  
 It's written in Python3    
 
 ## Usage 
@@ -24,42 +24,43 @@ Choose your preferred language for using the App: Rundi, English or German and s
 
 <img width=60% src="images/1_start.jpg">  
 
-You'll get some statistics and a csv-file with the tagged text, named "tag__filename.csv".  
-In the same folder you'll find also the frequency distribution of lemmata of the text, named "fl__filename.csv" and a file with the normalised text, named "norm__filename.txt".   
+Follow the descriptions in the window in the right corner.  
+After selecting the file you want to analyse, press "Lemmata" and you'll get some statistics and a csv-file with the tagged text, named "tag__filename.csv".  
+In the same folder you'll find also the frequency distribution of lemmata of the text (named "fl__filename.csv") and a file with the normalised text (named "norm__filename.txt") and a version where all tokens are replaced by their lemma(this file is named lemma__filename.txt).   
 
-<img width=60% src="images/kirundi_nlp2.jpg">  
+<img width=60% src="images/2_statistics.jpg">  
 
-Then enter your text-search-query.  
+Then enter your search-query.  
 
-<img src="images/kirundi_nlp3.jpg">  
+<img src="images/4_search2.jpg">  
 
-If there are results you'll find a list of maximum 20 results in the terminal, but all results are stored in a txt-file.  
-The name of the results-file ends with your search query. In our example it's: "test_text0__umugore_VERB_.txt".  
-Each result includes a number followed by your search term with surrounding text (previous and following 50 characters). 
-The number indicates the position where your search term starts in the normalised text.
+If there are results you'll find a list of maximum 20 results down in the window, but all results are stored in a txt-file.  
+The name of the results-file ends with your search query. In our example it's:  
+"/results/searched/Burundi_Culture_Nord-Est_-ri(lemma)_kugenda (lemma)_.txt".  
+Each result includes a number followed by your search term with surrounding text (previous and following 50 characters).  
+The number indicates the position where your search term starts in the normalised text.  
 
 Attention:  
 Before tagging the program looks up if there is already a tagged file ("tag__filename.csv") in the folder "/results/tagged".  
-Also before a search, it will look up in the folder "/results/searched" if this search was done already.   
-That means, if you changed the text in your file delete the tag-file and the search-files of this text, because it won't refresh them. Or give your text-file an unused name.
+Also before a search, it will look up in the folder "/results/searched" if this search was done already.  
+That means, if you changed the text in your file delete the tag-file and the search-files of this text, because it won't refresh them. Or give your text-file an unused name.  
 
 ## Support
 deki.kazinduzi(at)gmail.com  
 
 ## Roadmap
-Let's make a GUI or host it on a website.  
-For a website an extended version of the dictionary could be used.  
+Let's host it on a website.  
+An extended version of the dictionary could be used.  
 
 ## Contributing
 There are different ways to contribute:  
 1.  
-This project needs a nice user-interface.  
-contact deki.kazinduzi(at)gmail.com  
-2.  
 You could check your tagged text for "UNK" and propose to identify these words as Named-entity or as a new entry for the dictionary. Please provide in this case also grammar features (singular and plural of nouns, respectively infinitive and perfective of verbs, in best case also pronounciation, for Named-entites the special tag or a short description).  
 Mail your proposals to deki.kazinduzi(at)gmail.com  
-3.  
+2.  
 You could check your tagged text for wrong tags and report them.  
+3.  
+You can propose improvements for the user experience.  
 
 ## Authors and acknowledgment 
 Code:  
