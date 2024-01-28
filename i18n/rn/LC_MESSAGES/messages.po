@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Ingenzura-ikirundi 1.0\n"
 "Report-Msgid-Bugs-To: deki.kazinduzi@gmail.com\n"
-"POT-Creation-Date: 2023-12-21 15:19+0100\n"
+"POT-Creation-Date: 2024-01-07 21:49+0100\n"
 "PO-Revision-Date: 2023-09-09 21:39+0200\n"
 "Last-Translator: Doreen Nixdorf <deki.kazinduzi@gmail.com>\n"
 "Language: rn\n"
@@ -21,7 +21,7 @@ msgstr ""
 "X-Language: rn\n"
 "X-Source-Language: C\n"
 
-#: lemmatize_search/kir_helper2.py:251
+#: lemmatize_search/kir_helper2.py:218
 msgid ""
 "Sorry, I didn't save the list that starts with:\n"
 "    {}\n"
@@ -106,13 +106,13 @@ msgstr ""
 
 #: lemmatize_search/kir_start_input_console.py:137
 msgid "Prefer the tagged file, if there is one already: 'tag__file.csv'"
-msgstr "Nyabuna ifishi n'indanzi mu gihe rihari: 'tag__file.csv'"
+msgstr "Nyabuna ifishi n'indanzi mu gihe rihari: 'tag__fishi.csv'"
 
-#: lemmatize_search/kir_start_input_console.py:140
+#: lemmatize_search/kir_start_input_console.py:140 lemmatize_search/qt.py:164
 msgid "path/to/file"
 msgstr "inzira/ku/fishi"
 
-#: lemmatize_search/kir_start_input_console.py:154
+#: lemmatize_search/kir_start_input_console.py:155
 #, fuzzy
 msgid ""
 "\n"
@@ -149,7 +149,7 @@ msgstr ""
 "(prepositions), SYMBOL, UNK (atazwi mu kazinduzi), VERB, WWW (webaddress)]\n"
 "Ikibazo c'ukurondeza"
 
-#: lemmatize_search/kir_start_input_console.py:184
+#: lemmatize_search/kir_start_input_console.py:185
 msgid "\tOK, you are looking for a {}-gram.\n"
 msgstr "\tSawa, urarondera {}-gram.\n"
 
@@ -209,7 +209,7 @@ msgstr ""
 "\n"
 "ingereka                         : "
 
-#: lemmatize_search/kir_tag_search.py:124
+#: lemmatize_search/kir_tag_search.py:122
 msgid ""
 "\n"
 "Vocabulary\n"
@@ -223,16 +223,7 @@ msgstr ""
 "tokens              : {ntokens:12}\n"
 "types               : {ntypes:12} "
 
-#: lemmatize_search/kir_tag_search.py:261
-#, fuzzy, python-format
-msgid "unknown types      : {:12} ({}% incl. broken words, mistakes, ...)"
-msgstr "types zitazwi       : {:12} ({}%)"
-
-#: lemmatize_search/kir_tag_search.py:265
-msgid "recognized lemmata : {:12}"
-msgstr "amalemma azwi   : {:12}"
-
-#: lemmatize_search/kir_tag_search.py:283
+#: lemmatize_search/kir_tag_search.py:281
 msgid ""
 "\n"
 "tagging text, this may take some moments ........."
@@ -240,12 +231,25 @@ msgstr ""
 "\n"
 "Ndiko ndamatira indanzi n'amajambo, biramara akanya..."
 
-#: lemmatize_search/kir_tag_search.py:516
+#: lemmatize_search/kir_tag_search.py:333
+#, python-format
+msgid ""
+"\n"
+"unknown types      : {:12} ({}% incl. broken words, mistakes, ...)"
+msgstr ""
+"\n"
+"types zitazwi       : {:12} ({}%)"
+
+#: lemmatize_search/kir_tag_search.py:337
+msgid "recognized lemmata : {:12}"
+msgstr "amalemma azwi   : {:12}"
+
+#: lemmatize_search/kir_tag_search.py:526
 msgid "Error: missing tag"
 msgstr "Hari ikosa: indanzi irabuze"
 
-#: lemmatize_search/kir_tag_search.py:560
-#: lemmatize_search/kir_tag_search.py:622
+#: lemmatize_search/kir_tag_search.py:569
+#: lemmatize_search/kir_tag_search.py:631
 msgid ""
 "\n"
 "\n"
@@ -256,8 +260,8 @@ msgstr ""
 "Igisomwa kiranze cashinguwe mu fishi: \n"
 
 # yi because of ifishi
-#: lemmatize_search/kir_tag_search.py:563
-#: lemmatize_search/kir_tag_search.py:624
+#: lemmatize_search/kir_tag_search.py:572
+#: lemmatize_search/kir_tag_search.py:633
 msgid ""
 "\n"
 "We can use them again later."
@@ -265,11 +269,11 @@ msgstr ""
 "\n"
 "Turashobora gusubira kuyikoresha ikindi gihe."
 
-#: lemmatize_search/kir_tag_search.py:570
+#: lemmatize_search/kir_tag_search.py:579
 msgid "Wir wühlen uns durch die Dateien..."
 msgstr ""
 
-#: lemmatize_search/kir_tag_search.py:632
+#: lemmatize_search/kir_tag_search.py:641
 msgid ""
 "\n"
 "Statistics\n"
@@ -284,30 +288,31 @@ msgid ""
 msgstr ""
 "\n"
 "Ibiharuro\n"
-"indome                :{char:12}  (broken char from bad OCR: {odds})\n"
+"indome                   :{char:12}  (broken char from bad OCR: {odds})\n"
 "tokens                   :{tokensbond:12}\n"
-"tokens (guca na ')            :{tokens_split:12}\n"
+"tokens (guca na ')       :{tokens_split:12}\n"
 "types                    :{types:12}\n"
-"amalemma azwi               :{lemmata:12}\n"
-"types ntizizwi              :{unk:15} %  {db_name}\n"
-"izina ry'ifishi             :   {short_fn}"
+"amalemma azwi            :{lemmata:12}\n"
+"types ntizizwi           :{unk:15} %\n"
+"kazinduzi ikoreshwa      :   {db_name}\n"
+"izina ry'ifishi          :   {short_fn}"
 
-#: lemmatize_search/kir_tag_search.py:657
+#: lemmatize_search/kir_tag_search.py:666
 msgid "Preparing file ..."
 msgstr "Ndiko ndategura ifishi ..."
 
-#: lemmatize_search/kir_tag_search.py:670
+#: lemmatize_search/kir_tag_search.py:680
 msgid ""
 "Your file is older than our version of the Rundi dictionary.\n"
 "Do you want to use your file or tag again the underlying text?\n"
 "(maybe now there are less unknown words in your text)"
 msgstr ""
 
-#: lemmatize_search/kir_tag_search.py:689
-msgid "There is already a tagged file: (made {})"
-msgstr "Hari ifishi n'indanzi: (ryagizwe ku wa {})"
+#: lemmatize_search/kir_tag_search.py:700
+msgid "There is already a tagged file: (made {good_old})"
+msgstr "Hari ifishi n'indanzi: (ryagizwe ku wa {good_old})"
 
-#: lemmatize_search/kir_tag_search.py:691
+#: lemmatize_search/kir_tag_search.py:702
 msgid ""
 "\n"
 "We use this instead of tagging again.\n"
@@ -315,11 +320,11 @@ msgstr ""
 "\n"
 "Nkoresha iyo fishi mu kurondeza hako nsubira kuranga.\n"
 
-#: lemmatize_search/kir_tag_search.py:706
+#: lemmatize_search/kir_tag_search.py:717
 msgid "Sorry, can't use the file: {}"
 msgstr "Murantunga sinshobora gukoresha iyi fishi: {}"
 
-#: lemmatize_search/kir_tag_search.py:744
+#: lemmatize_search/kir_tag_search.py:755
 msgid ""
 "\n"
 "\n"
@@ -330,7 +335,7 @@ msgstr ""
 "Igisomwa kiranze cashinguwe mu fishi: \n"
 
 # yi because of ifishi
-#: lemmatize_search/kir_tag_search.py:746
+#: lemmatize_search/kir_tag_search.py:757
 msgid ""
 "\n"
 "We can use it again later."
@@ -338,11 +343,17 @@ msgstr ""
 "\n"
 "Turashobora gusubira kuyikoresha ikindi gihe."
 
-#: lemmatize_search/kir_tag_search.py:783
+#: lemmatize_search/kir_tag_search.py:769
+msgid ""
+"Lemma-version of the text saved as:\n"
+"\t"
+msgstr ""
+
+#: lemmatize_search/kir_tag_search.py:807
 msgid "You searched this already"
 msgstr "Iki kibazo c'ukurondeza ntikiri gishasha"
 
-#: lemmatize_search/kir_tag_search.py:814
+#: lemmatize_search/kir_tag_search.py:838
 msgid ""
 "All results are saved in file:\n"
 "\t"
@@ -350,7 +361,7 @@ msgstr ""
 "Vyose vyashinguwe mu fishi:\n"
 "\t"
 
-#: lemmatize_search/kir_tag_search.py:822
+#: lemmatize_search/kir_tag_search.py:846
 msgid ""
 "\n"
 "No results for this query."
@@ -358,17 +369,70 @@ msgstr ""
 "\n"
 "Nta gisubizo c'ukuronka."
 
-#: lemmatize_search/kir_tag_search.py:838
+#: lemmatize_search/kir_tag_search.py:861
 msgid "Sorry, missing meta-data in csv-file"
 msgstr ""
 
-#: lemmatize_search/kir_tag_search.py:847
+#: lemmatize_search/kir_tag_search.py:870
 msgid "Sorry, wrong meta-data keys in your csv"
 msgstr ""
 
-#: lemmatize_search/kir_tag_search.py:861
+#: lemmatize_search/kir_tag_search.py:884
 msgid "Sorry, I can't read your csv-file as a tagged text."
 msgstr ""
+
+#: lemmatize_search/qt.py:45
+msgid "Setti&ngs"
+msgstr "I&ndanzi"
+
+#: lemmatize_search/qt.py:52
+msgid "&Info"
+msgstr ""
+
+#: lemmatize_search/qt.py:60
+msgid "&tag"
+msgstr "&indanzi"
+
+#: lemmatize_search/qt.py:61
+msgid "&search"
+msgstr "&kurondera"
+
+#: lemmatize_search/qt.py:62
+msgid "&download"
+msgstr "&gusubiza"
+
+#: lemmatize_search/qt.py:68
+msgid "&Help Content"
+msgstr "&Ibimenyeshejwe"
+
+#: lemmatize_search/qt.py:69 lemmatize_search/qt.py:85
+#: lemmatize_search/qt.py:101 lemmatize_search/qt.py:113
+msgid "&About"
+msgstr "&Ivyerekeye App"
+
+#: lemmatize_search/qt.py:122
+msgid "  How to"
+msgstr "  Ingene gukora"
+
+#: lemmatize_search/qt.py:126
+msgid "  About this App"
+msgstr "  Ivyerekeye ivyo"
+
+#: lemmatize_search/qt.py:161
+msgid "Select the Rundi text you want to inspect:"
+msgstr "Tora igisomwa c'ikirundi ushaka kwihweza:"
+
+#: lemmatize_search/qt.py:166
+msgid "Select file"
+msgstr "Tora ifishi"
+
+#: lemmatize_search/qt.py:187
+msgid "only txt or csv"
+msgstr "txt canke csv gusa"
+
+#: lemmatize_search/qt.py:196
+msgid "Your search query:"
+msgstr "Ikibazo c'ukurondeza:"
 
 #: tests/test_helper.py:29 tests/test_helper.py:36 tests/test_helper.py:50
 msgid "Are you sure, that this is a tagged file?"
@@ -852,7 +916,7 @@ msgstr "Urazi neza ko ico ni ifishi n'indanzi?"
 #~ msgstr ""
 
 #~ msgid "sorting nouns {}"
-#~ msgstr "kugosora amazina ndongoramvugo ....................{}"
+#~ msgstr "kugosora amazina ndongoramvugo {}"
 
 #~ msgid "36"
 #~ msgstr ""
@@ -958,3 +1022,21 @@ msgstr "Urazi neza ko ico ni ifishi n'indanzi?"
 
 #~ msgid "filter proverbs out doesn't work': {}"
 #~ msgstr "ntibikunda kugosora imyibutsa: {}"
+
+#~ msgid "Tora ifishi ushaka kwihweza:"
+#~ msgstr ""
+
+#~ msgid "pathname"
+#~ msgstr ""
+
+#~ msgid "Gutora ifishi"
+#~ msgstr ""
+
+#~ msgid "nur txt oder csv"
+#~ msgstr ""
+
+#~ msgid "Ikibazo c'ukurondeza:"
+#~ msgstr ""
+
+#~ msgid "&Help"
+#~ msgstr "&Imfashanyo"

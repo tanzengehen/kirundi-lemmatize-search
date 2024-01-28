@@ -1,14 +1,14 @@
 # Translations template for PROJECT.
-# Copyright (C) 2023 ORGANIZATION
+# Copyright (C) 2024 ORGANIZATION
 # This file is distributed under the same license as the PROJECT project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2024.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-12-21 15:19+0100\n"
+"POT-Creation-Date: 2024-01-07 21:49+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.13.1\n"
 
-#: lemmatize_search/kir_helper2.py:251
+#: lemmatize_search/kir_helper2.py:218
 msgid ""
 "Sorry, I didn't save the list that starts with:\n"
 "    {}\n"
@@ -91,11 +91,11 @@ msgstr ""
 msgid "Prefer the tagged file, if there is one already: 'tag__file.csv'"
 msgstr ""
 
-#: lemmatize_search/kir_start_input_console.py:140
+#: lemmatize_search/kir_start_input_console.py:140 lemmatize_search/qt.py:164
 msgid "path/to/file"
 msgstr ""
 
-#: lemmatize_search/kir_start_input_console.py:154
+#: lemmatize_search/kir_start_input_console.py:155
 msgid ""
 "\n"
 "What are you looking for?\n"
@@ -118,7 +118,7 @@ msgid ""
 "Now enter our search term"
 msgstr ""
 
-#: lemmatize_search/kir_start_input_console.py:184
+#: lemmatize_search/kir_start_input_console.py:185
 msgid "\tOK, you are looking for a {}-gram.\n"
 msgstr ""
 
@@ -170,7 +170,7 @@ msgid ""
 "exclamations        : "
 msgstr ""
 
-#: lemmatize_search/kir_tag_search.py:124
+#: lemmatize_search/kir_tag_search.py:122
 msgid ""
 "\n"
 "Vocabulary\n"
@@ -179,45 +179,47 @@ msgid ""
 "types              : {ntypes:12} "
 msgstr ""
 
-#: lemmatize_search/kir_tag_search.py:261
-#, python-format
-msgid "unknown types      : {:12} ({}% incl. broken words, mistakes, ...)"
-msgstr ""
-
-#: lemmatize_search/kir_tag_search.py:265
-msgid "recognized lemmata : {:12}"
-msgstr ""
-
-#: lemmatize_search/kir_tag_search.py:283
+#: lemmatize_search/kir_tag_search.py:281
 msgid ""
 "\n"
 "tagging text, this may take some moments ........."
 msgstr ""
 
-#: lemmatize_search/kir_tag_search.py:516
+#: lemmatize_search/kir_tag_search.py:333
+#, python-format
+msgid ""
+"\n"
+"unknown types      : {:12} ({}% incl. broken words, mistakes, ...)"
+msgstr ""
+
+#: lemmatize_search/kir_tag_search.py:337
+msgid "recognized lemmata : {:12}"
+msgstr ""
+
+#: lemmatize_search/kir_tag_search.py:526
 msgid "Error: missing tag"
 msgstr ""
 
-#: lemmatize_search/kir_tag_search.py:560
-#: lemmatize_search/kir_tag_search.py:622
+#: lemmatize_search/kir_tag_search.py:569
+#: lemmatize_search/kir_tag_search.py:631
 msgid ""
 "\n"
 "\n"
 "All tagged files saved in: \n"
 msgstr ""
 
-#: lemmatize_search/kir_tag_search.py:563
-#: lemmatize_search/kir_tag_search.py:624
+#: lemmatize_search/kir_tag_search.py:572
+#: lemmatize_search/kir_tag_search.py:633
 msgid ""
 "\n"
 "We can use them again later."
 msgstr ""
 
-#: lemmatize_search/kir_tag_search.py:570
+#: lemmatize_search/kir_tag_search.py:579
 msgid "Wir wühlen uns durch die Dateien..."
 msgstr ""
 
-#: lemmatize_search/kir_tag_search.py:632
+#: lemmatize_search/kir_tag_search.py:641
 msgid ""
 "\n"
 "Statistics\n"
@@ -232,70 +234,129 @@ msgid ""
 "short filename           :   {short_fn}"
 msgstr ""
 
-#: lemmatize_search/kir_tag_search.py:657
+#: lemmatize_search/kir_tag_search.py:666
 msgid "Preparing file ..."
 msgstr ""
 
-#: lemmatize_search/kir_tag_search.py:670
+#: lemmatize_search/kir_tag_search.py:680
 msgid ""
 "Your file is older than our version of the Rundi dictionary.\n"
 "Do you want to use your file or tag again the underlying text?\n"
 "(maybe now there are less unknown words in your text)"
 msgstr ""
 
-#: lemmatize_search/kir_tag_search.py:689
-msgid "There is already a tagged file: (made {})"
+#: lemmatize_search/kir_tag_search.py:700
+msgid "There is already a tagged file: (made {good_old})"
 msgstr ""
 
-#: lemmatize_search/kir_tag_search.py:691
+#: lemmatize_search/kir_tag_search.py:702
 msgid ""
 "\n"
 "We use this instead of tagging again.\n"
 msgstr ""
 
-#: lemmatize_search/kir_tag_search.py:706
+#: lemmatize_search/kir_tag_search.py:717
 msgid "Sorry, can't use the file: {}"
 msgstr ""
 
-#: lemmatize_search/kir_tag_search.py:744
+#: lemmatize_search/kir_tag_search.py:755
 msgid ""
 "\n"
 "\n"
 "Tagged file saved as: \n"
 msgstr ""
 
-#: lemmatize_search/kir_tag_search.py:746
+#: lemmatize_search/kir_tag_search.py:757
 msgid ""
 "\n"
 "We can use it again later."
 msgstr ""
 
-#: lemmatize_search/kir_tag_search.py:783
+#: lemmatize_search/kir_tag_search.py:769
+msgid ""
+"Lemma-version of the text saved as:\n"
+"\t"
+msgstr ""
+
+#: lemmatize_search/kir_tag_search.py:807
 msgid "You searched this already"
 msgstr ""
 
-#: lemmatize_search/kir_tag_search.py:814
+#: lemmatize_search/kir_tag_search.py:838
 msgid ""
 "All results are saved in file:\n"
 "\t"
 msgstr ""
 
-#: lemmatize_search/kir_tag_search.py:822
+#: lemmatize_search/kir_tag_search.py:846
 msgid ""
 "\n"
 "No results for this query."
 msgstr ""
 
-#: lemmatize_search/kir_tag_search.py:838
+#: lemmatize_search/kir_tag_search.py:861
 msgid "Sorry, missing meta-data in csv-file"
 msgstr ""
 
-#: lemmatize_search/kir_tag_search.py:847
+#: lemmatize_search/kir_tag_search.py:870
 msgid "Sorry, wrong meta-data keys in your csv"
 msgstr ""
 
-#: lemmatize_search/kir_tag_search.py:861
+#: lemmatize_search/kir_tag_search.py:884
 msgid "Sorry, I can't read your csv-file as a tagged text."
+msgstr ""
+
+#: lemmatize_search/qt.py:45
+msgid "Setti&ngs"
+msgstr ""
+
+#: lemmatize_search/qt.py:52
+msgid "&Info"
+msgstr ""
+
+#: lemmatize_search/qt.py:60
+msgid "&tag"
+msgstr ""
+
+#: lemmatize_search/qt.py:61
+msgid "&search"
+msgstr ""
+
+#: lemmatize_search/qt.py:62
+msgid "&download"
+msgstr ""
+
+#: lemmatize_search/qt.py:68
+msgid "&Help Content"
+msgstr ""
+
+#: lemmatize_search/qt.py:69 lemmatize_search/qt.py:85
+#: lemmatize_search/qt.py:101 lemmatize_search/qt.py:113
+msgid "&About"
+msgstr ""
+
+#: lemmatize_search/qt.py:122
+msgid "  How to"
+msgstr ""
+
+#: lemmatize_search/qt.py:126
+msgid "  About this App"
+msgstr ""
+
+#: lemmatize_search/qt.py:161
+msgid "Select the Rundi text you want to inspect:"
+msgstr ""
+
+#: lemmatize_search/qt.py:166
+msgid "Select file"
+msgstr ""
+
+#: lemmatize_search/qt.py:187
+msgid "only txt or csv"
+msgstr ""
+
+#: lemmatize_search/qt.py:196
+msgid "Your search query:"
 msgstr ""
 
 #: tests/test_helper.py:29 tests/test_helper.py:36 tests/test_helper.py:50

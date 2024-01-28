@@ -1,15 +1,15 @@
-# German translations for PROJECT.
+# German translations for Ingenzura-ikirundi.
 # Copyright (C) 2023 ORGANIZATION
-# This file is distributed under the same license as the PROJECT project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
+# This file is distributed under the same license as the Ingenzura-ikirundi project.
+# DOREEN NIXDORF <deki.kazinduzi@gmail.com>, 2023.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: PROJECT VERSION\n"
-"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-12-21 15:19+0100\n"
+"Project-Id-Version: Ingenzura-ikirundi 1.0\n"
+"Report-Msgid-Bugs-To: deki.kazinduzi@gmail.com\n"
+"POT-Creation-Date: 2024-01-07 21:49+0100\n"
 "PO-Revision-Date: 2023-12-21 15:20+0100\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Last-Translator: Doreen Nixdorf <deki.kazinduzi@gmail.com>\n"
 "Language: de\n"
 "Language-Team: de <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -20,7 +20,7 @@ msgstr ""
 "X-Language: de_DE\n"
 "X-Source-Language: C\n"
 
-#: lemmatize_search/kir_helper2.py:251
+#: lemmatize_search/kir_helper2.py:218
 msgid ""
 "Sorry, I didn't save the list that starts with:\n"
 "    {}\n"
@@ -109,11 +109,11 @@ msgid "Prefer the tagged file, if there is one already: 'tag__file.csv'"
 msgstr ""
 "Falls es schon eine etikettierte Version gibt, nimm eher die: 'tag__file.csv'"
 
-#: lemmatize_search/kir_start_input_console.py:140
+#: lemmatize_search/kir_start_input_console.py:140 lemmatize_search/qt.py:164
 msgid "path/to/file"
 msgstr "Pfad/zur/Datei"
 
-#: lemmatize_search/kir_start_input_console.py:154
+#: lemmatize_search/kir_start_input_console.py:155
 msgid ""
 "\n"
 "What are you looking for?\n"
@@ -155,7 +155,7 @@ msgstr ""
 "WWW(Webadresse)]\n"
 "Deine Suchanfrage"
 
-#: lemmatize_search/kir_start_input_console.py:184
+#: lemmatize_search/kir_start_input_console.py:185
 msgid "\tOK, you are looking for a {}-gram.\n"
 msgstr "\tEs wird also nach einem {}-gram gesucht.\n"
 
@@ -215,7 +215,7 @@ msgstr ""
 "\n"
 "Ausrufe            : "
 
-#: lemmatize_search/kir_tag_search.py:124
+#: lemmatize_search/kir_tag_search.py:122
 msgid ""
 "\n"
 "Vocabulary\n"
@@ -229,18 +229,7 @@ msgstr ""
 "Wörter                 : {ntokens:12}\n"
 "unterschiedliche Wörter : {ntypes:12} "
 
-#: lemmatize_search/kir_tag_search.py:261
-#, python-format
-msgid "unknown types      : {:12} ({}% incl. broken words, mistakes, ...)"
-msgstr ""
-"unbekannte Wörter      : {:12} ({}% inkl. Schreibfehler, kaputte Buchstaben, "
-"...)"
-
-#: lemmatize_search/kir_tag_search.py:265
-msgid "recognized lemmata : {:12}"
-msgstr "erkannte Lemmata       : {:12}"
-
-#: lemmatize_search/kir_tag_search.py:283
+#: lemmatize_search/kir_tag_search.py:281
 msgid ""
 "\n"
 "tagging text, this may take some moments ........."
@@ -248,12 +237,26 @@ msgstr ""
 "\n"
 "etikettiere Text, das kann etwas dauern .........."
 
-#: lemmatize_search/kir_tag_search.py:516
+#: lemmatize_search/kir_tag_search.py:333
+#, python-format
+msgid ""
+"\n"
+"unknown types      : {:12} ({}% incl. broken words, mistakes, ...)"
+msgstr ""
+"\n"
+"unbekannte Wörter      : {:12} ({}% inkl. Schreibfehler, kaputte Buchstaben, "
+"...)"
+
+#: lemmatize_search/kir_tag_search.py:337
+msgid "recognized lemmata : {:12}"
+msgstr "erkannte Lemmata       : {:12}"
+
+#: lemmatize_search/kir_tag_search.py:526
 msgid "Error: missing tag"
 msgstr "Fehler: es fehlt das Wortart-Etikett"
 
-#: lemmatize_search/kir_tag_search.py:560
-#: lemmatize_search/kir_tag_search.py:622
+#: lemmatize_search/kir_tag_search.py:569
+#: lemmatize_search/kir_tag_search.py:631
 msgid ""
 "\n"
 "\n"
@@ -263,8 +266,8 @@ msgstr ""
 "\n"
 "Alle etikettierten Dateien gespeichert unter: \n"
 
-#: lemmatize_search/kir_tag_search.py:563
-#: lemmatize_search/kir_tag_search.py:624
+#: lemmatize_search/kir_tag_search.py:572
+#: lemmatize_search/kir_tag_search.py:633
 msgid ""
 "\n"
 "We can use them again later."
@@ -272,11 +275,11 @@ msgstr ""
 "\n"
 "Sie können später wiederverwendet werden."
 
-#: lemmatize_search/kir_tag_search.py:570
+#: lemmatize_search/kir_tag_search.py:579
 msgid "Wir wühlen uns durch die Dateien..."
 msgstr "Wir wühlen uns durch die Dateien..."
 
-#: lemmatize_search/kir_tag_search.py:632
+#: lemmatize_search/kir_tag_search.py:641
 msgid ""
 "\n"
 "Statistics\n"
@@ -301,11 +304,11 @@ msgstr ""
 "benutztes Wörterbuch    :   {db_name}\n"
 "Dateiname               :   {short_fn}"
 
-#: lemmatize_search/kir_tag_search.py:657
+#: lemmatize_search/kir_tag_search.py:666
 msgid "Preparing file ..."
 msgstr "Vorbereitung der Datei ..."
 
-#: lemmatize_search/kir_tag_search.py:670
+#: lemmatize_search/kir_tag_search.py:680
 msgid ""
 "Your file is older than our version of the Rundi dictionary.\n"
 "Do you want to use your file or tag again the underlying text?\n"
@@ -316,12 +319,13 @@ msgstr ""
 "etikettieren?\n"
 "(im besten Falle ergibt das weniger unbekannte Wörter im Text)"
 
-#: lemmatize_search/kir_tag_search.py:689
-msgid "There is already a tagged file: (made {})"
+#: lemmatize_search/kir_tag_search.py:700
+msgid "There is already a tagged file: (made {good_old})"
 msgstr ""
-"Es gibt schon eine etikettierte Version dieses Texts: (gespeichert am {})"
+"Es gibt schon eine etikettierte Version dieses Texts: (gespeichert am "
+"{good_old})"
 
-#: lemmatize_search/kir_tag_search.py:691
+#: lemmatize_search/kir_tag_search.py:702
 msgid ""
 "\n"
 "We use this instead of tagging again.\n"
@@ -329,11 +333,11 @@ msgstr ""
 "\n"
 "Wir benutzen diese Datei statt neu zu etikettieren.\n"
 
-#: lemmatize_search/kir_tag_search.py:706
+#: lemmatize_search/kir_tag_search.py:717
 msgid "Sorry, can't use the file: {}"
 msgstr "Tut mir leid, diese Datei kann ich nicht verarbeiten: {}"
 
-#: lemmatize_search/kir_tag_search.py:744
+#: lemmatize_search/kir_tag_search.py:755
 msgid ""
 "\n"
 "\n"
@@ -343,7 +347,7 @@ msgstr ""
 "\n"
 "Der etikettierte Text wurde in folgender Datei gespeichert: \n"
 
-#: lemmatize_search/kir_tag_search.py:746
+#: lemmatize_search/kir_tag_search.py:757
 msgid ""
 "\n"
 "We can use it again later."
@@ -351,11 +355,19 @@ msgstr ""
 "\n"
 "Wir können sie später wiederverwenden."
 
-#: lemmatize_search/kir_tag_search.py:783
+#: lemmatize_search/kir_tag_search.py:769
+msgid ""
+"Lemma-version of the text saved as:\n"
+"\t"
+msgstr ""
+"Die Lemma-Version des Textes wurde gespeichert unter:\n"
+"\t"
+
+#: lemmatize_search/kir_tag_search.py:807
 msgid "You searched this already"
 msgstr "Danach wurde schon mal gesucht"
 
-#: lemmatize_search/kir_tag_search.py:814
+#: lemmatize_search/kir_tag_search.py:838
 msgid ""
 "All results are saved in file:\n"
 "\t"
@@ -363,7 +375,7 @@ msgstr ""
 "Alle Suchergebnisse wurden in folgender Datei gespeichert:\n"
 "\t"
 
-#: lemmatize_search/kir_tag_search.py:822
+#: lemmatize_search/kir_tag_search.py:846
 msgid ""
 "\n"
 "No results for this query."
@@ -371,20 +383,91 @@ msgstr ""
 "\n"
 "Keine Treffer für diese Suchanfrage gefunden."
 
-#: lemmatize_search/kir_tag_search.py:838
+#: lemmatize_search/kir_tag_search.py:861
 msgid "Sorry, missing meta-data in csv-file"
 msgstr "Hmm, in der csv-Datei fehlen die Metadaten"
 
-#: lemmatize_search/kir_tag_search.py:847
+#: lemmatize_search/kir_tag_search.py:870
 msgid "Sorry, wrong meta-data keys in your csv"
 msgstr "Oh oh, die Schlüsselwörter der Metadaten in deiner csv stimmen nicht"
 
-#: lemmatize_search/kir_tag_search.py:861
+#: lemmatize_search/kir_tag_search.py:884
 msgid "Sorry, I can't read your csv-file as a tagged text."
 msgstr ""
 "Tut mir leid, ich kann deine csv-Datei nicht als etikettierten Text "
 "interpretieren."
 
+#: lemmatize_search/qt.py:45
+msgid "Setti&ngs"
+msgstr "Ei&nstellungen"
+
+#: lemmatize_search/qt.py:52
+msgid "&Info"
+msgstr "&Info"
+
+#: lemmatize_search/qt.py:60
+msgid "&tag"
+msgstr "&etikettieren"
+
+#: lemmatize_search/qt.py:61
+msgid "&search"
+msgstr "&suchen"
+
+#: lemmatize_search/qt.py:62
+msgid "&download"
+msgstr "&runterladen"
+
+#: lemmatize_search/qt.py:68
+msgid "&Help Content"
+msgstr "&wie funktioniert's"
+
+#: lemmatize_search/qt.py:69 lemmatize_search/qt.py:85
+#: lemmatize_search/qt.py:101 lemmatize_search/qt.py:113
+msgid "&About"
+msgstr "&Über das Programm"
+
+#: lemmatize_search/qt.py:122
+msgid "  How to"
+msgstr "  Wie es funktioniert"
+
+#: lemmatize_search/qt.py:126
+msgid "  About this App"
+msgstr "  Über dieses Programm"
+
+#: lemmatize_search/qt.py:161
+msgid "Select the Rundi text you want to inspect:"
+msgstr "Wähle den kirundi Text aus, der untersucht werden soll:"
+
+#: lemmatize_search/qt.py:166
+msgid "Select file"
+msgstr "Datei auswählen"
+
+#: lemmatize_search/qt.py:187
+msgid "only txt or csv"
+msgstr "nur txt oder csv"
+
+#: lemmatize_search/qt.py:196
+msgid "Your search query:"
+msgstr "Suchanfrage:"
+
 #: tests/test_helper.py:29 tests/test_helper.py:36 tests/test_helper.py:50
 msgid "Are you sure, that this is a tagged file?"
 msgstr "Ist das ganz sicher eine Datei mit Etiketten?"
+
+#~ msgid "Tora ifishi ushaka kwihweza:"
+#~ msgstr ""
+
+#~ msgid "pathname"
+#~ msgstr "Pfadname"
+
+#~ msgid "Gutora ifishi"
+#~ msgstr ""
+
+#~ msgid "nur txt oder csv"
+#~ msgstr ""
+
+#~ msgid "Ikibazo c'ukurondeza:"
+#~ msgstr ""
+
+#~ msgid "&Help"
+#~ msgstr "&Info"
