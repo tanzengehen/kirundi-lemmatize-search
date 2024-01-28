@@ -32,7 +32,7 @@ In the same folder you'll find also the frequency distribution of lemmata of the
 
 Then enter your search-query.  
 
-<img src="images/4_search2.jpg">  
+<img width=60% src="images/4_search2.jpg">  
 
 If there are results you'll find a list of maximum 20 results down in the window, but all results are stored in a txt-file.  
 The name of the results-file ends with your search query. In our example it's:  
