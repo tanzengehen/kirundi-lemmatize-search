@@ -36,7 +36,7 @@ Then enter your search-query.
 
 If there are results you'll find a list of maximum 20 results down in the window, but all results are stored in a txt-file.  
 The name of the results-file ends with your search query. In our example it's:  
-"/results/searched/Burundi_Culture_Nord-Est_-ri(lemma)_kugenda (lemma)_.txt".  
+"/results/searched/Burundi_Culture_Nord-Est_-ri(lemma)_kugenda(lemma)_.txt".  
 Each result includes a number followed by your search term with surrounding text (previous and following 50 characters).  
 The number indicates the position where your search term starts in the normalised text.  
 
