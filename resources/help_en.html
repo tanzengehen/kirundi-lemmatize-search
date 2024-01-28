@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>help INGENZURA IKIRUNDI</title>
+<style>
+        td {vertical-align:bottom;}
+</style>
+</head>
+
+<body>
+    <h1>Ingenzura Ikirundi</h1>
+    <p>Tool to analyse texts in Kirundi language<br></p>
+    <a href="#how_lemmatize">Lemmatise</a><br>
+    <a href="#how_search">Search</a>
+    <h2>1. Lemmatise</h2>
+    <p>Match the individual words to their keyword&nbsp;(lemma) in the dictionary:<br> 
+        e.g. sort inflected verbs to the infinitive or declined nouns to the nominative singular<br><br>
+    
+    <b>&nbsp;&nbsp;&nbsp;Frequency distribution</b><br>
+    Create a table according to the frequency of lemmata used in the text<br><br>
+    
+    <b>&nbsp;&nbsp;&nbsp;Determining the Part of Speech</b><br>
+    Mark the Part of Speech of the individual words<br><br>
+    
+    <b>&nbsp;&nbsp;&nbsp;Lemma-soup</b><br>
+    Create a text variant in which the individual words are replaced by their lemma</p>
+    <h3><a name=how_lemmatize>And this is how the Lemmatiser works:</a></h3>
+    <ol>
+        <li>Select the file you want to analyse:<br>
+            only txt-files are accepted</li>
+        <li>Click „Lemmata“</li>
+        <li>Some statistical values appear in the lower window
+            <ul>
+                <li>Number of proper names, adverbs, pronouns, nouns, adjectives, verbs, ...</li>
+                <li>Number of characters in the text</li>
+                <li>Number of tokens in the text (roughly corresponds to the number of words)</li>
+                <li>Number of different words (size of the vocabulary) </li>
+                <li>Percentage of words that the dictionary could not categorise<br>
+                    These can be spelling mistakes or proper names and words that are not yet listed and should be added to the dictionary as soon as possible<br>
+                    (you can find out how you can help with this here: <a href="#how_contribute">Contribute</a>)
+                </li>
+                <li>the version of the dictionary used</li>
+            </ul>
+
+        </li>
+        <li>There are then four new files in the "results/tagged" folder:
+            <table>
+                <tr>
+                    <td>- Frequency distribution:</td>
+                    <td>&nbsp;fl__dateiname.csv</td>
+                </tr>
+                <tr>
+                    <td>- Text labelled with Part of Speech and lemma:</td>
+                    <td>&nbsp;<b>tag__dateiname.csv</b></td>
+                </tr>
+                <tr>
+                    <td>- Normalised text:</td>
+                    <td>&nbsp;norm__dateiname.txt</td>
+                </tr><tr>
+                    <td>- Text variant with lemmata only:</td>
+                    <td>&nbsp;lemma__dateiname.txt</td>
+                </tr>
+            </table>
+            
+        </li>
+    </ol>
+    
+    <h2>2. <a name="how_search">Search</a></h2>
+    <p>When searching in the text, individual words, keywords and word types can be combined.<br>
+       The search is based on a file in the format <b>tag__dateinname.csv</b><br>
+       If you have already labelled the text in the past, it is quicker if you read this tag_file directly.</p>
+    <ol>
+        <li>Select the file you want to search in:<br>
+            only txt-files or a tag__filename.csv are accepted
+        </li>
+        <li>Click "Lemmata":<br>
+            tag__dateinname.csv is read or created<br>
+            (but this is only necessary if you have searched in another file directly before)<br>
+            Some statistical data appears in the lower area
+        </li>
+        <li>Enter your search query (N-grams)<br>
+            The following rules apply:
+            <ul>
+                <li>You can search for colourful expressions, i.e. you can combine word types and words and lemmas as you like</li>
+                <li>By default, lemmata are searched for and all associated word forms are collected</li>
+                <li>A / before a /word only allows exact hits for this word</li>
+                <li>A ! directly before a !word explicitly excludes this word (or this lemma or this PoS) from the search</li>
+                <li>A free-standing * is a placeholder for any token at this position. It only applies to words, not to individual letters.</li>
+                <li>The Lemmatiser distinguishes between the following <a href="help_enPoS.html">PoS-tags</a>:</li>
+            </ul>
+            As you enter your search query, you can see in the field below whether the programme has understood you correctly.
+        </li>
+        <li>Click „Search“</li>
+        <li>The first 20 text passages that match your query appear in the lower window
+            <ul>
+                <li>the number at the beginning indicates the character in the text at which the hit begins</li>
+                <li>a few words before and after the hit are also displayed as context</li>
+            </ul></li>
+        <li>
+            In the "results/searched" folder, you will find a file in which all the results of this search are saved.<br>
+            It is named after your search query: filename_search_terms_.txt
+        </li>
+    </ol>
+
+    <h2>3. <a name="how_contribute">Contribute</a></h2>
+    <p>The underlying dictionary is not complete:<br>
+        &nbsp;&nbsp;&nbsp;You can check words marked as unknown and categorise them.<br>
+        Some words are ambiguous:<br>
+        &nbsp;&nbsp;&nbsp;You can report errors.<br>
+        Or make suggestions to increase user convenience.<br><br>
+        Just send an email to <b>deki.kazinduzi@gmail.com</b><br>
+        I am happy to receive feedback in order to continuously improve the Lemmatiser.<br>
+    </p>
+</body>
+
+</html>

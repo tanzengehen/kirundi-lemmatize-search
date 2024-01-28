@@ -131,7 +131,7 @@ class Lemma:
             self.stem = row.get('stem')
         else:
             # Translators: (debug) check dictionary new entry
-            kh.OBSERVER.notify(
+            kh.OBSERVER.notify_error(
                 kh._("lemma has no stem in database: ID {}").format(self.dbid))
             self.stem = "xxx"
         # self.questions = [self.lemma,]
@@ -580,7 +580,7 @@ class Verb(Lemma):
         if self.perfective.find("?") > -1:
             # (debug) check new entries of rundi dictionary
             # Translators: for debugging only
-            kh.OBSERVER.notify(
+            kh.OBSERVER.notify_error(
                 kh._("{}: perfective? -{}").format(self.lemma, self.perfective))
             self.unclear.append(
                 [self.lemma, "perfective unclear:", self.perfective])
@@ -637,7 +637,7 @@ class Verb(Lemma):
                         ["perfective: unexpected letter before [y] ",
                          self.lemma, self.perfective])
                     # Translators: (debug) check dictionary new entry
-                    kh.OBSERVER.notify(f"\t{self.lemma} -{self.perfective}:"
+                    kh.OBSERVER.notify_error(f"\t{self.lemma} -{self.perfective}:"
                                        + kh._("""\n\t\ttried to add passiv to
 perfective but unknown letter before y"""))
                     perfective_passiv = self.perfective
@@ -687,7 +687,7 @@ perfective but unknown letter before y"""))
             stem_consonant = {"r": "nd", "b": "mb", "v": "mv", "m": "m",
                               "n": "n"}
             # ends are strings
-            if self.stem[0] in stem_consonant.keys():
+            if self.stem[0] in stem_consonant:
                 self._n_end_a = stem_consonant.get(self.stem[0])+self._end_a[1:]
                 self._n_end_e = stem_consonant.get(self.stem[0])+self._end_e[1:]
                 self._n_end_y = stem_consonant.get(self.stem[0])+self._end_y[1:]
@@ -703,7 +703,7 @@ perfective but unknown letter before y"""))
             self._qu_obj = OBJ_GU
             stem_consonant = {"p": "mp", "f": "mf", "h": "mp"}
             # breakdown rules for gu-
-            if self.stem[0] in stem_consonant.keys():
+            if self.stem[0] in stem_consonant:
                 self._n_end_a = stem_consonant.get(self.stem[0])+self._end_a[1:]
                 self._n_end_e = stem_consonant.get(self.stem[0])+self._end_e[1:]
                 self._n_end_y = stem_consonant.get(self.stem[0])+self._end_y[1:]
@@ -834,7 +834,7 @@ def prepare_verb_alternativ(row):
     row_a = row.copy()
     stem_a = row.get('alternative_stem')
     perf_a = row.get('alternative_perfective')
-    lemma = row.get('lemma')
+    # lemma = row.get('lemma')
     perfective_a = ""
     if perf_a != "":
         if len(stem_a) > len(perf_a)+1:
@@ -885,7 +885,7 @@ def filter_proverbs_out(verb_list):
             pur_stems.append(verb.stem)
         except Exception:
             # Translators: (debug) check dictionary new entry
-            kh.OBSERVER.notify(kh._(
+            kh.OBSERVER.notify_error(kh._(
                 "Attention: filter proverbs out doesn't work with '{}'. Check "
                 + "also its alternatives in the database.").format(verb.lemma))
     return new_list
@@ -917,7 +917,7 @@ def filter_passiv_out(verb_list):
             baseforms.append(verb.stem)
         except Exception:
             # Translators: (debug) check dictionary new entry
-            kh.OBSERVER.notify(
+            kh.OBSERVER.notify_error(
                 kh._("filter passiv out doesn't work': {}").format(verb.lemma))
     return new_list
 

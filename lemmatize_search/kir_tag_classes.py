@@ -65,7 +65,7 @@ class TextMeta:
                 [x for x in elements if x in sd.CorpusCategories.cc]
 
     def update_pathslist(self, corpus_root):
-        """updates the filenames we have ito a corpus
+        """updates the filenames we have into a corpus
         """
         wordlists = PlaintextCorpusReader(corpus_root, '.*')
         paths_list = wordlists.fileids()
@@ -351,14 +351,14 @@ class Collection:
     """
 
     def __init__(self, simple_freq_list):
-        self.names = []
-        self.advs = []
-        self.pronouns = []
-        self.nouns = []
         self.adjs = []
+        self.advs = []
+        self.nouns = []
+        self.pronouns = []
         self.verbs = []
-        self.unk = dict(simple_freq_list)
+        self.names = []
         self.known = []
+        self.unk = dict(simple_freq_list)
 
     def __str__(self):
         return f"names={len(self.names)}, adv={len(self.advs)}, "\
@@ -561,7 +561,7 @@ class TokensMeta:
                 cut += 1
         self.n_tokensbond = bond
         self.n_tokenscut = cut
-        # for counting unknown we count its lemma instead of unknown token 
+        # for counting unknown we count its lemma instead of unknown token
         # because its lemma is already unidecode(token.lower())
         self.n_unk = len({unidecode(i.token.lower()) for i in self.tokens
                           if i.pos == "UNK"})
@@ -569,12 +569,15 @@ class TokensMeta:
                             if i.pos not in ["SYMBOL", "NUM"]})
         self.n_lemmata = len({i.lemma for i in self.tokens
                               if i.pos not in ["UNK", "SYMBOL", "NUM"]})
-        self.percent_unk = round(self.n_unk / self.n_types * 100, 2)
+        if self.n_types:
+            self.percent_unk = round(self.n_unk / self.n_types * 100, 2)
 
     def put_meta_already_done_before(self, meta_dict):
         """read meta data from dictionary
         when read from file (don't count them again, just read the result)"""
-        self.datetime = meta_dict.get('datetime')
+        self.short = meta_dict.get('fn_short')
+        self.datetime = meta_dict.get('time_tagged')
+        self.db_version = meta_dict.get('db_version')
         self.n_tokensbond = meta_dict.get('n_tokens')
         self.n_tokenscut = meta_dict.get('n_tokens_split')
         self.n_types = meta_dict.get('n_types')

@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="de">
+
+<head>
+    <meta charset="utf-8">
+    <title>Hilfe INGENZURA IKIRUNDI</title>
+<style>
+        td {vertical-align:bottom;}
+</style>
+</head>
+<body>
+    
+    <h1>Ingenzura Ikirundi</h1>
+    <p>Werkzeug um Texte in kirundischer Sprache zu untersuchen<br></p>
+    <a href="#how_lemmatize">Lemmatisieren</a><br>
+    <a href="#how_search">Suchen</a>
+    <h2>1. Lemmatisieren</h2>
+    <p>Die einzelnen Wörter ihrem Stichwort&nbsp;(Lemma) im Wörterbuch zuordnen:<br> 
+        z.B. gebeugte Verben zum Infinitiv bzw. deklinierte Substantive zum Nominativ Singular sortieren<br><br>
+    
+    <b>&nbsp;&nbsp;&nbsp;Häufigkeitsverteilung</b><br>
+    Tabelle nach Häufigkeit der im Text benutzten Stichwörter erstellen<br><br>
+    
+    <b>&nbsp;&nbsp;&nbsp;Bestimmung der Wortart</b><br>
+    Die Wortart der einzelnen Wörter markieren<br><br>
+    
+    <b>&nbsp;&nbsp;&nbsp;Lemma-Suppe</b><br>
+    Eine Textvariante erstellen, in der die einzelnen Wörter durch ihr Lemma ersetzt werden</p>
+    <h3>
+        <a id=how_lemmatize>Und so funktioniert der Lemmatizer:</a>
+    </h3>
+    <ol>
+        <li>Wähle die Datei, die untersucht werden soll aus:<br>
+            es muss eine txt-Datei sein</li>
+        <li>Klicke „Lemmata“</li>
+        <li>Im unteren Fenster erscheinen einige statistische Werte
+            <ul>
+                <li>Anzahl der Eigennamen, Adverben, Pronomen, Substantive, Adjektive, Verben, ... </li>
+                <li>Anzahl der Zeichen im Text</li>
+                <li>Anzahl der Token im Text (entspricht in etwa der Anzahl der Wörter)</li>
+                <li>Anzahl unterschiedlicher Wörter (Größe des Wortschatzes)</li>
+                <li>Prozentsatz der Wörter, die das Wörterbuch nicht einordnen konnte<br>
+                    das können Schreibfehler sein oder aber noch nicht gelistete Eigennamen und Wörter, die schleunigst im Wörterbuch landen sollten<br>
+                    (wie du dabei helfen kannst, findest du unter <a href="#how_contribute">Beitragen</a>)
+                </li>
+                <li>die Version des benutzten Wörterbuchs</li>
+            </ul>
+
+        </li>
+        <li>Im Ordner „results/tagged“ befinden sich anschließend vier neue Dateien:
+            <table>
+                <tr>
+                    <td>- Häufigkeitsverteilung:</td>
+                    <td>&nbsp;fl__dateiname.csv</td>
+                </tr>
+                <tr>
+                    <td>- mit Wortart und Lemma etikettierter Text:</td>
+                    <td>&nbsp;<b>tag__dateiname.csv</b></td>
+                </tr>
+                <tr>
+                    <td>- Normaliserter Text:</td>
+                    <td>&nbsp;norm__dateiname.txt</td>
+                </tr><tr>
+                    <td>- Textvariante nur aus Lemmata:</td>
+                    <td>&nbsp;lemma__dateiname.txt</td>
+                </tr>
+            </table>
+            
+        </li>
+    </ol>
+    
+    <h2>2. <a name="how_search">Suche</a></h2>
+    <p>Bei der Suche im Text sind Einzelwörter, Stichwörter und Wortarten kombinierbar.<br>
+       Grundlage dafür ist eine Datei im Format <b>tag__dateinname.csv</b><br>
+       Wenn du den Text früher schon mal etikettiert hast, geht es schneller, wenn du diese tag_Datei direkt einliest.</p>
+    <ol>
+        <li>Wähle die Datei, die untersucht werden soll aus:<br>
+            es muss eine txt-Datei oder eine tag__dateiname.csv sein
+        </li>
+        <li>Klicke "Lemmata":<br>
+            tag__dateinname.csv wird eingelesen oder hergestellt<br>
+            (das ist aber nur nötig, wenn du direkt davor in einer anderen Datei gesucht hast)<br>
+            im unteren Bereich erscheinen ein paar statistische Daten
+        </li>
+        <li>Gib deine Suchanfrage ein (N-grams),<br>
+            dabei gelten folgende Regeln:
+            <ul>
+                <li>Du kannst nach bunt gemischten Ausdrücken suchen, d.h. du kannst Wortarten und Wörter und Lemmata wild kombinieren</li>
+                <li>Standardmäßig wird nach Lemmata gesucht und alle zugehörigen Wortformen eingesammelt.</li>
+                <li>Ein / vor einem /Wort, lässt nur exakte Treffer dieses Wortes zu</li>
+                <li>Ein ! direkt vor einem !Begriff schließt dieses Wort (oder dieses Lemma oder diese Wortart) explizit von der Suche aus</li>
+                <li>Ein freistehendes * ist ein Platzhalter für jeden beliebigen Begriff an dieser Stelle. 
+                    Es gilt nur für Wörter, nicht für einzelne Buchstaben.</li>
+                <li>Der Lemmatizer unterscheidet folgende <a href="help_dePoS.html">Wortarten</a>:</li>
+            </ul>
+            Während du deine Suchanfrage eingibst, kannst du im Feld darunter erkennen, ob das Programm dich richtig verstanden hat.
+        </li>
+        <li>Klicke auf „Suchen“</li>
+        <li>Im unteren Fenster erscheinen die ersten 20 Textstellen, auf die deine Anfrage zutrifft
+            <ul>
+                <li>die Zahl am Beginn gibt an, beim wievielten Zeichen im Text der Treffer beginnt</li>
+                <li>es werden auch ein paar Wörter vor und nach dem Treffer als Kontext angezeigt</li>
+            </ul></li>
+        <li>
+            Im Ordner „results/searched“ findest du eine Datei, in der alle Ergebnisse dieser Suche gespeichert sind.<br>
+            Sie ist nach deiner Suchanfrage benannt: dateinname_such_begriffe_.txt
+        </li>
+    </ol>
+
+    <h2>3. <a name="how_contribute">Beitragen</a></h2>
+    <p>Das zugrundeliegende Wörterbuch ist nicht vollständig:<br>
+        &nbsp;&nbsp;&nbsp;Du kannst als unbekannt markierte Wörter überprüfen, wo sie eingeordnet werden sollten.<br>
+        Manche Wörter sind nicht eindeutig:<br>
+        &nbsp;&nbsp;&nbsp;Du kannst Fehler melden.<br>
+        Oder Anregungen geben, um die Bequemlichkeit zu steigern.<br><br>
+        Schick einfach eine Email an <b>deki.kazinduzi@gmail.com</b><br>
+        Ich freue mich über Rückmeldungen, um den Lemmatizer stetig zu verbessern.<br>
+    </p>
+</body>
+</html>

@@ -9,6 +9,7 @@ Created on Sat May 20 15:32:20 2023
 
 import re
 import datetime
+from time import ctime
 from ast import literal_eval
 from operator import itemgetter
 from sys import exit as sysexit
@@ -40,71 +41,55 @@ def reduce_simplefreq_to_lemma_collection(simple_freq_list,
     dict_nouns2 = data_rundi.get("nouns2")
 
     collection = tc.Collection(simple_freq_list)
-    # Translators: fill points up to 50 letters
-    kh.OBSERVER.notify(
-        kh._("sorting Named Entities ..........................."))
+    kh.OBSERVER.notify_status(kh._("sorting Named Entities "))
     # names
-    unk_before = len(collection.unk)
+    # unk_before = len(collection.unk)
     collection.collect_names(names)
-    unk_still = len(collection.unk)
-    kh.OBSERVER.notify(
-        kh._("\nNamed Entities      : ")
-        + f"{unk_before-unk_still:16}\t\t({unk_still})")
+    # unk_still = len(collection.unk)
+    # kh.OBSERVER.notify(
+    #     kh._("\nNamed Entities      : ")
+    #     + f"{unk_before-unk_still:16}\t\t({unk_still})")
+    # kh.OBSERVER.notify_report((kh._("Named Entities"), unk_before-unk_still))
     # adverbs
-    unk_before = len(collection.unk)
+    # unk_before = len(collection.unk)
     collection.collect_adverbs(dict_adv)
-    unk_still = len(collection.unk)
-    kh.OBSERVER.notify(
-        kh._("adverbs etc         : ")
-        + f"{unk_before-unk_still:7} >> "
-        + f"{len(collection.advs):5}\t\t({unk_still})")
+    # unk_still = len(collection.unk)
+    # kh.OBSERVER.notify(
+    #     kh._("adverbs etc         : ")
+    #     + f"{unk_before-unk_still:7} >> "
+    #     + f"{len(collection.advs):5}\t\t({unk_still})")
+    # kh.OBSERVER.notify_report((kh._("Adverbs etc"), len(collection.advs)))
     # pronouns
-    unk_before = len(collection.unk)
+    # unk_before = len(collection.unk)
     collection.collect_pronouns(dict_prns)
-    unk_still = len(collection.unk)
-    kh.OBSERVER.notify(
-        kh._("pronouns            : ")
-        + f"{unk_before - unk_still:7} >> "
-        f"{len(collection.pronouns):5}\t\t({unk_still})")
+    # unk_still = len(collection.unk)
+    # kh.OBSERVER.notify_report((kh._("Pronouns"), len(collection.pronouns)))
     # nouns part1
     # Translators: fill points up to 50 letters
-    kh.OBSERVER.notify(
-        kh._("sorting nouns ...................................."))
-    unk_before = len(collection.unk)
+    kh.OBSERVER.notify_status(kh._("sorting nouns "))
+    # unk_before = len(collection.unk)
     collection.collect_nouns(dict_nouns1)
-    unk_still = len(collection.unk)
-    kh.OBSERVER.notify(
-        kh._("\nnouns               : ")
-        + f"{unk_before - unk_still:7} >> "
-        + f"{len(collection.nouns):5}\t\t({unk_still})")
+    # unk_still = len(collection.unk)
+    # kh.OBSERVER.notify_report((kh._("Nouns"), len(collection.nouns)))
     # adjectives
-    unk_before = len(collection.unk)
+    # unk_before = len(collection.unk)
     collection.collect_adjectives(dict_adj)
-    unk_still = len(collection.unk)
-    kh.OBSERVER.notify(
-        kh._("adjektives          : ")
-        + f"{unk_before - unk_still:7} >> "
-        + f"{len(collection.adjs):5}\t\t({unk_still})")
+    # unk_still = len(collection.unk)
+    # kh.OBSERVER.notify_report((kh._("Adjektives"), len(collection.adjs)))
     # verbs
-    kh.OBSERVER.notify(
-        kh._("sorting verbs ...................................."))
-    unk_before = len(collection.unk)
+    kh.OBSERVER.notify_status(kh._("sorting verbs "))
+    # unk_before = len(collection.unk)
     collection.collect_verbs(dict_verbs)
-    unk_still = len(collection.unk)
-    kh.OBSERVER.notify(
-        kh._("\nverbs               : ")
-        + f"{unk_before - unk_still:7} >> "
-        + f"{len(collection.verbs):5}\t\t({unk_still})")
+    # unk_still = len(collection.unk)
+    # kh.OBSERVER.notify_report((kh._("Verbs"), len(collection.verbs)))
     # nouns part2: the nouns we skipped before verbs (uku...)
-    unk_before = len(collection.unk)
+    # unk_before = len(collection.unk)
     collection.collect_nouns(dict_nouns2)
     # exclamations
     collection.collect_exclamations(dict_rests)
-    unk_still = len(collection.unk)
-    kh.OBSERVER.notify(
-        kh._("\nexclamations        : ")
-        + " "*9 + f"{unk_before - unk_still:7}"
-        + "\nunknown             :" + " "*23 + f"{unk_still}")
+    # unk_still = len(collection.unk)
+    # kh.OBSERVER.notify_report((kh._("Exclamations"), unk_before - unk_still))
+    # kh.OBSERVER.notify_report((kh._("Unknown"), unk_still))
     # the rest is unknown
     unk = [(key, "", "UNK", value, 1, [key, value])
            for key, value in collection.unk.items()]
@@ -113,18 +98,35 @@ def reduce_simplefreq_to_lemma_collection(simple_freq_list,
     return collection
 
 
-def make_lemmafreq_fromtext(mytext, data):
+def make_lemmafreq_fromtext(mytext, dbrundi):
     """takes utf-text, maps to lemmata in db_kirundi,
     returns lemma_freq"""
     simfreq = tc.FreqSimple(mytext)
     lemma_collection = reduce_simplefreq_to_lemma_collection(simfreq.freq,
-                                                             data)
-    kh.OBSERVER.notify(kh._("""\nVocabulary
-characters         : {nchar:12}
-tokens             : {ntokens:12}
-types              : {ntypes:12} """).format(nchar=len(mytext),
-                                             ntokens=simfreq.ntokens,
-                                             ntypes=simfreq.ntypes))
+                                                             dbrundi)
+    lemma_collection.put_known()
+
+    table = []
+    table.append((kh._("characters"), len(mytext)))
+    table.append((kh._("tokens"), simfreq.ntokens))
+    table.append((kh._("types"), simfreq.ntypes))
+    table.append((kh._("lemmata"), len(lemma_collection.known)))
+    kh.OBSERVER.notify_table(kh._("Vocabulary"), table, 2)
+
+    table = []
+    # table = [[attr, len(value)] for attr, value in lemma_collection.__dict__.items()]
+    table.append((kh._("Adjectives"), len(lemma_collection.adjs)))
+    table.append((kh._("Adverbs etc"), len(lemma_collection.advs)))
+    table.append((kh._("Pronouns"), len(lemma_collection.pronouns)))
+    table.append((kh._("Nouns"), len(lemma_collection.nouns)))
+    table.append((kh._("Verbs"), len(lemma_collection.verbs)))
+    table.append((kh._("Names"), len(lemma_collection.names)))
+    table.append((kh._("unknown"), len(lemma_collection.unk)))
+    kh.OBSERVER.notify_table(kh._("\nParts of Speech (lemma based)"), table, 2)
+
+    unk_percent = round(len(lemma_collection.unk) / simfreq.ntypes * 100, 2)
+    kh.OBSERVER.notify_add(
+        kh._(f"{unk_percent} % broken words, mistakes, unknown types..."))
     return lemma_collection
 
 
@@ -248,7 +250,6 @@ def tag_text_with_db(mytext, dbrundi):
     """
     # collect types of text and map them to lemmata
     collection = make_lemmafreq_fromtext(mytext, dbrundi)
-    collection.put_known()
     lemmatypes = prepare_lemmatypes(collection.known)
     # print more statistics: Percentage of unkown types
     # n_known_types = 0
@@ -277,8 +278,8 @@ def tag_text_with_db(mytext, dbrundi):
     nr_para = 0
     points = 0
     sent_count = 0
-    kh.OBSERVER.notify(
-        kh._("\ntagging text, this may take some moments ........."))
+    kh.OBSERVER.notify_status(
+        kh._("\ntagging text, this may take some moments"))
     for sentence in sentences_list:
         nr_sen += 1
         words = sentence.split()
@@ -299,7 +300,8 @@ def tag_text_with_db(mytext, dbrundi):
             tag = tag_word_nrmailweb(word)
             if tag:
                 nr_char = check_position_in_text(mytext, word, nr_char)
-                tag.set_nrs(nr_sen, nr_word_in_sen, nr_token, nr_char, nr_para)
+                tag.set_nrs(nr_sen, nr_word_in_sen, nr_token,
+                            nr_char-nr_para, nr_para)
                 tagged.append(tag)
                 nr_char += len(tag.token)+1
                 # print("next:", nr_char)
@@ -320,22 +322,20 @@ def tag_text_with_db(mytext, dbrundi):
                     # check for lemma
                     tag = tag_lemma(w_or_c, lemmatypes)
                 nr_char = check_position_in_text(mytext, w_or_c, nr_char)
-                tag.set_nrs(nr_sen, nr_word_in_sen, nr_token, nr_char, nr_para)
+                tag.set_nrs(nr_sen, nr_word_in_sen, nr_token,
+                            nr_char-nr_para, nr_para)
                 tagged.append(tag)
                 nr_char += len(w_or_c)+1
 
-        # progress bar ;-)
+        # progress bar
         points, sent_count = kh.show_progress(points,
                                               sent_count,
                                               len(sentences_list))
     text_tagged = tc.TokensMeta(tagged)
     text_tagged.count_tokens()
-    kh.OBSERVER.notify(kh._(
-        "\nunknown types      : {:12} ({}% incl. broken words, mistakes, ...)")
-        .format(text_tagged.n_unk, text_tagged.percent_unk)
-        )
-    kh.OBSERVER.notify(kh._(
-        "recognized lemmata : {:12}").format(len(collection.known)))
+    # kh.OBSERVER.notify_report((kh._("unknown types"), text_tagged.n_unk))
+    # kh.OBSERVER.notify_add(kh._(f"{text_tagged.percent_unk} % broken words, mistakes, unknown tokens..."))
+    # kh.OBSERVER.notify_report((kh._("in tag- recognized lemmata"), len(collection.known)))
     # # TODO
     # print("\nin tag text vergleich n_lemma", text_tagged.n_lemmata, len(collection.known))
     # print("vergleich types", text_tagged.n_types, (len(collection.unk)+n_known_types))
@@ -523,9 +523,9 @@ def go_search(tagged_list, whattodo):
             tagged_list, whattodo.query)
     # tag missing?
     if found[1]:
-        kh.OBSERVER.notify(kh._("Error: missing tag"))
+        kh.OBSERVER.notify_error(kh._("Error: missing tag"))
         for i in found[1]:
-            kh.OBSERVER.notify(i)
+            kh.OBSERVER.notify_error(i)
     return found[0]
 
 
@@ -566,17 +566,16 @@ def tag_multogether(fn_in, dbrundi):
                                whattext.fn_tag.split("/")[-1],
                                kh.Dates.database)
     kh.OBSERVER.notify(
-          kh._("\n\nAll tagged files saved in: \n")
+          kh._("\nAll tagged files saved in: \n")
           + "\t/" + "/".join(whattext.fn_tag.split("/")[-5:-1])
-          + "/tag__bbcall.json"
-          + kh._("\nWe can use them again later."))
+          + "/tag__bbcall.json")
 
 
 def tag_multiple(fn_in, dbrundi):
     """tag all single texts in MasakhaNews
     save them all in a special folder"""
     bbc_toomuch = kh.load_meta_file(fn_in)
-    kh.OBSERVER.notify(kh._("Wir wühlen uns durch die Dateien..."))
+    kh.OBSERVER.notify_status(kh._("Wir wühlen uns durch die Dateien..."))
     #points = len(bbc_toomuch)/50+1
     points = 1
     file_count = 0
@@ -629,44 +628,40 @@ def tag_multiple(fn_in, dbrundi):
         #     kh.OBSERVER.notify_yescont('.')
     kh.OBSERVER.notify(
           kh._("\n\nAll tagged files saved in: \n")
-          + "\t/" + "/".join(whattext.fn_tag.split("/")[-5:-1])+"/tag__...json"
-          + kh._("\nWe can use them again later.")
-          )
-
+          + "\t/" + "/".join(whattext.fn_tag.split("/")[-5:-1])+"/tag__...csv")
 
 def show_meta(meta_data):
-    """print meta data of tagged text if tags are loaded from csv-file"""
-
-    kh.OBSERVER.notify(
-        kh._("""\nStatistics
-characters               :{char:12}  ({odds} unreadable chars from bad OCR)
-tokens                   :{tokensbond:12}
-tokens (when split by \') :{tokens_split:12}
-types                    :{types:12}
-recognized lemmata       :{lemmata:12}
-unknown types            :{unk:15} %
-used dictionary          :   {db_name}
-short filename           :   {short_fn}""").
-        format(char=meta_data.get("n_char"),
-               odds=meta_data.get("n_odds"),
-               tokensbond=meta_data.get("n_tokens"),
-               tokens_split=meta_data.get("n_tokens_split"),
-               types=meta_data.get("n_types"),
-               lemmata=meta_data.get("n_lemmata"),
-               unk=float(meta_data.get("n_unk_types").split()[0]),
-               db_name=meta_data.get("db_name"),
-               short_fn=meta_data.get("short_fn")
-               ))
+    """print meta data of tagged text
+    called when tags are loaded from csv-file"""
+    table = []
+    table.append((kh._("characters"),
+                 f"{meta_data.get('n_char'):12}  ({meta_data.get('n_odds')}"
+                  + kh._(" unreadable chars from bad OCR)")))
+    table.append((kh._("tokens"),
+                 f"{meta_data.get('n_tokens'):12}"))
+    table.append((kh._("tokens (when split by \')"),
+                 f"{meta_data.get('n_tokens_split'):12}"))
+    table.append((kh._("types"),
+                 f"{meta_data.get('n_types'):12}"))
+    table.append((kh._("recognized lemmata"),
+                 f"{meta_data.get('n_lemmata'):12}"))
+    table.append((kh._("unknown types"),
+                 f"{float(meta_data.get('n_unk_types').split()[0]):15} %"))
+    table.append((kh._("used dictionary"),
+                 f"   {meta_data.get('db_version')}"))
+    table.append((kh._("short filename"),
+                 f"   {meta_data.get('fn_short')}"))
+    kh.OBSERVER.notify_table("\nStatistics", table, 2)
 
 
 def tag_or_load_tags(fn_in, dbrundi):
     """save energy, don't tag twice
     """
     whattext = tc.TextMeta(fn_in)
-    kh.OBSERVER.notify(kh._("Preparing file ..."))
+    kh.OBSERVER.notify_status(kh._("Preparing file ..."))
     pathsep = sd.ResourceNames.sep
 
-    # 1. given file itself is a csv file? >> already tagged >> read
+    # 1. is the given file itself a csv file? >> already tagged >> read
     if whattext.fn_in[-4:] == ".csv":
         # check if given file is younger than the kirundi-database
         good_old = kh.check_time(sd.ResourceNames.fn_db, whattext.fn_in)
@@ -675,8 +670,10 @@ def tag_or_load_tags(fn_in, dbrundi):
             text_tagged = tc.TokensMeta(token_list)
             text_tagged.put_meta_already_done_before(meta_data)
             show_meta(meta_data)
+            # clear statusbar
+            kh.OBSERVER.notify_status(kh._(" "))
             return text_tagged
-        kh.OBSERVER.notify(
+        kh.OBSERVER.notify_ask(
             kh._("""Your file is older than our version of the Rundi \
 dictionary.
 Do you want to use your file or tag again the underlying text?
@@ -686,6 +683,8 @@ Do you want to use your file or tag again the underlying text?
         text_tagged = tc.TokensMeta(token_list)
         text_tagged.put_meta_already_done_before(meta_data)
         show_meta(meta_data)
+        # clear statusbar
+        kh.OBSERVER.notify_status(kh._(" "))
         return text_tagged
 
     # 2. has the given txt-file a tagged csv variant already?
@@ -697,13 +696,16 @@ Do you want to use your file or tag again the underlying text?
         good_old = kh.check_time(sd.ResourceNames.fn_db, whattext.fn_tag)
         if good_old:
             kh.OBSERVER.notify(
-                kh._("There is already a tagged file: (made {good_old})")
-                + "\n\t" + pathsep.join(whattext.fn_tag.split(pathsep)[-4:])
-                + kh._("\nWe use this instead of tagging again.\n"))
+                kh._(f"file tagged: {ctime(good_old)[4:-5]}"))
+            kh.OBSERVER.notify(
+                pathsep.join(whattext.fn_tag.split(pathsep)[-4:]))
+            #     + kh._("\nWe use this instead of tagging again.\n"))
             meta_data, token_list = load_tagged_text(whattext.fn_tag)
             text_tagged = tc.TokensMeta(token_list)
             text_tagged.put_meta_already_done_before(meta_data)
             show_meta(meta_data)
+            # clear statusbar
+            kh.OBSERVER.notify_status(kh._(" "))
             return text_tagged
 
     # 3. read raw txt utf8 or utf16 (there is no tagged version)
@@ -714,16 +716,16 @@ Do you want to use your file or tag again the underlying text?
             try:
                 whattext.raw = kh.load_text_fromfile(whattext.fn_in, 'utf-16')
             except UnicodeDecodeError:
-                kh.OBSERVER.notify(kh._(
+                kh.OBSERVER.notify_warn(kh._(
                     "Sorry, can't use the file: {}").format(whattext.fn_in))
                 whattext.raw = ""
         if not whattext.raw:
             sysexit()
     whattext.replace_strangeletters()
+
     # start whole NLP task: read, clean, tag...
     lemma_lists, text_tagged = tag_text_with_db(whattext.text, dbrundi)
     lemmafreq = lemma_lists.all_in()
-
     # save cleaned text in txt file "src__filename.txt"
     with open(whattext.fn_norm, 'w', encoding="utf-8") as file:
         file.write(whattext.text)
@@ -744,18 +746,19 @@ Do you want to use your file or tag again the underlying text?
                  "n_unk_types": str(text_tagged.percent_unk)+" %",
                  "n_lemmata": len(lemma_lists.known),
                  "db_version": sd.ResourceNames.db_version,
-                 "time_tagged": date.ctime(),
+                 "time_tagged": str(date),
                  "fn_short": whattext.fn_short
                  }
     save_tagged_text_as_csv(meta_data, text_tagged.tokens, whattext.fn_tag)
     kh.OBSERVER.notify_tagging(whattext.fn_in.split(pathsep)[-1],
                                whattext.fn_tag.split(pathsep)[-1],
                                kh.Dates.database)
-    kh.OBSERVER.notify(
-          kh._("\n\nTagged file saved as: \n")
-          + "\t"+pathsep + pathsep.join(whattext.fn_tag.split(pathsep)[-4:])
-          + kh._("\nWe can use it again later.")
-          )
+    # kh.OBSERVER.notify(
+    #       kh._("\nSaved files in folder results/tagged/ :")
+    #       + "\n\t" + str(whattext.fn_norm.split(pathsep)[-1])
+    #       + "\n\t" + str(whattext.fn_freqlemma.split(pathsep)[-1])
+    #       + "\n\t" + str(whattext.fn_tag.split(pathsep)[-1])
+    #       )
     # TODO we save lemmasoup here, because how testing without waiting for y/n?
     # kh.OBSERVER.notify(kh._(
     #     """\nDo you want to save a lemma-version of the text?
@@ -765,10 +768,22 @@ Do you want to use your file or tag again the underlying text?
     lemmasoup = text_tagged.lemmasoup()
     with open(whattext.fn_lemmasoup, 'w', encoding="utf-8") as file:
         file.write(lemmasoup)
-    kh.OBSERVER.notify(
-        kh._("Lemma-version of the text saved as:\n\t")
-        + pathsep + pathsep.join(whattext.fn_lemmasoup.split(pathsep)[-4:])
-        )
+    # kh.OBSERVER.notify(
+    #     kh._("Lemma-version of the text saved in folder results/tagged/ :\n\t")
+    #     + pathsep.join(whattext.fn_lemmasoup.split(pathsep)[-1:])
+    #     )
+    # kh.OBSERVER.notify(
+    #     "\t" + whattext.fn_lemmasoup.split(pathsep)[-1])
+    table = []
+    table.append((kh._("normalized text\t\t"), "\t"+whattext.fn_norm.split(pathsep)[-1]))
+    table.append((kh._("text tokens replaced by lemma\t"), "\t"+whattext.fn_lemmasoup.split(pathsep)[-1]))
+    table.append((kh._("lemma based frequency distribution\t"), "\t"+whattext.fn_freqlemma.split(pathsep)[-1]))
+    table.append((kh._("tagged text\t\t\t"), "\t"+whattext.fn_tag.split(pathsep)[-1]))
+    kh.OBSERVER.notify(kh._("\nSaved files in folder results/tagged/"))
+    for i in table:
+        kh.OBSERVER.notify_report(i)
+    # clear statusbar
+    kh.OBSERVER.notify_status(kh._(" "))
     return text_tagged
 
 
@@ -804,8 +819,9 @@ def search_or_load_search(fn_in, quterms, single, tagged):
                                        + whattodo.fn_search.split(sep)[-1])
     if already_done:
         result = kh.load_lines(whattodo.fn_search)
-        kh.OBSERVER.notify(kh._("You searched this already"))
+        kh.OBSERVER.notify_status(kh._("You searched this already"))
     else:
+        kh.OBSERVER.notify_status(kh._(" "))
         # TODO
         if single is False:
             pass
@@ -830,14 +846,20 @@ def search_or_load_search(fn_in, quterms, single, tagged):
             # searches in the tagged file
             result = go_search(tagged, whattodo)
     if result:
-        if len(result) < 20:
-            maximal_20 = len(result)
+        if len(result) == 1:
+            kh.OBSERVER.notify(
+                kh._(f"\nThere is only 1 hit. "
+                     + "It is saved in file:\n\t")
+                + f'/{sep.join(whattodo.fn_search.split(sep)[-3:])}\n')
         else:
-            maximal_20 = 20
-        kh.OBSERVER.notify(
-            kh._(f"\nHit 1-{maximal_20} (out of {len(result)}). "
-                 + "All results are saved in file:\n\t")
-            + f'/{sep.join(whattodo.fn_search.split(sep)[-3:])}\n')
+            if len(result) < 20:
+                maximal_20 = len(result)
+            else:
+                maximal_20 = 20
+            kh.OBSERVER.notify(
+                kh._(f"\nHit 1-{maximal_20} (out of {len(result)}). "
+                     + "All results are saved in file:\n\t")
+                + f'/{sep.join(whattodo.fn_search.split(sep)[-3:])}\n')
         kh.show_twenty(result)
         # save results as txt
         if not already_done:
@@ -858,16 +880,17 @@ def load_tagged_text(filename):
         # first line should be a dictionary
         meta_data = literal_eval(raw[0])
     except (SyntaxError, TypeError, ValueError):
-        kh.OBSERVER.notify(kh._("Sorry, missing meta-data in csv-file"))
+        kh.OBSERVER.notify_warn(kh._("Sorry, missing meta-data in csv-file"))
         sysexit()
     # check if each Metadata-attribute finds a key in the dictionary
     try:
         for i in ['n_char', 'n_odds', 'n_tokens', 'n_tokens_split', 'n_types',
-                  'n_unk_types', 'n_lemmata', 'db_version', 'time_tagged']:
+                  'n_unk_types', 'n_lemmata', 'db_version', 'time_tagged',
+                  'fn_short']:
             if i not in meta_data.keys():
                 raise KeyError()
     except KeyError:
-        kh.OBSERVER.notify(kh._("Sorry, wrong meta-data keys in your csv"))
+        kh.OBSERVER.notify_warn(kh._("Sorry, wrong meta-data keys in your csv"))
         sysexit()
     # second line should be the column names for Token-attributes
     try:
@@ -881,7 +904,7 @@ def load_tagged_text(filename):
             if i not in column_keys.keys():
                 raise KeyError()
     except KeyError:
-        kh.OBSERVER.notify(kh._("Sorry, I can't read your csv-file as a \
+        kh.OBSERVER.notify_warn(kh._("Sorry, I can't read your csv-file as a \
 tagged text."))
         sysexit()
     # make list of mapped Tokens

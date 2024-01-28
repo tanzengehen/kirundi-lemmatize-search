@@ -130,14 +130,9 @@ deutsch, english, français)
         break
     lang.install()
     kh._ = lang.gettext
-    kh.OBSERVER.notify(kh._("\nSelect the Rundi text you want to inspect."))
-    # Translators: terminal only
-    # kh.OBSERVER.notify(kh._("\tc\t\t\t\t= whole tagged corpus"))
-    # Translators: terminal only
-    kh.OBSERVER.notify(kh._(
-        "Prefer the tagged file, if there is one already: 'tag__file.csv'"))
-    # kh.OBSERVER.notify(kh._("path/to/file\t\t= a single file (txt or csv)"))
-    kh.OBSERVER.notify(kh._("path/to/file"))
+    kh.OBSERVER.notify(kh._("""Select the Rundi text you want to inspect.
+Prefer the tagged file, if there is one already: 'tag__file.csv'
+path/to/file"""))
     # corpus or file, if file: ist it txt?
     f_in = input_fnin()
     # TODO for corpus input
@@ -150,7 +145,7 @@ deutsch, english, français)
     # single text input
     else:
         tagged = ts.tag_or_load_tags(f_in, db_rundi)
-    
+
     # Translators: terminal only
     kh.OBSERVER.notify(kh._("""\nWhat are you looking for?
     Divide searchterms with space characters.

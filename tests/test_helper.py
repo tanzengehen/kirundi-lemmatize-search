@@ -139,7 +139,7 @@ class TestSaveResources(TestCase):
 
 #     def test_load_lemmafreq(self):
 
-    
+
 ####################################################
 #     T E S T       C H E C K  INPUT               #
 ####################################################
@@ -160,6 +160,7 @@ class TestGetQuery(TestCase):
     #     self.assertEqual(question1, [])
 
     def test_figure_out_query(self):
+        """Test Figure out query"""
         question = ic.figure_out_query(
             ['verb', '!noun', '*', '/mu', '!/foo', 'umuntu'])
         self.assertEqual(question,

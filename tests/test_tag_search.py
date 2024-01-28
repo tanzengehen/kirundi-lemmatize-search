@@ -239,7 +239,6 @@ class TestTagText(TestCase):
         self.assertEqual(len(lemma_lists.unk), 8)
         self.assertEqual(len(lemma_lists.known), 48)
 
-    # TODO how to avoid to enter y/n - or isn't it a unittest anymore?
     def test_tag_or_load_tags__txt_utf8(self):
         """Test Tag text-file: txt utf8
         check against """
@@ -293,7 +292,6 @@ class TestTagText(TestCase):
                 os.remove(sd.ResourceNames.dir_tagged + i)
             self.assertFalse(os.path.exists(sd.ResourceNames.dir_tagged + i))
 
-    # TODO how to avoid to enter y/n - or isn't it a unittest anymore?
     def test_tag_or_load_tags__txt_utf16(self):
         """Test Tag text-file: txt utf16"""
         # prepare

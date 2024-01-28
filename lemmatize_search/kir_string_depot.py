@@ -8,6 +8,7 @@ Created on Sun Aug  6 15:10:18 2023
 
 import os
 import time
+import gettext
 # import sys
 
 
@@ -25,6 +26,7 @@ class ResourceNames:
     root = sep.join(os.getcwd().split(sep)[:relative+1])
 
     fn_i18n = root+sep+"i18n"
+    fn_help = root+sep+"resources"+sep+"help_"  # +LANG".html"
     fn_corpuslist = root+sep+"resources"+sep+"verzeichnis.txt"
     fn_named_entities = root+sep+"resources"+sep+"extern.csv"
     fn_freqfett = root+sep+"resources"+sep+"freq_fett.csv"
@@ -35,7 +37,8 @@ class ResourceNames:
     if os.path.exists(fn_db_newest):
         fn_db = fn_db_newest
         tic = os.path.getmtime(fn_db_newest)
-        tic_object = time.strptime(time.ctime(tic))
+        # tic_object = time.strptime(time.ctime(tic))
+        tic_object = time.localtime(tic)
         tic_date = time.strftime("%y%m%d", tic_object)
         # version saved in tag__text
         db_version = 'fn_db_'+tic_date
@@ -46,16 +49,27 @@ class ResourceNames:
     dir_searched = root+sep+"results"+sep+"searched"+sep
 
     def __str__(self):
-        return f"root={self.root}, fn_namedentities={self.fn_namedentities}, "\
-            + f"n_freqfett={self.fn_freqfett}, fn_db={self.fn_db}, "\
+        return f"root={self.root}, fn_namedentities={self.fn_named_entities},"\
+            + f" n_freqfett={self.fn_freqfett}, fn_db={self.fn_db}, "\
             + f"fn_dates={self.fn_dates}, dir_tagged={self.dir_tagged}, "\
             + f"dir_searched={self.dir_searched}, fn_i18n={self.fn_i18n}"
 
     def __repr__(self):
-        return f"root={self.root}, fn_namedentities={self.fn_namedentities}, "\
-            + f"n_freqfett={self.fn_freqfett}, fn_db={self.fn_db}, "\
+        return f"root={self.root}, fn_namedentities={self.fn_named_entities},"\
+            + f" n_freqfett={self.fn_freqfett}, fn_db={self.fn_db}, "\
             + f"fn_dates={self.fn_dates}, dir_tagged={self.dir_tagged}, "\
             + f"dir_searched={self.dir_searched}, fn_i18n={self.fn_i18n}"
+
+
+def short_input_filename(filename):
+    """extracts from path/to/file.end the 'file' part and if necessary cuts
+    the starting 'tag__' off"""
+    myname = filename.split(ResourceNames.sep)[-1]
+    if myname.startswith("tag__"):
+        myname = myname[5:]
+    short = myname.rfind(".")
+    fn_short = myname[:short]
+    return fn_short
 
 
 def find_relative_path(name="rundi_lemmatize_search"):
@@ -71,6 +85,29 @@ def find_relative_path(name="rundi_lemmatize_search"):
             break
     rel_path = os.path.relpath(install_path) + os.sep + name
     return rel_path
+
+
+language_dialog = {"rn": {'title': "Guhindura ururimi turavugana",
+                          'message_l': "Incuro iza kwugurura iki \
+urashobora kubikoresha mu kirundi.\nZima ubu co guhindura",
+                          'ok': "Kuzima",
+                          'cancel': "Oya, kubandanya"},
+                   "fr": {'title': "Passer au français",
+                          'message_l': "Pour que le passage au \
+français soit effectif, veuillez redémarrer l'application.",
+                          'ok': "Fermer l'appli",
+                          'cancel': "Non, continuer"},
+                   "en": {'title': "Change user interface to English",
+                          'message_l': "With next start of the App \
+we'll communicate in English.\nClose now to apply the change.",
+                          'ok': "Close",
+                          'cancel': "No, continue"},
+                   "de": {'title': "Programmsprache wechseln",
+                          'message_l': "Beim nächsten Mal, startet das \
+Programm auf deutsch.\nFür diese Änderung jetzt bitte schließen.",
+                          'ok': "Schliessen",
+                          'cancel': "Nein, danke."}
+                   }
 
 
 encodings = [
@@ -179,7 +216,7 @@ corpus_categories = ['1920s', '1940s', '1950s', '1960s', '1970s', '1980s',
                      'Lois', 'Politique', 'Histoire', 'Religion']
 
 
-# Part-of-Speech tags the program uses
+# Part-of-Speech tags used by the program
 possible_tags = ["ADJ", "ADV", "CONJ", "EMAIL", "F", "INTJ", "NI", "NOUN",
                  "NUM", "NUM_ROM", "PRON", "PROPN", "PROPN_CUR", "PROPN_LOC",
                  "PROPN_NAM", "PROPN_ORG", "PROPN_PER", "PROPN_REL",
@@ -256,7 +293,7 @@ replaced_symbols = {'semikolon': ';',
 
 def replace_worded_symbols_back(word):
     """replace worded symbols back to symbols"""
-    if word in replaced_symbols.keys():
+    if word in replaced_symbols:
         return replaced_symbols.get(word)
     return word
 
@@ -285,17 +322,6 @@ def breakdown_consonants(mystring):
         "nr", "nd").replace("nh", "mp").replace("mh", "mp")\
         .replace("nn", "n").replace(r"[nm]m", "m")
     return mystring
-
-
-def short_input_filename(filename):
-    """extracts from path/to/file.end the 'file' part and if necessary cuts
-    the starting 'tag__' off"""
-    myname = filename.split(ResourceNames.sep)[-1]
-    if myname.startswith("tag__"):
-        myname = myname[5:]
-    short = myname.find(".")
-    fn_short = myname[:short]
-    return fn_short
 
 
 class Search:
@@ -355,60 +381,3 @@ def collect_corpuscategories():
                           "Manoah", "Yvette", "G-MdS"]:
         categories.remove(uninteresting)
     return categories
-
-
-test_text = "1710 || amakuru-49975817 || 2019-10-08 || ABAGORE || (93+2849)" +\
-    "Abagore babiri barwaye kanseri y’ibere batanguje ishirahamwe " +\
-    "ry’ugufasha abandi barwayi nkabo Abagore babiri barwaye kanseri " +\
-    "y'ibere idakira bashinze ishirahamwe bise Secondary Sisters " +\
-    " kugira ngo bafashe abandi, ni inyuma y'aho baronkeye ibipimo " +\
-    "vyabaciye umutima. Abongerezakazi Nicky Newman na Laura " +\
-    "Middleton-Hughes, bompi b'imyaka 31, bafise kanseri igeze ku " +\
-    "rugero rugira kane. Bisigura ko igeze ku rugero rwo gukwiragira " +\
-    "mu bindi bice vy'umubiri nk'amagufa, amahaha, igitigu (canke " +\
-    "umwijima mu Kinyarwanda) canke ubwonko. Igihe Nicky wo mu karere ka " +\
-    "Guildford yabwirwa ko kanseri yiwe idashobora gukira kubera " +\
-    "yari igeze ku rugero rwo hejuru, avuga ko vyatumye " +\
-    "agira ""ubwoba budasanzwe"". Abo bagore bompi bizeye ko iryo " +\
-    "shirahamwe ryabo rikorera ku rubuga ngurukanabumenyi rizofasha " +\
-    "abandi bazoronka inkuru mbi nk'iyi guhangana nayo. Laura ava i " +\
-    "Norwich avuga ko gushinga iryo shirahamwe vyabahaye ""akaryo keza " +\
-    "k'ukuganira ku vyerekeye kanseri yacu"". Ati: ""Twempi tubona ko " +\
-    "dufise kazoza kadatomoye, ariko turafise kazoza kandi tuzobaho " +\
-    "uko nyene"". ""Rero mu gihe twoshobora gufasha n'umuntu n'umwe " +\
-    "gusa kwumva amahoro, akumva ko ari umuntu nk'abandi, ico " +\
-    "kirahagije"". Abo bagore bompi, bakorana n'umugambi wiswe " +\
-    "Stand Up To Cancer. Ni umugambi w'isekeza ry'ukwegeranya amahera " +\
-    "watunganijwe n'ikigo co mu Bwongereza ca Cancer Research UK kijejwe " +\
-    "kurwanya kanseri, hamwe na televiziyo Channel 4. Nicky yagiye " +\
-    "kumenya ko afise ikivyimba mw'ibere igihe yari yagiye kwivuza ari " +\
-    "kumwe n'umugabo wiwe. Avuga ko yari yavyiketse n'imbere y'uko " +\
-    "abimubwira, aravye ingene muganga yahindutse mu maso. Mu gihe " +\
-    "yariko arapimwa, yavuze ko yumva ababara mu mugongo, ariho yaca " +\
-    "arungikwa ku muhinga afotora mu mubiri. Ati: ""Umuganga yambwiye " +\
-    "ati: 'Sha nta kundi, ntaco nshobora kugufasha'. Vyaciye bintera " +\
-    "ubwoba bwinshi"". Ariko, yaciye amuha umuti witwa Palbociclib " +\
-    "wari uherutse kwemerwa n'ikigo NHS kijejwe amagara y'abantu mu " +\
-    "Bwongereza. Imiti bariko barafata ishobora kuba yaratumye iyo " +\
-    "ndwara itabandanya ikwiragira mu mubiri, ariko ikaba yatumye " +\
-    "batazigera bavyara. Nicky avuga ko igihe yava kwa muganga, yari " +\
-    "ababajwe cane n'uko atazoronka akaryo ko kwitwa umuvyeyi gusumba " +\
-    "kurwara kanseri. Mugenziwe Laura yagiye kumenya ko arwaye kanseri " +\
-    "yo mw'ibere mu mwaka wa 2014 mu gihe yari mu karuhuko bakamutora " +\
-    "ikivyimba. Baciye bamukura ibere rimwe baranamuvura, kandi " +\
-    "arakira neza. Hagati aho, mu kwezi kwa kane 2016, niho yumva " +\
-    "ububabare ku rutugu i buryo bwaguma bwongerekana, baca " +\
-    "bamurungika gucishwa mu cuma agapimwa. Niho basanga afise " +\
-    "ikivyimba ku mutwe w'igufa bita 'humerus' rifatanya urutugu " +\
-    "n'inkokora. Ati: ""Nagize ubwoba budasanzwe, 2016 wambereye " +\
-    "umwaka mubi, umwaka mubi n'ukuri!"" Laura afise ibimenyetso vya " +\
-    "kanseri y'amabere vyakwiragiye mu ruti rw'umugongo, mu magufa " +\
-    "afatanye narwo no mu gice c'urukenyerero n'amayunguyungu. Avuga " +\
-    "ati: ""Hagati aho, ndashima ko imiti ndiko ndafata iriko iramfasha " +\
-    "kubandanya mbaho""."''
-
-test_text2 = "Bavuga 'ko hariho ayandi majambo mu Kitabu Kitakatifu, " +\
-    "ahakana ubukuru bwa B. Mariya. (Inj·ili ya Yohani II. 3-4) . Yezu " +\
-    "na Mariya bari batumiwe mu bukwe i Kana. Imvinyu irangiye. " +\
-    "nyina wa Yezu amubwira ati: 'Nta mvinyu bakigira.' Yezu " +\
-    "aramwishura ati : 'Mbega mugore twe na we tubisinzikayekoiki?'"

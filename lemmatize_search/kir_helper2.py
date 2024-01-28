@@ -30,15 +30,45 @@ class Observer:
         """
         # pass
 
+    # @abstractmethod
+    # def notify_tagging(self, source_file, tag_file, db_version):
+    #     """Record that an tag file has been made
+    #     """
+    #     # pass
+
+    # @abstractmethod
+    # def notify_frequencies(self, source_file, frequencies_file, db_version):
+    #     """Record that a frequency statistic has been made
+    #     """
+    #     # pass
+
     @abstractmethod
-    def notify_tagging(self, source_file, tag_file, db_version):
-        """Record that an tag file has been made
+    def notify_status(self, message):
+        """Receive a status message
         """
         # pass
 
     @abstractmethod
-    def notify_frequencies(self, source_file, frequencies_file, db_version):
-        """Record that a frequency statistic has been made
+    def notify_ask(self, message):
+        """Show window to decide something with yes/no
+        """
+        # pass
+
+    @abstractmethod
+    def notify_warn(self, message):
+        """Show window with warning
+        """
+        # pass
+
+    @abstractmethod
+    def notify_error(self, message):
+        """Receive an error message
+        """
+        # pass
+
+    @abstractmethod
+    def notify_progress(self, message):
+        """Receive a progress
         """
         # pass
 
@@ -49,24 +79,59 @@ class PrintConsole(Observer):
     """
 
     def notify(self, message):
-        """prints to console only in single mode
+        """prints to console
         """
         print(message)
 
-    def notify_cont(self, message):
-        """continue next print without linebreak
+    def notify_add(self, message):
+        """prints to console
         """
-        print(message, end="")
+        print(message)
 
-    # def notify_yes(self, message):
-    #     """prints alwaysy to console (single and multiple mode)
-    #     """
-    #     print(message)
+    def notify_report(self, message):
+        """prints to console
+        """
+        print(message[0]+(25-len(message[0]))*' '+f": {message[1]:9}")
 
-    # def notify_yescont(self, message):
-    #     """prints alwaysy to console (single and multiple mode)
+    def notify_table(self, tablename, table, columns):
+        """takes a table"""
+        self.notify(tablename)
+        for row in table:
+            if len(row) == 2:
+                self.notify_report(row)
+            else:
+                self.notify(row)
+
+    def notify_ask(self, message):
+        """prints to console only in single mode
+        """
+        yesno = input(message+"\ny/n : ")
+        if yesno in ["yesYes"]:
+            return True
+        return False
+
+    def notify_error(self, message):
+        """prints error-messages to console
+        """
+        print(message)
+
+    # def notify_cont(self, message):
+    #     """continue next print without linebreak
     #     """
     #     print(message, end="")
+
+    def notify_status(self, message):
+        """prints translated message and points up to 50 to mark how long
+        the process will last (line before progressbar)"""
+        print("\n"+(message)+(50-len(message))*'.')
+
+    def notify_progress(self, points, n_now, n_max):
+        """continue next print without linebreak
+        """
+        more = int(n_now * 50 / n_max) - points
+        print(more * '.', end="")
+        if n_now >= n_max-1:
+            print(".", end="\n")
 
     def notify_tagging(self, source_file, tag_file, db_version):
         """ignored in console mode
@@ -79,7 +144,55 @@ class PrintConsole(Observer):
         # pass
 
 
-def set_ui_language(language_name):
+def show_progress(points, n_now, n_max):
+    """takes already printed points, actual index, maximum
+    50 because of 50 points"""
+    # 
+    more = int(n_now * 50 / n_max) - points
+    OBSERVER.notify_progress(points, n_now, n_max)
+    points += more
+    n_now += 1
+    return points, n_now
+
+
+def figure_out_query(which_words):
+    """figure the searchterm out
+    return list of tuples:
+    (to exclude or not, word/tag/lemma/wildcard, searchword)"""
+    # which_words = self.input_query.text().split()
+    quest = []
+    show = ""
+    for interest in which_words:
+        whichtag = ""
+        # discard this word/tag/lemma
+        if interest[0] == "!" and len(interest) > 1:
+            yesno = "n"
+            interest = interest[1:]
+            show += _("all except ")
+        else:
+            yesno = "y"
+        # exact word
+        if interest[0] == "/" and len(interest) > 1:
+            interest = interest[1:]
+            whichtag = "token"
+            show += _("(exact) " + interest + "\n  ")
+        # wildcard
+        if interest == "*":
+            whichtag = "?"
+            show += _("anything\n  ")
+        # pos-tag
+        elif interest.upper() in sd.possible_tags:
+            whichtag = "pos"
+            show += interest.upper() + "\n  "
+        # lemma
+        elif whichtag == "":
+            whichtag = "lemma"
+            show += "(lemma) " + interest + "\n  "
+        quest.append((yesno, whichtag, interest))
+    return quest, show[:-3]
+
+
+def set_ui_language(language_name="rn"):
     """ translated to german, french, english, rundi
     accepts de, fr, en, rn
     """
@@ -98,16 +211,6 @@ def set_ui_language(language_name):
     else:
         return "not"
     return mylang
-
-
-# LANG_DE = gettext.translation("messages", sd.ResourceNames.fn_i18n,
-#                               languages=["de"], fallback=True)
-# # _ = LANG_DE.gettext
-# LANG_RN = gettext.translation("messages", sd.ResourceNames.fn_i18n,
-#                               languages=["rn", "fr"], fallback=True)
-OBSERVER = None
-# _ = GNUTranslation()
-# _ = None
 
 
 def check_file_exits(fn_file):
@@ -149,40 +252,6 @@ def load_text_fromfile(filename, en_code, line_separator="\n"):
     with open(filename, encoding=en_code) as fname:
         text_raw = fname.read().replace("\n", line_separator)
     return text_raw
-
-
-def load_lemmafreq(filename=sd.ResourceNames.fn_freqfett):
-    """reads lemma_freq from file
-    returns list with str, int and tuples (str,int) per lemma
-    """
-    toomuch = load_lines(filename)
-    freq_fett = []
-    # from line[14275] frequence < 6
-    # from line[38150] only unknown words
-    # skip first line (headline)
-    for lemma_entry in toomuch[1:]:
-        elements = lemma_entry.split(";")
-        freq = []
-        for col, data in enumerate(elements):
-            if col < 2:
-                # lemma, id
-                freq.append(data)
-            elif col == 2:
-                # PoS
-                if data == "?":
-                    data = "UNK"
-                freq.append(data.upper())
-            elif data == "":
-                # empty cells behind freqsum
-                continue
-            elif col < 5:
-                # freqsum, sum of variants
-                freq.append(int(data))
-            else:
-                # tuple(variant, frequency)
-                freq.append(literal_eval(data))
-        freq_fett.append(freq)
-    return freq_fett
 
 
 def load_meta_file(fname):
@@ -275,20 +344,12 @@ def check_time(older, younger):
     tic_o = osp.getmtime(older)
     tic_y = osp.getmtime(younger)
     if tic_y > tic_o:
-        t_obj = time.strptime(time.ctime(tic_y))
-        t_stamp = time.strftime("%d.%m.%Y %H:%M:%S", t_obj)
-        return t_stamp
+        return tic_y
+        # t_obj = time.strptime(time.ctime(tic_y))
+        # t_stamp = str(t_obj)  # time.strftime("%d.%m.%Y %H:%M:%S", t_obj)
+        # return t_stamp
     # older is not the older one
     return False
-
-
-def show_progress(points, n_now, n_max):
-    """progress bar points"""
-    more = int(n_now * 50 / n_max) - points
-    OBSERVER.notify_cont(more * '.')
-    points += more
-    n_now += 1
-    return points, n_now
 
 
 def check_csv_column_names(filename, columns):
@@ -305,8 +366,12 @@ def show_missing_column_names(filename, missed_columns):
         OBSERVER.notify(_(f"missing column in {filename}: '{missed}'"))
 
 
-lang = set_ui_language("de")
+# if __name__ == "__main__":
+OBSERVER = None
+# _ = GNUTranslation()
+# _ = None
+lang = set_ui_language()
 lang.install()
 _ = lang.gettext
-OBSERVER = PrintConsole()
+# OBSERVER = PrintConsole()
 SINGLE = True

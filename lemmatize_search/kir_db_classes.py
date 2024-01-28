@@ -534,8 +534,10 @@ class Noun(kv.Lemma):
                 coll.append(i)
                 # add plural of alternative
                 # alternative starts with same letters as sg-prefix of lemma
-                if sg_prefix == "" \
-                   or i[:(len(sg_alternative_prefix))] == sg_prefix:
+                if sg_prefix in [
+                        "",
+                        i[:(len(sg_alternative_prefix))]
+                        ]:
                     # use plural-prefix of lemma also for alternative
                     coll.append(
                         sd.breakdown_consonants(pl_prefix+i[len(sg_prefix):]))
