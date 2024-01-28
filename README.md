@@ -18,13 +18,11 @@ The tag will be "UNK" if it doesn't find an appropriate lemma or Named-Entity in
 nltk, unidecode  
 It's written in Python3    
 
-## Usage
-There is no GUI right now.  
-Run lemmatize_search/kir_start_input_console.py  
-Then choose your preferred language for using the App: Rundi, English or German.  
-And enter the path/to/file.txt you want to analyse.  
+## Usage 
+Run lemmatize_search/ingenzura_main.py  
+Choose your preferred language for using the App: Rundi, English or German and start again.   
 
-<img width=60% src="images/kirundi_nlp1.jpg">  
+<img width=60% src="images/1_start.jpg">  
 
 You'll get some statistics and a csv-file with the tagged text, named "tag__filename.csv".  
 In the same folder you'll find also the frequency distribution of lemmata of the text, named "fl__filename.csv" and a file with the normalised text, named "norm__filename.txt".   
